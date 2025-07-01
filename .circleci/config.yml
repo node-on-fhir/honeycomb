@@ -27,7 +27,7 @@ jobs:
     resource_class: large
     
     steps:
-      - browser-tools/install-browser-tools
+      - browser-tools/install-chrome
       
       - checkout
       
