@@ -37,31 +37,32 @@ jobs:
             mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
       
       - run:
-          name: Show project structure
+          name: Verify working directory and fix if needed
           command: |
-            echo "=== Current working directory ==="
-            pwd
+            echo "=== CircleCI Working Directory Check ==="
+            echo "Current PWD: $(pwd)"
+            echo "HOME: $HOME"
+            echo "CIRCLE_WORKING_DIRECTORY: ${CIRCLE_WORKING_DIRECTORY:-not set}"
             
-            echo "=== Contents of current directory ==="
-            ls -la
-            
-            echo "=== Looking for .meteor directory ==="
-            find . -name ".meteor" -type d 2>/dev/null || echo "No .meteor directory found"
-            
-            echo "=== Looking for .meteor/release file ==="
-            find . -name "release" -path "*/.meteor/*" 2>/dev/null || echo "No .meteor/release file found"
-            
-            echo "=== Contents of .meteor directory (if exists) ==="
-            if [ -d ".meteor" ]; then
-              ls -la .meteor/
-              echo "=== Contents of .meteor/release ==="
-              cat .meteor/release 2>/dev/null || echo "Cannot read .meteor/release"
+            echo "=== Checking if we're in the right place ==="
+            if [ -f ".meteor/release" ]; then
+              echo "✓ Found .meteor/release - we're in the right directory"
+              cat .meteor/release
             else
-              echo ".meteor directory does not exist in current location"
+              echo "✗ No .meteor/release found in current directory"
+              echo "Looking for project directory..."
+              find $HOME -name ".meteor" -type d 2>/dev/null | head -5
+              
+              # If we find the project elsewhere, cd to it
+              PROJECT_DIR=$(find $HOME -name ".meteor" -type d 2>/dev/null | head -1 | dirname)
+              if [ -n "$PROJECT_DIR" ]; then
+                echo "Found project at: $PROJECT_DIR"
+                cd "$PROJECT_DIR"
+                echo "Changed to: $(pwd)"
+                echo "Contents:"
+                ls -la
+              fi
             fi
-            
-            echo "=== Checking if this might be a subdirectory issue ==="
-            find . -name "package.json" -type f 2>/dev/null | head -5
       
       - run:
           name: Wait for MongoDB
@@ -85,29 +86,36 @@ jobs:
       - run:
           name: Install Meteor
           command: |
-            echo "Installing Meteor..."
-            curl https://install.meteor.com/ | sh
+            echo "Installing Meteor 3.0.2 (project version)..."
+            curl https://install.meteor.com/?release=3.0.2 | sh
             
             echo "Setting up Meteor PATH..."
             echo 'export PATH="$HOME/.meteor:$PATH"' >> $BASH_ENV
             source $BASH_ENV
             
-            echo "Verifying Meteor installation..."
-            ls -la $HOME/.meteor/
-            
-            echo "Testing Meteor command..."
-            $HOME/.meteor/meteor --version
-            
             echo "Creating symlink for global access..."
             sudo ln -sf $HOME/.meteor/meteor /usr/local/bin/meteor
             
-            echo "Final verification..."
+            echo "Verifying Meteor installation..."
             meteor --version
-            which meteor
+            
+            echo "Checking if Meteor recognizes this as a project..."
+            meteor list || echo "Meteor list failed - investigating..."
+            
+            echo "Manual check - does Meteor see .meteor/release?"
+            cat .meteor/release
+            ls -la .meteor/
+            
+            echo "Let's try running meteor status..."
+            timeout 30 meteor status || echo "Meteor status timed out or failed"
       
       - run:
           name: Install dependencies
           command: |
+            echo "=== Ensuring we're in the project directory ==="
+            cd /home/circleci/project
+            pwd
+            
             # Verify we're in a Meteor project
             if [ ! -f ".meteor/release" ]; then
               echo "ERROR: Not in a Meteor project directory!"
@@ -115,6 +123,9 @@ jobs:
               ls -la
               exit 1
             fi
+            
+            echo "✓ Confirmed we're in a Meteor project"
+            echo "Meteor version required: $(cat .meteor/release)"
             
             echo "Installing Meteor dependencies..."
             meteor npm install
