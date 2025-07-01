@@ -100,7 +100,7 @@
   },
   "devDependencies": {
     "@meteor-community/meteor-desktop": "^3.3.0",
-    "electron": "17.4.11",
+    "electron": "28.3.2",
     "electron-builder": "24.6.4"
   }
 }
