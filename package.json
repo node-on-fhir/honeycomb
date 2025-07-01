@@ -14,9 +14,6 @@
     "@accounts/mongo": "0.34.1",
     "@accounts/rest-client": "0.33.1",
     "@accounts/server": "0.33.1",
-    "@babel/core": "^7.25.2",
-    "@babel/preset-env": "^7.25.4",
-    "@babel/runtime": "^7.20.7",
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@meteorjs/ddp-graceful-shutdown": "^0.9.2",
@@ -86,6 +83,7 @@
     "xml2js": "0.6.2"
   },
   "meteor": {
+    "modern": true,
     "mainModule": {
       "client": "client/main.jsx",
       "server": "server/main.js"
