@@ -1,0 +1,224 @@
+{
+  "public": {
+    "title": "Rosie Record Analyzer",
+    "theme": {
+      "showVideoBackground": false,
+      "defaultVideo": "/VideoBackgrounds/GrayWaves.mp4",
+      "backgroundImagePath": "/backgrounds/medical/Gradient.jpg",
+      "palette": {
+        "primaryColor": "#a92b2d",  
+        "primaryText": "rgba(255,255,255, 1) !important",
+      
+        "secondaryColor": "#444444",
+        "secondaryText": "rgba(255, 255, 255, 1) !important",
+      
+        "cardColor": "#ffffff !important",
+        "cardTextColor": "rgba(0, 0, 0, 1) !important",
+      
+        "errorColor": "rgb(128,20,60) !important",
+        "errorText": "#ffffff !important",
+      
+        "appBarColor": "#000000 !important",
+        "appBarTextColor": "#ffffff !important",
+      
+        "paperColor": "#ffffff !important",
+        "paperTextColor": "rgba(0, 0, 0, 1) !important",
+      
+        "bodyBackground": "#000000",
+
+        "canvasColor": "#f2f2f2",
+
+        "nivoTheme": "purple_orange"
+      },
+      "referenceRanges": {
+        "narrow": ["#69343b", "#415c4d", "#69343b"]  
+      },
+      "grayscaleFilter": "0%"
+    },
+    "loggingThreshold": "debug",    
+    "capabilityStatement": {
+      "resourceTypes": ["Patient", "Observation", "Organization", "Patient", "Person", "ValueSet"]
+    },
+    "defaults": {
+      "route": "/hello-world",
+      "landingPage": "/hello-world",
+      "homePage": "/hello-world",
+      "avatars": true,
+      "barcodes": true,
+      "hexgridMenu": false,
+      "nfcOrbital": false,
+      "notificationMenu": false,
+      "searchbarVisible": true,
+      "prominantHeader": false,
+      "viewportSafeArea": true,
+      "displayNavbars": true,
+      "disableHeader": false,
+      "disableFooter": false,
+      "disableCanvasSlide": true,
+      "drawerWidth": 320,
+      "initialScale": 0.6,
+      "defaultPagePadding": 20,
+      "paginationLimit": 100,
+      "subscriptionLimit": 1000,
+      "sidebar": {
+        "minibarVisible": false,
+        "menuItems": {
+          "HomePage": false,
+          "FhirResources": false,
+          "DynamicModules": true,
+          "SidebarWorkflows": true,
+          "Theme": false,
+          "About": true,
+          "ConstructionZone": false,
+          "Navbars": false,
+          "DataImport": true,
+          "DataExport": true,
+          "HealthRecords": false,
+          "Login": false,
+          "Registration": false,
+          "Documentation": false,
+          "Marketing": false,
+          "TermsAndConditions": false,
+          "Privacy": false,
+          "QrScanner": false
+        },
+        "hidden": [
+          "/audit-events",
+          "/allergy-intollerances",
+          "/body-mass-calculator",
+          "/body-mass-index",
+          "/bundles",
+          "/body-mass-calculator",
+          "/communication-responses",     
+          "/communication-requests",          
+          "/care-plans",
+          "/contracts",    
+          "/endpoints",      
+          "/explanation-of-benefits",
+          "/example-route",
+          "/healthcare-services",
+          "/import-data",   
+          "/insurance-plans",
+          "/lists",
+          "/message-headers",
+          "/measures",
+          "/measure-reports",
+          "/networks",
+          "/orbital-test",
+          "/organization-affiliations",
+          "/practitioner-role",
+          "/questionnaires",
+          "/questionnaire-responses",  
+          "/restrictions",
+          "/risk-assessments",
+          "/subscriptions",   
+          "/service-requests",       
+          "/tasks",
+          "/vitals-tracking",
+          "/value-sets",
+          "/valuesets",
+          "/verification-results",
+          "/example-page"
+        ],
+        "adminHidden":  [
+          "/allergies",
+          "/communications",
+          "/consents",
+          "/consents",
+          "/contracts",
+          "/claims",
+          "/endpoints",
+          "/biometrics-dashboard",
+          "/body-mass-index",
+          "/imaging-studies",
+          "/immunizations",
+          "/goals",
+          "/locations",
+          "/devices",
+          "/medication-statements",
+          "/persons",
+          "/practitioner-roles",
+          "/risk-assessments",
+          "/subscriptions",
+          "/workqueue",
+          "/hello-world",
+          "/vitals-tracking",
+          "/example-route",
+          "/import-data",
+          "/export-data"
+        ],
+        "hiddenWorkflow": [
+          "/patient-quickchart",
+          "/bulk-data-downloader",
+          "/bulk-data-launcher",
+          "/data-pipelines",
+          "/data-import",
+          "/data-export", 
+          "/data-management",
+          "/import-data",
+          "/export-data",
+          "/patient-summary",
+          "/synthea-analysis",
+          "/hgraph-demo",
+          "/orbital-test",
+          "/turntable-hgraph",
+          "/at-home-testing"
+        ],
+        "links": {
+          "documentation": "https://drive.google.com/file/d/1ZOA75FjUfAVFlfvyKnZy_t9KGjAhYweO/view"
+        }
+      }
+    },
+
+    "modules": {
+      "data": true,
+      "forum": true,
+      "genome": true,
+      "healthlog": true,
+      "dermatograms": true,
+      "telemedicine": true,
+      "inbound": true,
+      "outbound": true,
+      "epic": true,
+      "statisticsLogging": true,
+      "apps": {
+        "ChecklistManifesto": true,
+        "ContinuityOfCare": true,
+        "Videoconferencing": true,
+        "ZygoteAvatar": true        
+      },
+      "fhir": {
+        "AllergyIntolerances": true,
+        "AuditEvents": true,
+        "BodySites": true,
+        "CarePlans": true,
+        "Conditions": true,
+        "Devices": true,
+        "DiagnosticReports": true,
+        "Goals": true,
+        "ImagingStudies": true,
+        "Immunizations": true,
+        "Locations": true,
+        "Lists": true,
+        "Medications": true,
+        "MedicationOrders": true,
+        "MedicationStatements": true,
+        "Organizations": true,
+        "Observations": true,
+        "Patients": true,
+        "Practitioners": true,
+        "Procedures": true,
+        "Questionnaires": true,
+        "RiskAssessments": true
+      }
+    }
+  },
+  "private": {
+    "practitionerAccessCode": "hippocrates",
+    "sysadminAccessCode": "rootaccess",
+    "disableOauth": true,
+    "demo": {
+      "nightlyDatabaseDrop": true
+    }
+  }
+}
