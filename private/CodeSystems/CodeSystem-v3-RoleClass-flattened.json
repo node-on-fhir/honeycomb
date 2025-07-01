@@ -1,0 +1,2063 @@
+{
+    "resourceType" : "CodeSystem",
+    "id" : "v3-RoleClass-flattened",
+    "language" : "en",
+    "url" : "http://terminology.hl7.org/CodeSystem/v3-RoleClass",
+    "identifier" : [
+      {
+        "system" : "urn:ietf:rfc:3986",
+        "value" : "urn:oid:2.16.840.1.113883.5.110"
+      }
+    ],
+    "version" : "3.1.0",
+    "name" : "RoleClass",
+    "title" : "RoleClass",
+    "status" : "draft",
+    "date" : "2022-09-11",
+    "publisher" : "Health Level 7",
+    "contact" : [
+      {
+        "name" : "Health Level Seven"
+      }
+    ],
+    "description" : "Codes for the Role class hierarchy. The values in this hierarchy, represent a Role which is an association or relationship between two entities - the entity that plays the role and the entity that scopes the role. Roles names are derived from the name of the playing entity in that role.\r\n\r\nThe role hierarchy stems from three core concepts, or abstract domains:\r\n\r\n *  **RoleClassOntological** is an abstract domain that collects roles in which the playing entity is defined or specified by the scoping entity.\r\n *  **RoleClassPartitive** collects roles in which the playing entity is in some sense a \"part\" of the scoping entity.\r\n *  **RoleClassAssociative** collects all of the remaining forms of association between the playing entity and the scoping entity. This set of roles is further partitioned between:\r\n    \r\n     *  **RoleClassPassive** which are roles in which the playing entity is used, known, treated, handled, built, or destroyed, etc. under the auspices of the scoping entity. The playing entity is passive in these roles in that the role exists without an agreement from the playing entity.\r\n     *  **RoleClassMutualRelationship** which are relationships based on mutual behavior of the two entities. The basis of these relationship may be formal agreements or they may be *de facto* behavior. Thus, this sub-domain is further divided into:\r\n        \r\n         *  **RoleClassRelationshipFormal** in which the relationship is formally defined, frequently by a contract or agreement.\r\n         *  **Personal relationship** which inks two people in a personal relationship.\r\n\r\nThe hierarchy discussed above is represented In the current vocabulary tables as a set of abstract domains, with the exception of the \"Personal relationship\" which is a leaf concept.\r\n\r\n*OpenIssue:* Description copied from Concept Domain of same name. Must be verified.",
+    "caseSensitive" : true,
+    "content" : "complete",
+    "property" : [
+      {
+        "extension" : [
+          {
+            "url" : "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-symmetry",
+            "valueCode" : "antisymmetric"
+          },
+          {
+            "url" : "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-transitivity",
+            "valueCode" : "transitive"
+          },
+          {
+            "url" : "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-reflexivity",
+            "valueCode" : "irreflexive"
+          },
+          {
+            "url" : "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-isNavigable",
+            "valueBoolean" : true
+          },
+          {
+            "url" : "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-relationshipKind",
+            "valueCode" : "Specializes"
+          },
+          {
+            "url" : "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-inverseName",
+            "valueString" : "Generalizes"
+          }
+        ],
+        "code" : "Specializes",
+        "description" : "The child code is a more narrow version of the concept represented by the parent code.  I.e. Every child concept is also a valid parent concept.  Used to allow determination of subsumption.  Must be transitive, irreflexive, antisymmetric.",
+        "type" : "Coding"
+      },
+      {
+        "extension" : [
+          {
+            "url" : "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-symmetry",
+            "valueCode" : "antisymmetric"
+          },
+          {
+            "url" : "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-transitivity",
+            "valueCode" : "transitive"
+          },
+          {
+            "url" : "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-reflexivity",
+            "valueCode" : "irreflexive"
+          },
+          {
+            "url" : "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-isNavigable",
+            "valueBoolean" : true
+          },
+          {
+            "url" : "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-relationshipKind",
+            "valueCode" : "Generalizes"
+          },
+          {
+            "url" : "http://terminology.hl7.org/StructureDefinition/ext-mif-relationship-inverseName",
+            "valueString" : "Specializes"
+          }
+        ],
+        "code" : "Generalizes",
+        "description" : "Inverse of Specializes.  Only included as a derived relationship.",
+        "type" : "Coding"
+      },
+      {
+        "code" : "internalId",
+        "uri" : "http://terminology.hl7.org/CodeSystem/utg-concept-properties#v3-internal-id",
+        "description" : "The internal identifier for the concept in the HL7 Access database repository.",
+        "type" : "code"
+      },
+      {
+        "code" : "status",
+        "uri" : "http://hl7.org/fhir/concept-properties#status",
+        "description" : "A property that indicates the status of the concept. One of active, experimental, deprecated, or retired.",
+        "type" : "code"
+      },
+      {
+        "code" : "deprecationDate",
+        "uri" : "http://hl7.org/fhir/concept-properties#deprecationDate",
+        "description" : "The date at which a concept was deprecated. Concepts that are deprecated but not inactive can still be used, but their use is discouraged.",
+        "type" : "dateTime"
+      },
+      {
+        "code" : "Name:Class",
+        "uri" : "http://terminology.hl7.org/CodeSystem/utg-concept-properties#rim-Class",
+        "description" : "The formal name for the class clone under this code",
+        "type" : "code"
+      },
+      {
+        "code" : "Name:Role:player:Entity",
+        "uri" : "http://terminology.hl7.org/CodeSystem/utg-concept-properties#rim-Role-player",
+        "description" : "The name of the relationship from Role to the payer Entity",
+        "type" : "code"
+      },
+      {
+        "code" : "Name:Role:scoper:Entity",
+        "uri" : "http://terminology.hl7.org/CodeSystem/utg-concept-properties#rim-Role-scoper",
+        "description" : "The name of the relationship from Role to the scoper Entity",
+        "type" : "code"
+      },
+      {
+        "code" : "Sort:Entity:playedRole:Role",
+        "uri" : "http://terminology.hl7.org/CodeSystem/utg-concept-properties#rim-Entity-played-sort",
+        "description" : "Sort key for the relationship from the Entity to the playedRole",
+        "type" : "code"
+      },
+      {
+        "code" : "Sort:Entity:scopedRole:Role",
+        "uri" : "http://terminology.hl7.org/CodeSystem/utg-concept-properties#rim-Entity-scoped-sort",
+        "description" : "The sort key for the relationship from the Entity to the scopedRole",
+        "type" : "code"
+      },
+      {
+        "code" : "Name:Entity:playedRole:Role",
+        "uri" : "http://terminology.hl7.org/CodeSystem/utg-concept-properties#rim-Entity-played",
+        "description" : "The name of the relationship from the Entity to the playedRole",
+        "type" : "string"
+      },
+      {
+        "code" : "Name:Entity:scopedRole:Role",
+        "uri" : "http://terminology.hl7.org/CodeSystem/utg-concept-properties#rim-Entity-scoped",
+        "description" : "The name of the relationship from the Entity to the scopedRole",
+        "type" : "string"
+      },
+      {
+        "code" : "Name:Participation:role:Role",
+        "uri" : "http://terminology.hl7.org/CodeSystem/utg-concept-properties#rim-Participation-role",
+        "description" : "The name of the relationship from Participation to Role",
+        "type" : "string"
+      },
+      {
+        "code" : "notSelectable",
+        "uri" : "http://hl7.org/fhir/concept-properties#notSelectable",
+        "description" : "Indicates that the code is abstract - only intended to be used as a selector for other concepts",
+        "type" : "boolean"
+      }
+    ],
+    "concept" : [
+      {
+        "code" : "CHILD",
+        "display" : "child",
+        "definition" : "The player of the role is a child of the scoping entity, in a generic sense.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "retired"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "11560"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "CRED",
+        "display" : "credentialed entity",
+        "definition" : "A role played by an entity that receives credentials from the scoping entity.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "retired"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "16930"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "NURPRAC",
+        "display" : "nurse practitioner",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "retired"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "11574"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "NURS",
+        "display" : "nurse",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "retired"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "11573"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "PA",
+        "display" : "physician assistant",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "retired"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "11575"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "PHYS",
+        "display" : "physician",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "retired"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "11572"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "CAREGIVER",
+        "display" : "caregiver",
+        "definition" : "A person responsible for the primary care of a patient at home.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "21355"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "careGiver"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "careGiver&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "careGiverScoper"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAC_____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAC_____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "PRS",
+        "display" : "personal relationship",
+        "definition" : "Links two entities with classCode PSN (person) in a personal relationship. The character of the relationship must be defined by a PersonalRelationshipRoleType code. The player and scoper are determined by PersonalRelationshipRoleType code as well.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "19167"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "personalRelationship"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "relationshipHolder"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "personalRelationshipWith"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAB_____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAB_____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "SELF",
+        "display" : "self",
+        "definition" : "The \"same\" roleclass asserts an identity between playing and scoping entities: that they are in fact instances of the same entity and, in the case of discrepancies (e.g different DOB, gender), that one or both are in error.\r\n\r\n*Usage:*\r\n\r\nplaying and scoping entities must have same classcode, but need not have identical attributes or values.\r\n\r\n*Example:* \r\n\r\na provider registry maintains sets of conflicting demographic data for what is reported to be the same individual.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "retired"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "21437"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "AFFL",
+        "display" : "affiliate",
+        "definition" : "Player of the Affiliate role has a business/professional relationship with scoper. Player and scoper may be persons or organization. The Affiliate relationship does not imply membership in a group, nor does it exist for resource scheduling purposes.\r\n\r\n*Example:* A healthcare provider is affiliated with another provider as a business associate.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "21438"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "affiliate"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "affiliate&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "affiliated&"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAR____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAR____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "AGNT",
+        "display" : "agent",
+        "definition" : "An entity (player) that acts or is authorized to act on behalf of another entity (scoper).",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "14006"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "agent"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "agent&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "(represented&)|representee"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAD____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAD____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ],
+        "concept" : [
+          {
+            "code" : "ASSIGNED",
+            "display" : "assigned entity",
+            "definition" : "An agent role in which the agent is an Entity acting in the employ of an organization. The focus is on functional role on behalf of the organization, unlike the Employee role where the focus is on the 'Human Resources' relationship between the employee and the organization.",
+            "property" : [
+              {
+                "code" : "status",
+                "valueCode" : "active"
+              },
+              {
+                "code" : "internalId",
+                "valueCode" : "11595"
+              },
+              {
+                "code" : "Name:Class",
+                "valueCode" : "assignedEntity"
+              },
+              {
+                "code" : "Name:Role:player:Entity",
+                "valueCode" : "(assigned&)|assignee"
+              },
+              {
+                "code" : "Name:Role:scoper:Entity",
+                "valueCode" : "(represented&)|representee"
+              },
+              {
+                "code" : "Sort:Entity:playedRole:Role",
+                "valueCode" : "AAAADA___"
+              },
+              {
+                "code" : "Sort:Entity:scopedRole:Role",
+                "valueCode" : "AAAADA___"
+              },
+              {
+                "code" : "Name:Entity:playedRole:Role",
+                "valueString" : "as&"
+              },
+              {
+                "code" : "Name:Entity:scopedRole:Role",
+                "valueString" : "&"
+              },
+              {
+                "code" : "Name:Participation:role:Role",
+                "valueString" : "&"
+              }
+            ],
+            "concept" : [
+              {
+                "code" : "COMPAR",
+                "display" : "commissioning party",
+                "definition" : "An Entity that is authorized to issue or instantiate permissions, privileges, credentials or other formal/legal authorizations.",
+                "property" : [
+                  {
+                    "code" : "status",
+                    "valueCode" : "active"
+                  },
+                  {
+                    "code" : "internalId",
+                    "valueCode" : "21303"
+                  },
+                  {
+                    "code" : "Name:Class",
+                    "valueCode" : "commissioningParty"
+                  },
+                  {
+                    "code" : "Name:Role:player:Entity",
+                    "valueCode" : "commissioning&"
+                  },
+                  {
+                    "code" : "Name:Role:scoper:Entity",
+                    "valueCode" : "commissioningScoper"
+                  },
+                  {
+                    "code" : "Sort:Entity:playedRole:Role",
+                    "valueCode" : "AAAADAC__"
+                  },
+                  {
+                    "code" : "Sort:Entity:scopedRole:Role",
+                    "valueCode" : "AAAADAC__"
+                  },
+                  {
+                    "code" : "Name:Entity:playedRole:Role",
+                    "valueString" : "as&"
+                  },
+                  {
+                    "code" : "Name:Entity:scopedRole:Role",
+                    "valueString" : "&"
+                  },
+                  {
+                    "code" : "Name:Participation:role:Role",
+                    "valueString" : "&"
+                  }
+                ]
+              },
+              {
+                "code" : "SGNOFF",
+                "display" : "signing authority or officer",
+                "definition" : "The role of a person (player) who is the officer or signature authority for of a scoping entity, usually an organization (scoper).",
+                "property" : [
+                  {
+                    "code" : "status",
+                    "valueCode" : "active"
+                  },
+                  {
+                    "code" : "internalId",
+                    "valueCode" : "14007"
+                  },
+                  {
+                    "code" : "Name:Class",
+                    "valueCode" : "signatureAuthority"
+                  },
+                  {
+                    "code" : "Name:Role:player:Entity",
+                    "valueCode" : "signing(&|Authority)"
+                  },
+                  {
+                    "code" : "Name:Role:scoper:Entity",
+                    "valueCode" : "(represented&)|representee"
+                  },
+                  {
+                    "code" : "Sort:Entity:playedRole:Role",
+                    "valueCode" : "AAAADAB__"
+                  },
+                  {
+                    "code" : "Sort:Entity:scopedRole:Role",
+                    "valueCode" : "AAAADAB__"
+                  },
+                  {
+                    "code" : "Name:Entity:playedRole:Role",
+                    "valueString" : "as&"
+                  },
+                  {
+                    "code" : "Name:Entity:scopedRole:Role",
+                    "valueString" : "&"
+                  },
+                  {
+                    "code" : "Name:Participation:role:Role",
+                    "valueString" : "&"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "code" : "CON",
+            "display" : "contact",
+            "definition" : "A person or an organization (player) which provides or receives information regarding another entity (scoper). Examples; patient NOK and emergency contacts; guarantor contact; employer contact.",
+            "property" : [
+              {
+                "code" : "status",
+                "valueCode" : "active"
+              },
+              {
+                "code" : "internalId",
+                "valueCode" : "12205"
+              },
+              {
+                "code" : "Name:Class",
+                "valueCode" : "contactParty"
+              },
+              {
+                "code" : "Name:Role:player:Entity",
+                "valueCode" : "contact(&|Party)"
+              },
+              {
+                "code" : "Name:Role:scoper:Entity",
+                "valueCode" : "(represented&)|representee"
+              },
+              {
+                "code" : "Sort:Entity:playedRole:Role",
+                "valueCode" : "AAAADAA__"
+              },
+              {
+                "code" : "Sort:Entity:scopedRole:Role",
+                "valueCode" : "AAAADAA__"
+              },
+              {
+                "code" : "Name:Entity:playedRole:Role",
+                "valueString" : "as&"
+              },
+              {
+                "code" : "Name:Entity:scopedRole:Role",
+                "valueString" : "&"
+              },
+              {
+                "code" : "Name:Participation:role:Role",
+                "valueString" : "&"
+              }
+            ],
+            "concept" : [
+              {
+                "code" : "ECON",
+                "display" : "emergency contact",
+                "definition" : "An entity to be contacted in the event of an emergency.",
+                "property" : [
+                  {
+                    "code" : "status",
+                    "valueCode" : "active"
+                  },
+                  {
+                    "code" : "internalId",
+                    "valueCode" : "19140"
+                  },
+                  {
+                    "code" : "Name:Class",
+                    "valueCode" : "emergencyContact"
+                  },
+                  {
+                    "code" : "Name:Role:player:Entity",
+                    "valueCode" : "emergencyContact(&|Party)"
+                  },
+                  {
+                    "code" : "Name:Role:scoper:Entity",
+                    "valueCode" : "(represented&)|representee"
+                  },
+                  {
+                    "code" : "Sort:Entity:playedRole:Role",
+                    "valueCode" : "AAAADAAB_"
+                  },
+                  {
+                    "code" : "Sort:Entity:scopedRole:Role",
+                    "valueCode" : "AAAADAAB_"
+                  },
+                  {
+                    "code" : "Name:Entity:playedRole:Role",
+                    "valueString" : "as&"
+                  },
+                  {
+                    "code" : "Name:Entity:scopedRole:Role",
+                    "valueString" : "&"
+                  },
+                  {
+                    "code" : "Name:Participation:role:Role",
+                    "valueString" : "&"
+                  }
+                ]
+              },
+              {
+                "code" : "NOK",
+                "display" : "next of kin",
+                "definition" : "An individual designated for notification as the next of kin for a given entity.",
+                "property" : [
+                  {
+                    "code" : "status",
+                    "valueCode" : "active"
+                  },
+                  {
+                    "code" : "internalId",
+                    "valueCode" : "19141"
+                  },
+                  {
+                    "code" : "Name:Class",
+                    "valueCode" : "nextOfKin"
+                  },
+                  {
+                    "code" : "Name:Role:player:Entity",
+                    "valueCode" : "nextOfKinContact&"
+                  },
+                  {
+                    "code" : "Name:Role:scoper:Entity",
+                    "valueCode" : "(represented&)|representee"
+                  },
+                  {
+                    "code" : "Sort:Entity:playedRole:Role",
+                    "valueCode" : "AAAADAAA_"
+                  },
+                  {
+                    "code" : "Sort:Entity:scopedRole:Role",
+                    "valueCode" : "AAAADAAA_"
+                  },
+                  {
+                    "code" : "Name:Entity:playedRole:Role",
+                    "valueString" : "as&"
+                  },
+                  {
+                    "code" : "Name:Entity:scopedRole:Role",
+                    "valueString" : "&"
+                  },
+                  {
+                    "code" : "Name:Participation:role:Role",
+                    "valueString" : "&"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "code" : "GUARD",
+            "display" : "guardian",
+            "definition" : "Guardian of a ward",
+            "property" : [
+              {
+                "code" : "status",
+                "valueCode" : "active"
+              },
+              {
+                "code" : "internalId",
+                "valueCode" : "16324"
+              },
+              {
+                "code" : "Name:Class",
+                "valueCode" : "guardian"
+              },
+              {
+                "code" : "Name:Role:player:Entity",
+                "valueCode" : "guardian&"
+              },
+              {
+                "code" : "Name:Role:scoper:Entity",
+                "valueCode" : "ward&"
+              },
+              {
+                "code" : "Sort:Entity:playedRole:Role",
+                "valueCode" : "AAAADB___"
+              },
+              {
+                "code" : "Sort:Entity:scopedRole:Role",
+                "valueCode" : "AAAADB___"
+              },
+              {
+                "code" : "Name:Entity:playedRole:Role",
+                "valueString" : "as&"
+              },
+              {
+                "code" : "Name:Entity:scopedRole:Role",
+                "valueString" : "&"
+              },
+              {
+                "code" : "Name:Participation:role:Role",
+                "valueString" : "&"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code" : "CIT",
+        "display" : "citizen",
+        "definition" : "Citizen of apolitical entity",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "11568"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "citizen"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "citizen&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "political(&|Entity)"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAF____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAF____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "COVPTY",
+        "display" : "covered party",
+        "definition" : "A role class played by a person who receives benefit coverage under the terms of a particular insurance policy. The underwriter of that policy is the scoping entity. The covered party receives coverage because of some contractual or other relationship with the holder of that policy.\r\n\r\n*Discussion:*This reason for coverage is captured in 'Role.code' and a relationship link with type code of indirect authority should be included using the policy holder role as the source, and the covered party role as the target.\r\n\r\nNote that a particular policy may cover several individuals one of whom may be, but need not be, the policy holder. Thus the notion of covered party is a role that is distinct from that of the policy holder.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "14011"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "coveredParty"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "covered(&|Party)"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "(underwriting&)|underwriter"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAI____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAI____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ],
+        "concept" : [
+          {
+            "code" : "CLAIM",
+            "display" : "claimant",
+            "definition" : "**Description:** A role played by a party making a claim for coverage under a policy or program. A claimant must be either a person or organization, or a group of persons or organizations. A claimant is not a named insured or a program eligible.\r\n\r\n**Discussion:** With respect to liability insurance such as property and casualty insurance, a claimant must file a claim requesting indemnification for a loss that the claimant considers covered under the policy of a named insured. The claims adjuster for the policy underwriter will review the claim to determine whether the loss meets the benefit coverage criteria under a policy, and base any indemnification or coverage payment on that review. If a third party is liable in whole or part for the loss, the underwriter may pursue third party liability recovery. A claimant may be involved in civil or criminal legal proceedings involving claims against a defendant party that is indemnified by an insurance policy or to protest the finding of a claims adjustor. With respect to life insurance, a beneficiary designated by a named insured becomes a claimant of the proceeds of coverage, as in the case of a life insurance policy. However, a claimant for coverage under life insurance is not necessarily a designated beneficiary.\r\n\r\n**Note:** A claimant is not a named insured. However, a named insured may make a claim under a policy, e.g., an insured driver may make a claim for an injury under his or her comprehensive automobile insurance policy. Similarly, a program eligible may make a claim under program, e.g., an unemployed worker may claim benefits under an unemployment insurance program, but parties playing these covered party role classes are not, for purposes of this vocabulary and in an effort to clearly distinguish role classes, considered claimants.\r\n\r\nIn the case of a named insured making a claim, a role type code INSCLM (insured claimant) subtypes the class to indicate that either a named insured or an individual insured has filed a claim for a loss. In the case of a program eligible, a role type code INJWKR (injured worker) subtypes the class to indicate that the covered party in a workers compensation program is an injured worker, and as such, has filed a \"claim\" under the program for benefits. Likewise, a covered role type code UNEMP (unemployed worker) subtypes the program eligible class to indicate that the covered party in an unemployment insurance program has filed a claim for unemployment benefits.\r\n\r\n**Example:** A claimant under automobile policy that is not the named insured.",
+            "property" : [
+              {
+                "code" : "status",
+                "valueCode" : "active"
+              },
+              {
+                "code" : "internalId",
+                "valueCode" : "21955"
+              },
+              {
+                "code" : "Name:Class",
+                "valueCode" : "claimant"
+              },
+              {
+                "code" : "Name:Entity:playedRole:Role",
+                "valueString" : "as&"
+              },
+              {
+                "code" : "Name:Entity:scopedRole:Role",
+                "valueString" : "&"
+              },
+              {
+                "code" : "Name:Participation:role:Role",
+                "valueString" : "&"
+              }
+            ]
+          },
+          {
+            "code" : "NAMED",
+            "display" : "named insured",
+            "definition" : "**Description:** A role played by a party to an insurance policy to which the insurer agrees to indemnify for losses, provides benefits for, or renders services. A named insured may be either a person, non-person living subject, or an organization, or a group of persons, non-person living subjects, or organizations.\r\n\r\n**Discussion:** The coded concept NAMED should not be used where a more specific child concept in this Specializable value set applies. In some cases, the named insured may not be the policy holder, e.g., where a policy holder purchases life insurance policy in which another party is the named insured and the policy holder is the beneficiary of the policy.\r\n\r\n**Note:** The party playing the role of a named insured is not a claimant in the sense conveyed by the RoleClassCoveredParty CLAIM (claimant). However, a named insured may make a claim under a policy, e.g., e.g., a party that is the named insured and policy holder under a comprehensive automobile insurance policy may become the claimant for coverage under that policy e.g., if injured in an automobile accident and there is no liable third party. In the case of a named insured making a claim, a role type code INSCLM (insured claimant) subtypes the class to indicate that a named insured has filed a claim for a loss.\r\n\r\n**Example:** The named insured under a comprehensive automobile, disability, or property and casualty policy that is the named insured and may or may not be the policy holder.",
+            "property" : [
+              {
+                "code" : "status",
+                "valueCode" : "active"
+              },
+              {
+                "code" : "internalId",
+                "valueCode" : "21957"
+              },
+              {
+                "code" : "Name:Class",
+                "valueCode" : "namedInsured"
+              },
+              {
+                "code" : "Name:Entity:playedRole:Role",
+                "valueString" : "as&"
+              },
+              {
+                "code" : "Name:Entity:scopedRole:Role",
+                "valueString" : "&"
+              },
+              {
+                "code" : "Name:Participation:role:Role",
+                "valueString" : "&"
+              }
+            ],
+            "concept" : [
+              {
+                "code" : "DEPEN",
+                "display" : "dependent",
+                "definition" : "**Description:** A role played by a person covered under a policy or program based on an association with a subscriber, which is recognized by the policy holder.\r\n\r\n**Note:** The party playing the role of a dependent is not a claimant in the sense conveyed by the RoleClassCoveredParty CLAIM (claimant). However, a dependent may make a claim under a policy, e.g., a dependent under a health insurance policy may become the claimant for coverage under that policy for wellness examines or if injured and there is no liable third party. In the case of a dependent making a claim, a role type code INSCLM (insured claimant) subtypes the class to indicate that the dependent has filed a claim for services covered under the health insurance policy.\r\n\r\n**Example:** The dependent has an association with the subscriber such as a financial dependency or personal relationship such as that of a spouse, or a natural or adopted child. The policy holder may be required by law to recognize certain associations or may have discretion about the associations. For example, a policy holder may dictate the criteria for the dependent status of adult children who are students, such as requiring full time enrollment, or may recognize domestic partners as dependents. Under certain circumstances, the dependent may be under the indirect authority of a responsible party acting as a surrogate for the subscriber, for example, if the subscriber is differently abled or deceased, a guardian ad Lidem or estate executor may be appointed to assume the subscriberaTMs legal standing in the relationship with the dependent.",
+                "property" : [
+                  {
+                    "code" : "status",
+                    "valueCode" : "active"
+                  },
+                  {
+                    "code" : "internalId",
+                    "valueCode" : "21960"
+                  },
+                  {
+                    "code" : "Name:Class",
+                    "valueCode" : "dependent"
+                  },
+                  {
+                    "code" : "Name:Entity:playedRole:Role",
+                    "valueString" : "as&"
+                  },
+                  {
+                    "code" : "Name:Entity:scopedRole:Role",
+                    "valueString" : "&"
+                  },
+                  {
+                    "code" : "Name:Participation:role:Role",
+                    "valueString" : "&"
+                  }
+                ]
+              },
+              {
+                "code" : "INDIV",
+                "display" : "individual",
+                "definition" : "**Description:** A role played by a party covered under a policy as the policy holder. An individual may be either a person or an organization.\r\n\r\n**Note:** The party playing the role of an individual insured is not a claimant in the sense conveyed by the RoleClassCoveredParty CLAIM (claimant). However, a named insured may make a claim under a policy, e.g., a party that is the named insured and policy holder under a comprehensive automobile insurance policy may become the claimant for coverage under that policy if injured in an automobile accident and there is no liable third party. In the case of an individual insured making a claim, a role type code INSCLM (insured claimant) subtypes the class to indicate that an individual insured has filed a claim for a loss.\r\n\r\n**Example:** The individual insured under a comprehensive automobile, disability, or property and casualty policy that is the policy holder.",
+                "property" : [
+                  {
+                    "code" : "status",
+                    "valueCode" : "active"
+                  },
+                  {
+                    "code" : "internalId",
+                    "valueCode" : "21958"
+                  },
+                  {
+                    "code" : "Name:Class",
+                    "valueCode" : "individual"
+                  },
+                  {
+                    "code" : "Name:Entity:playedRole:Role",
+                    "valueString" : "as&"
+                  },
+                  {
+                    "code" : "Name:Entity:scopedRole:Role",
+                    "valueString" : "&"
+                  },
+                  {
+                    "code" : "Name:Participation:role:Role",
+                    "valueString" : "&"
+                  }
+                ]
+              },
+              {
+                "code" : "SUBSCR",
+                "display" : "subscriber",
+                "definition" : "**Description:** A role played by a person covered under a policy based on association with a sponsor who is the policy holder, and whose association may provide for the eligibility of dependents for coverage.\r\n\r\n**Discussion:** The policy holder holds the contract with the policy or program underwriter. The subscriber holds a certificate of coverage under the contract. In legal proceedings concerning the policy or program, the terms of the contract takes precedence over the terms of the certificate of coverage if there are any inconsistencies.\r\n\r\n**Note:** The party playing the role of a subscriber is not a claimant in the sense conveyed by the RoleClassCoveredParty CLAIM (claimant). However, a subscriber may make a claim under a policy, e.g., a subscriber under a health insurance policy may become the claimant for coverage under that policy for wellness examines or if injured and there is no liable third party. In the case of a subscriber making a claim, a role type code INSCLM (insured claimant) subtypes the class to indicate that the subscriber has filed a claim for services covered under the health insurance policy.\r\n\r\n**Example:** An employee or a member of an association.",
+                "property" : [
+                  {
+                    "code" : "status",
+                    "valueCode" : "active"
+                  },
+                  {
+                    "code" : "internalId",
+                    "valueCode" : "21959"
+                  },
+                  {
+                    "code" : "Name:Class",
+                    "valueCode" : "subscriber"
+                  },
+                  {
+                    "code" : "Name:Entity:playedRole:Role",
+                    "valueString" : "as&"
+                  },
+                  {
+                    "code" : "Name:Entity:scopedRole:Role",
+                    "valueString" : "&"
+                  },
+                  {
+                    "code" : "Name:Participation:role:Role",
+                    "valueString" : "&"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "code" : "PROG",
+            "display" : "program eligible",
+            "definition" : "**Description:** A role played by a party that meets the eligibility criteria for coverage under a program. A program eligible may be either a person, non-person living subject, or an organization, or a group of persons, non-person living subjects, or organizations.\r\n\r\n**Discussion:** A program as typically government administered coverage for parties determined eligible under the terms of the program.\r\n\r\n**Note:** The party playing a program eligible is not a claimant in the sense conveyed by the RoleClassCoveredParty CLAIM (claimant). However a program eligible may make a claim under program, e.g., an unemployed worker may claim benefits under an unemployment insurance program, but parties playing these covered party role classes are not, for purposes of this vocabulary and in an effort to clearly distinguish role classes, considered claimants.\r\n\r\nIn the case of a program eligible, a role type code INJWKR (injured worker) subtypes the class to indicate that the covered party in a workers compensation program is an injured worker, and as such, has filed a \"claim\" under the program for benefits. Likewise, a covered role type code UNEMP (unemployed worker) subtypes the program eligible class to indicate that the covered party in an unemployment insurance program has filed a claim for unemployment benefits.\r\n\r\n**Example:** A party meeting eligibility criteria related to health or financial status, e.g., in the U.S., persons meeting health, demographic, or financial criteria established by state and federal law are eligible for Medicaid.",
+            "property" : [
+              {
+                "code" : "status",
+                "valueCode" : "active"
+              },
+              {
+                "code" : "internalId",
+                "valueCode" : "21956"
+              },
+              {
+                "code" : "Name:Class",
+                "valueCode" : "programEligible"
+              },
+              {
+                "code" : "Name:Entity:playedRole:Role",
+                "valueString" : "as&"
+              },
+              {
+                "code" : "Name:Entity:scopedRole:Role",
+                "valueString" : "&"
+              },
+              {
+                "code" : "Name:Participation:role:Role",
+                "valueString" : "&"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code" : "CRINV",
+        "display" : "clinical research investigator",
+        "definition" : "A role played by a provider, always a person, who has agency authority from a Clinical Research Sponsor to direct the conduct of a clinical research trial or study on behalf of the sponsor.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "19164"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "clinicalResearchInvestigator"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "investigator&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "sponsoring&"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAH____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAH____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "CRSPNSR",
+        "display" : "clinical research sponsor",
+        "definition" : "A role played by an entity, usually an organization, that is the sponsor of a clinical research trial or study. The sponsor commissions the study, bears the expenses, is responsible for satisfying all legal requirements concerning subject safety and privacy, and is generally responsible for collection, storage and analysis of the data generated during the trial. No scoper is necessary, as a clinical research sponsor undertakes the role on its own authority and declaration. Clinical research sponsors are usually educational or other research organizations, government agencies or biopharmaceutical companies.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "19165"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "clinicalResearchSponsor"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "sponsor&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "sponsorshipAuthorizing&"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAG____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAG____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "EMP",
+        "display" : "employee",
+        "definition" : "A relationship between a person or organization and a person or organization formed for the purpose of exchanging work for compensation. The purpose of the role is to identify the type of relationship the employee has to the employer, rather than the nature of the work actually performed. (Contrast with AssignedEntity.)",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "11569"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "employment"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "employee&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "employer&"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAE____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAE____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ],
+        "concept" : [
+          {
+            "code" : "MIL",
+            "display" : "military person",
+            "definition" : "A role played by a member of a military service. Scoper is the military service (e.g. Army, Navy, Air Force, etc.) or, more specifically, the unit (e.g. Company C, 3rd Battalion, 4th Division, etc.)",
+            "property" : [
+              {
+                "code" : "status",
+                "valueCode" : "active"
+              },
+              {
+                "code" : "internalId",
+                "valueCode" : "11570"
+              },
+              {
+                "code" : "Name:Class",
+                "valueCode" : "militaryPerson"
+              },
+              {
+                "code" : "Name:Role:player:Entity",
+                "valueCode" : "military&"
+              },
+              {
+                "code" : "Name:Role:scoper:Entity",
+                "valueCode" : "militaryService(&-ORG)"
+              },
+              {
+                "code" : "Sort:Entity:playedRole:Role",
+                "valueCode" : "AAAAEA___"
+              },
+              {
+                "code" : "Sort:Entity:scopedRole:Role",
+                "valueCode" : "AAAAEA___"
+              },
+              {
+                "code" : "Name:Entity:playedRole:Role",
+                "valueString" : "as&"
+              },
+              {
+                "code" : "Name:Entity:scopedRole:Role",
+                "valueString" : "&"
+              },
+              {
+                "code" : "Name:Participation:role:Role",
+                "valueString" : "&"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code" : "GUAR",
+        "display" : "guarantor",
+        "definition" : "A person or organization (player) that serves as a financial guarantor for another person or organization (scoper).",
+        "designation" : [
+          {
+            "language" : "en",
+            "use" : {
+              "system" : "http://snomed.info/sct",
+              "code" : "900000000000013009"
+            },
+            "value" : "GuarantorRole"
+          }
+        ],
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "13941"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "guarantor"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "guarantor&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "promisor&"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAJ____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAJ____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "INVSBJ",
+        "display" : "Investigation Subject",
+        "definition" : "An entity that is the subject of an investigation. This role is scoped by the party responsible for the investigation.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "21464"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "investigativeSubject"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "subject&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "investigationSponsor"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAB____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAB____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ],
+        "concept" : [
+          {
+            "code" : "CASEBJ",
+            "display" : "Case Subject",
+            "definition" : "A person, non-person living subject, or place that is the subject of an investigation related to a notifiable condition (health circumstance that is reportable within the applicable public health jurisdiction)",
+            "property" : [
+              {
+                "code" : "status",
+                "valueCode" : "active"
+              },
+              {
+                "code" : "internalId",
+                "valueCode" : "21465"
+              },
+              {
+                "code" : "Name:Class",
+                "valueCode" : "caseSubject"
+              },
+              {
+                "code" : "Name:Role:player:Entity",
+                "valueCode" : "subject&"
+              },
+              {
+                "code" : "Name:Role:scoper:Entity",
+                "valueCode" : "caseMonitor"
+              },
+              {
+                "code" : "Sort:Entity:playedRole:Role",
+                "valueCode" : "AAAABA___"
+              },
+              {
+                "code" : "Sort:Entity:scopedRole:Role",
+                "valueCode" : "AAAABA___"
+              },
+              {
+                "code" : "Name:Entity:playedRole:Role",
+                "valueString" : "as&"
+              },
+              {
+                "code" : "Name:Entity:scopedRole:Role",
+                "valueString" : "&"
+              },
+              {
+                "code" : "Name:Participation:role:Role",
+                "valueString" : "&"
+              }
+            ]
+          },
+          {
+            "code" : "RESBJ",
+            "display" : "research subject",
+            "definition" : "**Definition:**Specifies the administrative functionality within a formal experimental design for which the ResearchSubject role was established.\r\n\r\n**Examples:** Screening - role is used for pre-enrollment evaluation portion of the design; enrolled - role is used for subjects admitted to the experimental portion of the design.",
+            "property" : [
+              {
+                "code" : "status",
+                "valueCode" : "active"
+              },
+              {
+                "code" : "internalId",
+                "valueCode" : "19166"
+              },
+              {
+                "code" : "Name:Class",
+                "valueCode" : "researchSubject"
+              },
+              {
+                "code" : "Name:Role:player:Entity",
+                "valueCode" : "subject&"
+              },
+              {
+                "code" : "Name:Role:scoper:Entity",
+                "valueCode" : "researchSponsor"
+              },
+              {
+                "code" : "Sort:Entity:playedRole:Role",
+                "valueCode" : "AAAABB___"
+              },
+              {
+                "code" : "Sort:Entity:scopedRole:Role",
+                "valueCode" : "AAAABB___"
+              },
+              {
+                "code" : "Name:Entity:playedRole:Role",
+                "valueString" : "as&"
+              },
+              {
+                "code" : "Name:Entity:scopedRole:Role",
+                "valueString" : "&"
+              },
+              {
+                "code" : "Name:Participation:role:Role",
+                "valueString" : "&"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "code" : "LIC",
+        "display" : "licensed entity",
+        "definition" : "A relationship in which the scoper certifies the player ( e. g. a medical care giver, a medical device or a provider organization) to perform certain activities that fall under the jurisdiction of the scoper (e.g., a health authority licensing healthcare providers, a medical quality authority certifying healthcare professionals).",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "16773"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "licensedEntity"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "subject&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "(issuing&)|issuer"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAC____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAC____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "PAT",
+        "display" : "patient",
+        "definition" : "A Role of a LivingSubject (player) as an actual or potential recipient of health care services from a healthcare provider organization (scoper).\r\n\r\n*Usage Note:* Communication about relationships between patients and specific healthcare practitioners (people) is not done via scoper. Instead this is generally done using the CareProvision act. This allows linkage between patient and a particular healthcare practitioner role and also allows description of the type of care involved in the relationship.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "11577"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "patient"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "patient&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "provider&"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAA____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAA____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "PAYEE",
+        "display" : "payee",
+        "definition" : "The role of an organization or individual designated to receive payment for a claim against a particular coverage. The scoping entity is the organization that is the submitter of the invoice in question.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "14015"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "payee"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "payee&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "invoicing&"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAK____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAK____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "PAYOR",
+        "display" : "invoice payor",
+        "definition" : "The role of an organization that undertakes to accept claims invoices, assess the coverage or payments due for those invoices and pay to the designated payees for those invoices. This role may be either the underwriter or a third-party organization authorized by the underwriter. The scoping entity is the organization that underwrites the claimed coverage.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "14014"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "payor"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "invoicePayor&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "(underwriting&)|underwriter"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAL____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAL____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "POLHOLD",
+        "display" : "policy holder",
+        "definition" : "A role played by a person or organization that holds an insurance policy. The underwriter of that policy is the scoping entity.\r\n\r\n*Discussion:*The identifier of the policy is captured in 'Role.id' when the Role is a policy holder.\r\n\r\nA particular policy may cover several individuals one of whom may be, but need not be, the policy holder. Thus the notion of covered party is a role that is distinct from that of the policy holder.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "14010"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "policyHolder"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "policyHolder&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "(underwriting&)|underwriter"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAM____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAM____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "QUAL",
+        "display" : "qualified entity",
+        "definition" : "An entity (player) that has been recognized as having certain training/experience or other characteristics that would make said entity an appropriate performer for a certain activity. The scoper is an organization that educates or qualifies entities.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "11619"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "qualifiedEntity"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "qualified(&|Entity)"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "qualificationGranting(&|Entity)"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAP____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAP____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "SPNSR",
+        "display" : "coverage sponsor",
+        "definition" : "A role played by an entity, usually an organization that is the sponsor of an insurance plan or a health program. A sponsor is the party that is ultimately accountable for the coverage by employment contract or by law. A sponsor can be an employer, union, government agency, or association. Fully insured sponsors establish the terms of the plan and contract with health insurance plans to assume the risk and to administer the plan. Self-insured sponsors delegate coverage administration, but not risk, to third-party administrators. Program sponsors designate services to be covered in accordance with statute. Program sponsors may administer the coverage themselves, delegate coverage administration, but not risk to third-party administrators, or contract with health insurance plans to assume the risk and administrator a program. Sponsors qualify individuals who may become\r\n\r\n1.  a policy holder of the plan;\r\n2.  where the sponsor is the policy holder, who may become a subscriber or a dependent to a policy under the plan; or\r\n3.  where the sponsor is a government agency, who may become program eligibles under a program.\r\n\r\nThe sponsor role may be further qualified by the SponsorRole.code. Entities playing the sponsor role may also play the role of a Coverage Administrator.\r\n\r\n*Example:* An employer, union, government agency, or association.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "14012"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "sponsor"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "sponsor&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "(underwriting&)|underwriter"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAN____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAN____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "STD",
+        "display" : "student",
+        "definition" : "A role played by an individual who is a student of a school, which is the scoping entity.",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "12248"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "student"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "student"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "school(&|Entity)"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAQ____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAQ____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "UNDWRT",
+        "display" : "underwriter",
+        "definition" : "A role played by a person or an organization. It is the party that\r\n\r\n1.  accepts fiscal responsibility for insurance plans and the policies created under those plans;\r\n2.  administers and accepts fiscal responsibility for a program that provides coverage for services to eligible individuals; and/or\r\n3.  has the responsibility to assess the merits of each risk and decide a suitable premium for accepting all or part of the risk. If played by an organization, this role may be further specified by an appropriate RoleCode.\r\n\r\n*Example:*\r\n\r\n1.  A health insurer;\r\n2.  Medicaid Program;\r\n3.  Lloyd's of London",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "14009"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "underwriter"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "(underwriting&)|underwriter"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "scoper&"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAAO____"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAAO____"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "NOT",
+        "display" : "notary public",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "11576"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "notaryPublic"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "notaryPublic&"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "political(&|Entity)"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAACB___"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAACB___"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      },
+      {
+        "code" : "PROV",
+        "display" : "healthcare provider",
+        "definition" : "An Entity (player) that is authorized to provide health care services by some authorizing agency (scoper).",
+        "property" : [
+          {
+            "code" : "status",
+            "valueCode" : "active"
+          },
+          {
+            "code" : "internalId",
+            "valueCode" : "11599"
+          },
+          {
+            "code" : "Name:Class",
+            "valueCode" : "healthCareProvider"
+          },
+          {
+            "code" : "Name:Role:player:Entity",
+            "valueCode" : "healthCare(&|Provider)"
+          },
+          {
+            "code" : "Name:Role:scoper:Entity",
+            "valueCode" : "(issuing&)|issuer"
+          },
+          {
+            "code" : "Sort:Entity:playedRole:Role",
+            "valueCode" : "AAAACA___"
+          },
+          {
+            "code" : "Sort:Entity:scopedRole:Role",
+            "valueCode" : "AAAACA___"
+          },
+          {
+            "code" : "Name:Entity:playedRole:Role",
+            "valueString" : "as&"
+          },
+          {
+            "code" : "Name:Entity:scopedRole:Role",
+            "valueString" : "&"
+          },
+          {
+            "code" : "Name:Participation:role:Role",
+            "valueString" : "&"
+          }
+        ]
+      }
+    ]
+  }
+  

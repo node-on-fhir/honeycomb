@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites errors="0"
+            failures="0"
+            tests="1">
+
+  <testsuite name="localhost"
+    errors="0" failures="0" hostname="" id="" package="localhost" skipped="0"
+    tests="1" time="3.163" timestamp="">
+  
+    <testcase name="Check that homepage loads" classname="localhost" time="1.581" assertions="5">
+
+    
+
+    
+
+    
+
+    
+
+    
+    </testcase>
+  
+
+  
+
+    
+
+  
+  </testsuite>
+</testsuites>

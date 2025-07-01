@@ -1,0 +1,13 @@
+
+
+.expansionPanel {
+    background-color: 'rgba(0,0,0,0) !important'
+}
+
+/* the following is to make expansion panels look like paper */
+.MuiExpansionPanel-root::before {
+    background-color: 'rgba(0,0,0,0) !important'
+  }
+  .MuiExpansionPanel-root::after {
+    background-color: 'rgba(0,0,0,0) !important'
+  }

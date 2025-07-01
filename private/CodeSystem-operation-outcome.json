@@ -1,0 +1,2624 @@
+{
+  "resourceType" : "CodeSystem",
+  "id" : "operation-outcome",
+  "meta" : {
+    "lastUpdated" : "2019-11-01T09:29:23.356+11:00"
+  },
+  "text" : {
+    "status" : "generated",
+    "div" : "<div>!-- Snipped for Brevity --></div>"
+  },
+  "extension" : [{
+    "url" : "http://hl7.org/fhir/StructureDefinition/structuredefinition-wg",
+    "valueCode" : "fhir"
+  },
+  {
+    "url" : "http://hl7.org/fhir/StructureDefinition/structuredefinition-standards-status",
+    "valueCode" : "draft"
+  },
+  {
+    "url" : "http://hl7.org/fhir/StructureDefinition/structuredefinition-fmm",
+    "valueInteger" : 1
+  }],
+  "url" : "http://terminology.hl7.org/CodeSystem/operation-outcome",
+  "identifier" : [{
+    "system" : "urn:ietf:rfc:3986",
+    "value" : "urn:oid:2.16.840.1.113883.4.642.4.1127"
+  }],
+  "version" : "4.0.1",
+  "name" : "OperationOutcomeCodes",
+  "title" : "Operation Outcome Codes",
+  "status" : "draft",
+  "experimental" : false,
+  "publisher" : "HL7 (FHIR Project)",
+  "contact" : [{
+    "telecom" : [{
+      "system" : "url",
+      "value" : "http://hl7.org/fhir"
+    },
+    {
+      "system" : "email",
+      "value" : "fhir@lists.hl7.org"
+    }]
+  }],
+  "description" : "Operation Outcome codes used by FHIR test servers (see Implementation file translations.xml)",
+  "caseSensitive" : true,
+  "hierarchyMeaning" : "is-a",
+  "content" : "complete",
+  "concept" : [{
+    "code" : "DELETE_MULTIPLE_MATCHES",
+    "display" : "Error: Multiple matches exist for the conditional delete",
+    "designation" : [{
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Fout: er is meer dan Ã©Ã©n resultaat voor de conditionele delete"
+    }]
+  },
+  {
+    "code" : "MSG_AUTH_REQUIRED",
+    "display" : "You must authenticate before you can use this service",
+    "designation" : [{
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Autenticazione richiesta prima di usare questo servizio"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Wymagana autentykacja przed uÅ¼yciem tego serwisu"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Vous devez Ãªtre authentifiÃ© avant de pouvoir utiliser ce service"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "U moet zich authenticeren voor gebruik van deze service"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ä½¿ç”¨æ­¤æœ�åŠ¡å‰�éœ€è®¤è¯�"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Debe autenticarse antes de poder usar este servicio"
+    }]
+  },
+  {
+    "code" : "MSG_BAD_FORMAT",
+    "display" : "Bad Syntax: \"%s\" must be a %s'",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð�ÐµÐ²ÐµÑ€Ð½Ñ‹Ð¹ Ñ�Ð¸Ð½Ñ‚Ð°ÐºÑ�: \"%s\" Ð´Ð¾Ð»Ð¶ÐµÐ½ Ð±Ñ‹Ñ‚ÑŒ %s"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Sintassi Errata: \"%s\" deve essere un %s'"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "BÅ‚Ä…d skÅ‚adni: \"%s\" powinno byÄ‡ %s'"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Erreur de Syntaxe : \"%s\" doit Ãªtre un %s"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Verkeerde syntax: \"%s\" moet een %s zijn"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "å�¥æ³•é”™è¯¯: \"%s\" å¿…é¡»æ˜¯ä¸€ä¸ª %s'"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Sintaxis Incorrecta: \"%s\" debe de ser un %s'"
+    }]
+  },
+  {
+    "code" : "MSG_BAD_SYNTAX",
+    "display" : "Bad Syntax in %s",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð�ÐµÐ²ÐµÑ€Ð½Ñ‹Ð¹ Ñ�Ð¸Ð½Ñ‚Ð°ÐºÑ�: %s"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Sintassi errata in %s"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "BÅ‚Ä…d skÅ‚adni w %s"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Erreur de Syntaxe dans %s"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Verkeerde syntax in %s"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "%s ä¸­å�¥æ³•é”™è¯¯"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Sintaxis Incorrecta en %s"
+    }]
+  },
+  {
+    "code" : "MSG_CANT_PARSE_CONTENT",
+    "display" : "Unable to parse feed (entry content type = \"%s\")",
+    "designation" : [{
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Impossibile effettuare il parsing del feed (tipo del contenuto della entry = \"%s\")"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "BÅ‚Ä…d parsowania (typ zawartoÅ›ci wejÅ›ciowej = \"%s\")"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Impossible d'analyser le flux (type de contenu de l'entrÃ©e = \"%s\")"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Kan feed niet verwerken (contenttype inhoud = \"%s\")"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æ— æ³•è§£æž�feed (æ�¡ç›®çš„å†…å®¹ç±»åž‹ = \"%s\")"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "No se pudo parsear el feed (el tipo de contenido de la entry = \"%s\")"
+    }]
+  },
+  {
+    "code" : "MSG_CANT_PARSE_ROOT",
+    "display" : "Unable to parse feed (root element name = \"%s\")",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð�Ðµ ÑƒÐ´Ð°Ð»Ð¾Ñ�ÑŒ Ñ€Ð°Ð·Ð¾Ð±Ñ€Ð°Ñ‚ÑŒ Ð´Ð°Ð½Ð½Ñ‹Ðµ (ÐºÐ¾Ñ€Ð½ÐµÐ²Ð¾Ð¹ Ñ�Ð»ÐµÐ¼ÐµÐ½Ñ‚ = \"%s\")"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Impossibile effettuare il parsing del feed (nome elemento root = \"%s\")"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "BÅ‚Ä…d parsowania (nazwa elementu root = \"%s\")"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Impossible d'analyser le flux (nom de l'Ã©lÃ©ment racine = \"%s\")"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Kan feed niet verwerken (rootelementnaam = \"%s\")"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æ— æ³•è§£æž�feed (æ ¹å…ƒç´ å�� = \"%s\")"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "No se pudo parsear el feed (nombre del elemento raiz = \"%s\")"
+    }]
+  },
+  {
+    "code" : "MSG_CREATED",
+    "display" : "New resource created",
+    "designation" : [{
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nieuwe resource gemaakt"
+    }]
+  },
+  {
+    "code" : "MSG_DATE_FORMAT",
+    "display" : "The Date value %s is not in the correct format (Xml Date Format required)",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð—Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Date %s Ð² Ð½ÐµÐ²ÐµÑ€Ð½Ð¾Ð¼ Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚Ðµ (Ñ‚Ñ€ÐµÐ±ÑƒÐµÑ‚Ñ�Ñ� Xml Date Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚)"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Il valore %s per la data non Ã¨ nel formato corretto (richiesto il Formato Data Xml)"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Niepoprawny format wartoÅ›ci daty %s (wymagany format XML)"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Le format de la date %s est incorrect (format Date Xml attendu)"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "De Datum-waarde %s heeft niet de juiste structuur (Xml Date vereist)"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æ—¥æœŸçš„å€¼ %s æ ¼å¼�ä¸�æ­£ç¡® (è¦�æ±‚æ˜¯Xml Dateæ ¼å¼�)"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "El valor de la fecha %s no estÃ¡ en el formato correcto (se requiere un formato de fecha Xml)"
+    }]
+  },
+  {
+    "code" : "MSG_DELETED",
+    "display" : "This resource has been deleted",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð”Ð°Ð½Ð½Ñ‹Ð¹ Ñ€ÐµÑ�ÑƒÑ€Ñ� Ð±Ñ‹Ð» ÑƒÐ´Ð°Ð»Ñ‘Ð½"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Questa risorsa Ã¨ stata cancellata"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ten zasÃ³b zostaÅ‚ usuniÄ™ty"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "La ressource a Ã©tÃ© supprimÃ©e"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Deze resource is verwijderd"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "è¯¥èµ„æº�å·²åˆ é™¤"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Este recurso ha sido borrado"
+    }]
+  },
+  {
+    "code" : "MSG_DELETED_DONE",
+    "display" : "Resource deleted",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð ÐµÑ�ÑƒÑ€Ñ� ÑƒÐ´Ð°Ð»Ñ‘Ð½"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Risorsa cancellata"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ZasÃ³b usuniÄ™to"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ressource supprimÃ©e"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Resource verwijderd"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "èµ„æº�å·²åˆ é™¤"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Recurso borrado"
+    }]
+  },
+  {
+    "code" : "MSG_DELETED_ID",
+    "display" : "The resource \"%s\" has been deleted",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð ÐµÑ�ÑƒÑ€Ñ� \"%s\" Ð±Ñ‹Ð» ÑƒÐ´Ð°Ð»Ñ‘Ð½"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "La risorsa \"%s\" Ã¨ stata eliminata"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ZasÃ³b \"%s\" zostaÅ‚ usuniÄ™ty"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "La ressource \"%s\" a Ã©tÃ© supprimÃ©e"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "De resource \"%s\" is verwijderd"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "èµ„æº� \"%s\" å·²è¢«åˆ é™¤"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "El recurso \"%s\" ha sido borrado"
+    }]
+  },
+  {
+    "code" : "MSG_DUPLICATE_ID",
+    "display" : "Duplicate Id %s for resource type %s",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð”ÑƒÐ±Ð»Ð¸Ñ€ÑƒÑŽÑ‰Ð¸Ð¹ Id %s Ð´Ð»Ñ� Ñ‚Ð¸Ð¿Ð° Ñ€ÐµÑ�ÑƒÑ€Ñ�Ð° %s"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id %s duplicato per il tipo di risorsa %s"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Zdublowany identyfikator %s dla zasobu typu %s"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id %s en double pour le type de ressource %s"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Duplicaat-id %s voor resourcetype %s"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ID %s é‡�å¤�ï¼ˆèµ„æº�ç±»åž‹ %sï¼‰"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id %s duplicada para el recurso de tipo %s"
+    }]
+  },
+  {
+    "code" : "MSG_ERROR_PARSING",
+    "display" : "Error parsing resource Xml (%s)",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ÐžÑˆÐ¸Ð±ÐºÐ° Ñ�Ð¸Ð½Ñ‚Ð°ÐºÑ�Ð¸Ñ‡ÐµÑ�ÐºÐ¾Ð³Ð¾ Ñ€Ð°Ð·Ð±Ð¾Ñ€Ð° Ñ€ÐµÑ�ÑƒÑ€Ñ�Ð° Xml (%s)"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Errore nel parsing della risorsa Xml (%s)"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "BÅ‚Ä…d w trakcie parsowania zasobu XML (%s)"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Erreur d'analyse de la ressource Xml (%s)"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Fout in verwerking resource Xml (%s)"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "è§£æž�èµ„æº�Xmlæ—¶å‡ºé”™ (%s)"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Error parseando el recurso Xml (%s)"
+    }]
+  },
+  {
+    "code" : "MSG_ID_INVALID",
+    "display" : "Id \"%s\" has an invalid character \"%s\"",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id \"%s\" Ñ�Ð¾Ð´ÐµÑ€Ð¶Ð¸Ñ‚ Ð½ÐµÐ´Ð¾Ð¿ÑƒÑ�Ñ‚Ð¸Ð¼Ñ‹Ðµ Ñ�Ð¸Ð¼Ð²Ð¾Ð»Ñ‹ \"%s\""
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "L''Id \"%s\" ha un carattere non valido: \"%s\""
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Identyfikator \"%s\" zawiera niepoprawny znak \"%s\""
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id \"%s\" possÃ¨de un caractÃ¨re invalide \"%s\""
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id \"%s\" heeft een ongeldig teken \"%s\""
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ID \"%s\" å¸¦æœ‰é�žæ³•å­—ç¬¦: \"%s\""
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "El Id \"%s\" contiene el caracter invÃ¡lido \"%s\""
+    }]
+  },
+  {
+    "code" : "MSG_ID_TOO_LONG",
+    "display" : "Id \"%s\" too long (length limit 36)",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð�ÐµÐ´Ð¾Ð¿ÑƒÑ�Ñ‚Ð¸Ð¼Ð°Ñ� Ð´Ð»Ð¸Ð½Ð° Id \"%s\" (Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡ÐµÐ½Ð¸Ðµ 36)"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id \"%s\" troppo lunga (limite di lunghezza: 36)"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Identyfikator \"%s\" jest zbyt dÅ‚ugi (limit dÅ‚ugoÅ›ci 36)"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id \"%s\" trop long (la longueur limite est 36)"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id \"%s\" te lang (max lengte 36)"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id \"%s\" è¿‡é•¿ (é•¿åº¦é™�åˆ¶: 36)"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "El Id \"%s\" es demasiado largo (limite de longitud: 36)"
+    }]
+  },
+  {
+    "code" : "MSG_INVALID_ID",
+    "display" : "Id not accepted",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id Ð½Ðµ Ð¿Ñ€Ð¸Ð½Ñ�Ñ‚Ð¾"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id non accettato"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Identyfikator nie zaakceptowany"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id non acceptÃ©"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id niet geaccepteerd"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Idä¸�è¢«æŽ¥å�—"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id no aceptada"
+    }]
+  },
+  {
+    "code" : "MSG_JSON_OBJECT",
+    "display" : "Json Source for a resource should start with an object",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Json Source Ð´Ð»Ñ� Ñ€ÐµÑ�ÑƒÑ€Ñ�Ð° Ð´Ð¾Ð»Ð¶ÐµÐ½ Ð½Ð°Ñ‡Ð¸Ð½Ð°Ñ‚ÑŒÑ�Ñ� Ñ� Ð¾Ð±ÑŠÐµÐºÑ‚Ð°"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Il sorgente Json di una risorsa dovrebbe iniziare con un oggetto"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Å¹rÃ³dÅ‚o json dla zasobu powinno rozpoczynaÄ‡ siÄ™ od obiektu"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "La source Json pour une ressource doit commencer par un objet"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Json Source van een resource moeten beginnen met een object"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "èµ„æº�çš„Jsonæº�åº”ä»¥ä¸€ä¸ªobjectå¼€å§‹"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "La fuente Json para un recurso deberÃ­a empezar con un objeto"
+    }]
+  },
+  {
+    "code" : "MSG_LOCAL_FAIL",
+    "display" : "Unable to resolve local reference to resource %s",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð�ÐµÐ²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»Ð¸Ñ‚ÑŒ Ð»Ð¾ÐºÐ°Ð»ÑŒÐ½ÑƒÑŽ Ñ�Ñ�Ñ‹Ð»ÐºÑƒ Ð½Ð° Ñ€ÐµÑ�ÑƒÑ€Ñ� %s"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Impossibile risolvere il riferimento locale alla risorsa %s"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ZasÃ³b wskazywany przez loklanÄ… referencjÄ™ %s nie zostaÅ‚ odnaleziony"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Impossible de rÃ©sourdre la rÃ©fÃ©rence locale Ã  la ressource %s"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "De resource met lokale referentie %s is niet gevonden"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æ— æ³•è§£æž�å¯¹èµ„æº� %s çš„æœ¬åœ°å¼•ç”¨"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Imposible resolver la referencia al recurso %s"
+    }]
+  },
+  {
+    "code" : "MSG_NO_EXIST",
+    "display" : "Resource Id \"%s\" does not exist",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð ÐµÑ�ÑƒÑ€Ñ� Id \"%s\" Ð½Ðµ Ñ�ÑƒÑ‰ÐµÑ�Ñ‚Ð²ÑƒÐµÑ‚"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "La risorsa con Id \"%s\" non esiste"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ZasÃ³b o identyfikatorze \"%s\" nie istnieje"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "La ressource avec l'Id \"%s\" n'existe pas"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Resource-id \"%s\" bestaat niet"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "èµ„æº�Id \"%s\"ä¸�å­˜åœ¨"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "El recurso con Id \"%s\" no existe"
+    }]
+  },
+  {
+    "code" : "MSG_NO_MATCH",
+    "display" : "No Resource found matching the query \"%s\"",
+    "designation" : [{
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nessuna Risorsa soddisfa la query \"%s\""
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Geen resource gevonden met query \"%s\""
+    }]
+  },
+  {
+    "code" : "MSG_NO_MODULE",
+    "display" : "No module could be found to handle the request \"%s\"",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ÐœÐ¾Ð´ÑƒÐ»ÑŒ Ð´Ð»Ñ� Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ¸ Ð·Ð°Ð¿Ñ€Ð¾Ñ�Ð° \"%s\" Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Impossibile trovare un modulo per gestire la richiesta \"%s\""
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nie moÅ¼na odnaleÅºÄ‡ moduÅ‚u, aby obsÅ‚uÅ¼yÄ‡ Å¼Ä…danie \"%s\""
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Aucun module disponible pour traiter la requÃªte \"%s\""
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Er kon geen module worden gevonden om verzoek \"%s\" te verwerken"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æ— æ³•æ‰¾åˆ°å¤„ç�†è¯·æ±‚\"%s\"çš„æ¨¡å�—"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "No se encontrÃ³ un modulo que gestione la peticiÃ³n \"%s\""
+    }]
+  },
+  {
+    "code" : "MSG_NO_SUMMARY",
+    "display" : "No Summary for this resource",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ÐžÑ‚Ñ�ÑƒÑ‚Ñ�Ñ‚Ð²ÑƒÐµÑ‚ Summary Ð´Ð»Ñ� Ð´Ð°Ð½Ð½Ð¾Ð³Ð¾ Ñ€ÐµÑ�ÑƒÑ€Ñ�Ð°"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nessun riepilogo per questa risorsa"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Brak podsumowania (Summary) dla tego zasobu"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Aucun rÃ©sumÃ© disponible pour cette ressource"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Geen samenvatting voor deze resource"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "è¯¥èµ„æº�æ— summary"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "No existe un resumen para este recurso"
+    }]
+  },
+  {
+    "code" : "MSG_OP_NOT_ALLOWED",
+    "display" : "Operation %s not allowed for resource %s (due to local configuration)",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ÐžÐ¿ÐµÑ€Ð°Ñ†Ð¸Ñ� %s Ð½ÐµÐ´Ð¾Ð¿ÑƒÑ�Ñ‚Ð¸Ð¼Ð° Ð´Ð»Ñ� Ñ€ÐµÑ�ÑƒÑ€Ñ�Ð° %s (Ð¿Ð¾ Ð¿Ñ€Ð¸Ñ‡Ð¸Ð½Ðµ Ð»Ð¾ÐºÐ°Ð»ÑŒÐ½Ð¾Ð¹ ÐºÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸Ð¸)"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Operazione %s non consentita per la risorsa %s (a causa di configurazioni locali)"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Niedozwolona operacja %s dla zasobu %s (ze wzglÄ™du na lokalnÄ… konfiguracjÄ™)"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "L'opÃ©ration %s n'est pas permise pour la ressource %s (Ã  cause de la configuration locale)"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Bewerking %s niet toegestaan voor resource %s (vanwege lokale configuratie)"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æ“�ä½œ %s ä¸�å…�è®¸ï¼Œå¯¹äºŽèµ„æº� %s (ç”±äºŽæœ¬åœ°é…�ç½®)"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "OperaciÃ³n %s no permitida para el recurso %s (debido a la configuraciÃ³n local)"
+    }]
+  },
+  {
+    "code" : "MSG_PARAM_CHAINED",
+    "display" : "Unknown chained parameter name \"%s\"",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð�ÐµÐ¸Ð·Ð²ÐµÑ�Ñ‚Ð¾Ðµ Ð²Ð»Ð¾Ð¶ÐµÐ½Ð½Ð¾Ðµ Ð½Ð°Ð¸Ð¼ÐµÐ½Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð° \"%s\""
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nome di parametro concatenato sconosciuto: \"%s\""
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nieznana nazwa parametru powiÄ…zanego \"%s\""
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nom du paramÃ¨tre chainÃ© inconnu : \"%s\""
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Onbekende geschakelde parameternaam \"%s\""
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æœªçŸ¥çš„é“¾å¼�å�‚æ•°å��: \"%s\""
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nombre de parametro encadenado desconocido: \"%s\""
+    }]
+  },
+  {
+    "code" : "MSG_PARAM_INVALID",
+    "display" : "Parameter \"%s\" content is invalid",
+    "designation" : [{
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Il contenuto del Parametro \"%s\" non Ã¨ valido"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Waarde van parameter \"%s\" is ongeldig"
+    }]
+  },
+  {
+    "code" : "MSG_PARAM_MODIFIER_INVALID",
+    "display" : "Parameter \"%s\" modifier is invalid",
+    "designation" : [{
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Modifier van parameter \"%s\" is ongeldig"
+    }]
+  },
+  {
+    "code" : "MSG_PARAM_NO_REPEAT",
+    "display" : "Parameter \"%s\" is not allowed to repeat",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ÐŸÐ°Ñ€Ð°Ð¼ÐµÑ‚Ñ€ \"%s\" Ð½Ðµ Ð¼Ð¾Ð¶ÐµÑ‚ Ð±Ñ‹Ñ‚ÑŒ Ð¿Ð¾Ð²Ñ‚Ð¾Ñ€Ñ‘Ð½"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Non ï¿½ consentito ripetere il parametro \"%s\""
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Parametr \"%s\" nie moÅ¼e zostaÄ‡ powtÃ³rzony"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Le paramÃ¨tre \"%s\" ne peut pas Ãªtre rÃ©pÃ©tÃ©"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Parameter \"%s\" mag niet herhalen"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "å�‚æ•°\"%s\"ä¸�å�¯é‡�å¤�"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "No se permite la repeticiÃ³n del parÃ¡metro \"%s\""
+    }]
+  },
+  {
+    "code" : "MSG_PARAM_UNKNOWN",
+    "display" : "Parameter \"%s\" not understood",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ÐŸÐ°Ñ€Ð°Ð¼ÐµÑ‚Ñ€ \"%s\" Ð½Ðµ Ð¿Ð¾Ð½Ñ�Ñ‚"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Parametro \"%s\" non riconosciuto"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "NiezrozumiaÅ‚y parametr \"%s\""
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ParamÃ¨tre \"%s\" non reconnu"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Parameter \"%s\" onbekend"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æ— æ³•ç�†è§£å�‚æ•°\"%s\""
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ParÃ¡metro \"%s\" no reconocido"
+    }]
+  },
+  {
+    "code" : "MSG_RESOURCE_EXAMPLE_PROTECTED",
+    "display" : "Resources with identity \"example\" cannot be deleted (for testing/training purposes)",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð ÐµÑ�ÑƒÑ€Ñ� Ñ� Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€Ð¾Ð¼ \"example\" Ð½Ðµ Ð¼Ð¾Ð¶ÐµÑ‚ Ð±Ñ‹Ñ‚ÑŒ ÑƒÐ´Ð°Ð»Ñ‘Ð½ (Ð´Ð»Ñ� Ñ�Ð»ÑƒÑ‡Ð°ÐµÐ² Ñ‚ÐµÑ�Ñ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ�/Ð¾Ð±ÑƒÑ‡ÐµÐ½Ð¸Ñ�)"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Le Risorse aventi l'identitÃ  \"example\" non possono essere cancellate (per finalitÃ  di test/formazione)"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Zasoby oznaczone jako \"example\" nie mogÄ… zostaÄ‡ usuniÄ™te (dla celÃ³w testÃ³w/szkoleÅ„)"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Les ressources ayant l'identitÃ© \"example\" ne peuvent pas Ãªtre supprimÃ©es (utilisÃ©es pour les tests/formations)"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Resources met identiteit \"voorbeeld\" kunnen niet worden verwijderd (ten behoeve van testen/training)"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ä»¥\"example\" ä¸ºIDçš„èµ„æº�ä¸�èƒ½è¢«åˆ é™¤ (ç”¨äºŽæµ‹è¯•/åŸ¹è®­)"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Recursos con la identidad \"example\" no pueden ser borrados (son usados para pruebas/entrenamiento)"
+    }]
+  },
+  {
+    "code" : "MSG_RESOURCE_ID_FAIL",
+    "display" : "unable to allocate resource id",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð½ÐµÐ²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ Ð²Ñ‹Ð´ÐµÐ»Ð¸Ñ‚ÑŒ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ Ñ€ÐµÑ�ÑƒÑ€Ñ�Ð°"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "impossibile allocare l''id della risorsa"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "nie moÅ¼na nadaÄ‡ identyfikatora zasobu"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "impossible d'allouer l'id de la ressource"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "kan geen resource-id reserveren"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æ— æ³•åˆ†é…�èµ„æº�ID"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "imposible encontrar el id del recurso"
+    }]
+  },
+  {
+    "code" : "MSG_RESOURCE_ID_MISMATCH",
+    "display" : "Resource Id Mismatch",
+    "designation" : [{
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ProblÃ¨me de correspondance d'Id de la Ressource"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Resource ID's komen niet overeen"
+    }]
+  },
+  {
+    "code" : "MSG_RESOURCE_ID_MISSING",
+    "display" : "Resource Id Missing",
+    "designation" : [{
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id della Risorsa mancante"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Id de la Ressource manquante"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Resource ID ontbreekt"
+    }]
+  },
+  {
+    "code" : "MSG_RESOURCE_NOT_ALLOWED",
+    "display" : "Not allowed to submit a resource for this operation",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð”Ð»Ñ� Ð´Ð°Ð½Ð½Ð¾Ð¹ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²ÐºÐ° Ñ€ÐµÑ�ÑƒÑ€Ñ�Ð° Ð½ÐµÐ´Ð¾Ð¿ÑƒÑ�Ñ‚Ð¸Ð¼Ð°"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Non Ã¨ consentito sottomettere una risorsa per questa operazione"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nie moÅ¼na zgÅ‚osiÄ‡ zasobu dla tej operacji"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Non autorisÃ© Ã  soumettre une ressource pour cette opÃ©ration"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Niet toegestaan om een resource in te dienen voor deze bewerking"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "è¯¥æ“�ä½œä¸�å…�è®¸æ��äº¤èµ„æº�"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "No se permite el envÃ­o de un recurso para esta operaciÃ³n"
+    }]
+  },
+  {
+    "code" : "MSG_RESOURCE_REQUIRED",
+    "display" : "A resource is required",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð¢Ñ€ÐµÐ±ÑƒÐµÑ‚Ñ�Ñ� Ñ€ÐµÑ�ÑƒÑ€Ñ�"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "E'' richiesta una risorsa"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ZasÃ³b jest wymagany"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Une ressource est requise"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Een resource is verplicht"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "å¿…é¡»æ��ä¾›ä¸€ä¸ªèµ„æº�"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Se requiere un recurso"
+    }]
+  },
+  {
+    "code" : "MSG_RESOURCE_TYPE_MISMATCH",
+    "display" : "Resource Type Mismatch",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð�ÐµÑ�Ð¾Ð¾Ñ‚Ð²ÐµÑ‚Ñ�Ñ‚Ð²Ð¸Ðµ Ñ‚Ð¸Ð¿Ð° Ñ€ÐµÑ�ÑƒÑ€Ñ�Ð°"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Tipo Risorsa non corrispondente"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Niepoprawny typ zasobu"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Type de ressource incorrect"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Verkeerd resourcetype"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "èµ„æº�ç±»åž‹ä¸�åŒ¹é…�"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Los Tipos de los recursos no coinciden"
+    }]
+  },
+  {
+    "code" : "MSG_SORT_UNKNOWN",
+    "display" : "Unknown sort parameter name \"%s\"",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð�ÐµÐ¸Ð·Ð²ÐµÑ�Ñ‚Ð½Ð¾Ðµ Ð¸Ð¼Ñ� Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð° Ñ�Ð¾Ñ€Ñ‚Ð¸Ñ€Ð¾Ð²ÐºÐ¸ \"%s\""
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nome del parametro di ordinamento \"%s\" non riconosciuto"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nieznany parametr sortowania \"%s\""
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nom du paramÃ¨tre de tri inconnu \"%s\""
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Onbekende parameternaam \"%s\" voor sortering"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æœªçŸ¥çš„æŽ’åº�å�‚æ•°å��ç§°\"%s\""
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nombre del parÃ¡metro de ordenaciÃ³n \"%s\" desconocido"
+    }]
+  },
+  {
+    "code" : "MSG_TRANSACTION_DUPLICATE_ID",
+    "display" : "Duplicate Identifier in transaction: %s",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð”ÑƒÐ±Ð»Ð¸Ñ€ÑƒÑŽÑ‰Ð¸Ð¹ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ Ð² Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸Ð¸: %s"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Zdublowany identyfikator w transakcji: %s"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Identifiant en double dans la transaction : %s"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Dubbele identificatie in transactie: %s"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "äº‹åŠ¡ä¸­å­˜åœ¨é‡�å¤�Id: %s"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Identificador duplicado en la transacciÃ³n: %s"
+    }]
+  },
+  {
+    "code" : "MSG_TRANSACTION_MISSING_ID",
+    "display" : "Missing Identifier in transaction - an entry.id must be provided",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ÐžÑ‚Ñ�ÑƒÑ‚Ñ�Ñ‚Ð²ÑƒÐµÑ‚ Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ Ð² Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸Ð¸ - Ñ‚Ñ€ÐµÐ±ÑƒÐµÑ‚Ñ�Ñ� entry.id"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Brak identyfikatora w transakcji - naleÅ¼y podaÄ‡ entry.id"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Identifiant manquant dans la transaction - un Ã©lÃ©ment entry.id doit Ãªtre fourni"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ontbrekende identificatie in transactie - entry.id is verplicht"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "äº‹åŠ¡ä¸­ç¼ºå°‘Id - å¿…é¡»æ��ä¾›ä¸€ä¸ªentry.id"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Identificador de la transacciÃ³n no encontrado - se debe proporcionar un entry.id"
+    }]
+  },
+  {
+    "code" : "MSG_UNHANDLED_NODE_TYPE",
+    "display" : "Unhandled xml node type \"%s\"",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð�Ðµ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ð°Ð½Ð½Ñ‹Ð¹ xml ÑƒÐ·ÐµÐ» \"%s\""
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Tipo di nodo Xml non gestito \"%s\""
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "NieobsÅ‚ugiwany typ wÄ™zÅ‚a XML \"%s\""
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Type de noeud xml \"%s\" non traitÃ©"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Kan xml nodetype \"%s\" niet verwerken"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æœªå¤„ç�†çš„XMLèŠ‚ç‚¹ç±»åž‹\"%s\""
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Tipo de nodo Xml no soportado \"%s\""
+    }]
+  },
+  {
+    "code" : "MSG_UNKNOWN_CONTENT",
+    "display" : "Unknown Content (%s) at %s",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð�ÐµÐ¸Ð·Ð²ÐµÑ�Ñ‚Ð½Ñ‹Ð¹ ÐºÐ¾Ð½Ñ‚ÐµÐ½Ñ‚ (%s) Ð² %s"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Contenuto Sconosciuto (%s) at %s"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nieznana zawartoÅ›Ä‡ (%s) dla %s"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Contenu inconnu (%s) Ã  %s"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Onbekende content (%s) at %s"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æœªçŸ¥å†…å®¹ (%s) ä½�äºŽ %s"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Contenido desconocido (%s) en %s"
+    }]
+  },
+  {
+    "code" : "MSG_UNKNOWN_OPERATION",
+    "display" : "unknown FHIR http operation",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð½ÐµÐ¸Ð·Ð²ÐµÑ�Ñ‚Ð½Ð°Ñ� Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ñ� FHIR http"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "operazione http FHIR sconosciuta"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "nieznana operacja FHIR http"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "operation http FHIR inconnue"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "onbekende FHIR http operation"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æœªçŸ¥çš„FHIR HTTPæ“�ä½œ"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "OperaciÃ³n http FHIR desconocida"
+    }]
+  },
+  {
+    "code" : "MSG_UNKNOWN_TYPE",
+    "display" : "Resource Type \"%s\" not recognised",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð¢Ð¸Ð¿ Ñ€ÐµÑ�ÑƒÑ€Ñ�Ð° \"%s\" Ð½Ðµ Ñ€Ð°Ñ�Ð¿Ð¾Ð·Ð½Ð°Ð½"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Tipo di Risorsa \"%s\" non riconosciuto"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nie rozpoznany typ zasobu: \"%s\""
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Type de ressource \"%s\" non reconnu"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Resourcetype \"%s\" niet herkend"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "èµ„æº�ç±»åž‹\"%s\"æœªè¯†åˆ«"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Tipo de Recurso \"%s\" no reconocido"
+    }]
+  },
+  {
+    "code" : "MSG_UPDATED",
+    "display" : "existing resource updated",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ñ�ÑƒÑ‰ÐµÑ�Ñ‚Ð²ÑƒÑŽÑ‰Ð¸Ð¹ Ñ€ÐµÑ�ÑƒÑ€Ñ� Ð¾Ð±Ð½Ð¾Ð²Ð»Ñ‘Ð½"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "risorsa esistente aggiornata"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "uaktualniono istniejÄ…cy zasÃ³b"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ressource existante mise Ã  jour"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "bestaande resource updated"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "å·²æœ‰èµ„æº�è¢«æ›´æ–°"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Recurso existente actualizado"
+    }]
+  },
+  {
+    "code" : "MSG_VERSION_AWARE",
+    "display" : "Version aware updates are required for this resource",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Ð”Ð»Ñ� Ð´Ð°Ð½Ð½Ð¾Ð³Ð¾ Ñ€ÐµÑ�ÑƒÑ€Ñ�Ð° Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ñ‹ Ð¾Ð±Ð½Ð¾Ð²Ð»ÐµÐ½Ð¸Ñ� Ñ� ÑƒÑ‡Ñ‘Ñ‚Ð¾Ð¼ Ð²ÐµÑ€Ñ�Ð¸Ð¸"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Questa risorsa richiede aggiornamenti per versione"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Uaktualnienia zakÅ‚adajÄ…ce wersjonowanie sÄ… wymagane dla tego zasobu"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Des mises Ã  jour en relation avec la version sont requises pour cette ressource"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Versie-bewuste updates zijn vereist voor deze resource"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "è¯¥èµ„æº�çš„æ›´æ–°å¿…é¡»é’ˆå¯¹ç‰ˆæœ¬"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Este recurso requiere actualizaciones en base a versiones"
+    }]
+  },
+  {
+    "code" : "MSG_VERSION_AWARE_CONFLICT",
+    "display" : "Update Conflict (server current version = \"%s\", client version referenced = \"%s\")",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ÐšÐ¾Ð½Ñ„Ð»Ð¸ÐºÑ‚ Ð¾Ð±Ð½Ð¾Ð²Ð»ÐµÐ½Ð¸Ñ� (Ñ‚ÐµÐºÑƒÑ‰Ð°Ñ� Ð²ÐµÑ€Ñ�Ð¸Ñ� Ñ�ÐµÑ€Ð²ÐµÑ€Ð° = \"%s\", ÑƒÐºÐ°Ð·Ð°Ð½Ð½Ð°Ñ� Ð²ÐµÑ€Ñ�Ð¸Ñ� ÐºÐ»Ð¸ÐµÐ½Ñ‚Ð° = \"%s\")"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Conflitto nell''aggiornamento (attuale = \"%s\", quotato = \"%s\")"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Konflikt podczas uaktualnienia (obecna wersja na serwerze = \"%s\", wersja wskazana przez klienta = \"%s\")"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Conflit de mise Ã  jour (version courante du serveur = \"%s\", version rÃ©fÃ©rencÃ©e du client = \"%s\")"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Updateconflict (huidige serverversie = \"%s\", opgegeven clientversie = \"%s\")"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æ›´æ–°å†²çª� (æœ�åŠ¡å™¨å½“å‰�ç‰ˆæœ¬ = \"%s\", å®¢æˆ·ç«¯å¼•ç”¨çš„ç‰ˆæœ¬ = \"%s\")"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Conflicto de actualizaciones (versiÃ³n actual del servidor = \"%s\", versiÃ³n del cliente referenciada = \"%s\")"
+    }]
+  },
+  {
+    "code" : "MSG_VERSION_AWARE_URL",
+    "display" : "Version specific URL not recognised",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "URL Ð´Ð»Ñ� ÑƒÐºÐ°Ð·Ð°Ð½Ð½Ð¾Ð¹ Ð²ÐµÑ€Ñ�Ð¸Ð¸ Ð½Ðµ Ñ€Ð°Ñ�Ð¿Ð¾Ð·Ð½Ð°Ð½"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "URL specifico alla versione non riconosciuto"
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Nie rozpoznany URL specyficzny dla wersji"
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "URL spÃ©cifique Ã  une version non reconnue"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Versie-specifieke URL niet herkend"
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "æœªè¯†åˆ«ç‰¹å®šç‰ˆæœ¬çš„URL"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "URL especifica de la versiÃ³n no reconocida"
+    }]
+  },
+  {
+    "code" : "MSG_WRONG_NS",
+    "display" : "This does not appear to be a FHIR element or resource (wrong namespace \"%s\")",
+    "designation" : [{
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Dit lijkt geen FHIR element of resource te zijn (verkeerde namespace \"%s\")"
+    }]
+  },
+  {
+    "code" : "SEARCH_MULTIPLE",
+    "display" : "Error: Multiple matches exist for %s search parameters \"%s\"",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ÐžÑˆÐ¸Ð±ÐºÐ°: Ð¼Ð½Ð¾Ð¶ÐµÑ�Ñ‚Ð²ÐµÐ½Ð½Ñ‹Ðµ Ñ�Ð¾Ð²Ð¿Ð°Ð´ÐµÐ½Ð¸Ñ� Ð´Ð»Ñ� %s Ñ� Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð°Ð¼Ð¸ Ð¿Ð¾Ð¸Ñ�ÐºÐ° \"%s\""
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Errore: Trovate corrispondenze multiple per %s parametri di ricerca \"%s\""
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "BÅ‚Ä…d: IstniejÄ… wielokrotne dopasowania dla %s parametrÃ³w wyszukiwania \"%s\""
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Erreur : Plusieurs correspondances existent pour ce paramÃ¨tre de recherche %s"
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Fout: er is meer dan Ã©Ã©n resultaat voor %s zoekparameters \"%s\""
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "é”™è¯¯: å¯¹äºŽ %s æ�œç´¢çš„å�‚æ•° \"%s\"å­˜åœ¨å¤šä¸ªåŒ¹é…�"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Error: Multiples ocurrencias existen para %s parametros de bÃºsqueda \"%s\""
+    }]
+  },
+  {
+    "code" : "SEARCH_NONE",
+    "display" : "Error: no processable search found for %s search parameters \"%s\"",
+    "designation" : [{
+      "language" : "ru",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "ÐžÑˆÐ¸Ð±ÐºÐ°: Ð¾Ð±Ñ€Ð°Ð±Ð°Ñ‚Ñ‹Ð²Ð°ÐµÐ¼Ñ‹Ñ… Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚Ð¾Ð² Ð¿Ð¾Ð¸Ñ�ÐºÐ° Ð´Ð»Ñ� %s Ñ� Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð°Ð¼Ð¸ Ð¿Ð¾Ð¸Ñ�ÐºÐ° \"%s\" Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ð¾"
+    },
+    {
+      "language" : "it",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Errore: non Ã¨ stato trovato alcun parametro di ricerca processabile per %s parametri di ricerca \"%s\""
+    },
+    {
+      "language" : "pl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "BÅ‚Ä…d: Niewykonalne wyszukiwanie dla %s parametrÃ³w wyszukiwania \"%s\""
+    },
+    {
+      "language" : "fr",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Erreur : aucune recherche trouvÃ©e pour les paramÃ¨tres %s \"%s\""
+    },
+    {
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Fout: geen verwerkbare zoekactie gevonden voor %s zoekparameters \"%s\""
+    },
+    {
+      "language" : "zh",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "é”™è¯¯: å¯¹%sæ�œç´¢å�‚æ•°\"%s\"æœªæ‰¾åˆ°å�¯å¤„ç�†çš„æ�œç´¢"
+    },
+    {
+      "language" : "es",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Error: no se encontro una bÃºsqueda apropiada para %s parametros de bÃºsqueda \"%s\""
+    }]
+  },
+  {
+    "code" : "UPDATE_MULTIPLE_MATCHES",
+    "display" : "Error: Multiple matches exist for the conditional update",
+    "designation" : [{
+      "language" : "nl",
+      "use" : {
+        "system" : "http://terminology.hl7.org/CodeSystem/designation-usage",
+        "code" : "display"
+      },
+      "value" : "Fout: er is meer dan Ã©Ã©n resultaat voor de conditionele update"
+    }]
+  }]
+}
