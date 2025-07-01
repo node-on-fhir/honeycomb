@@ -1,0 +1,109 @@
+{
+  "public": {
+    "title": "Honeycomb HIPAA Compliance",
+    "organization": {
+      "name": "[Your Organization Name]",
+      "address": "[Your Organization Address]",
+      "privacyOfficer": "[Privacy Officer Name]",
+      "securityOfficer": "[Security Officer Name]",
+      "phone": "[Contact Phone]",
+      "email": "[Contact Email]"
+    },
+    "defaults": {
+      "route": "/hipaa/audit-log",
+      "sidebar": {
+        "menuItems": {
+          "FhirResources": true,
+          "HipaaAuditLog": true,
+          "HipaaPolicies": true,
+          "ComplianceReports": true,
+          "SidebarWorkflows": true
+        },
+        "hidden": []
+      }
+    },
+    "hipaa": {
+      "features": {
+        "auditLogging": true,
+        "automaticHooks": true,
+        "complianceReporting": true,
+        "policyManagement": true,
+        "dataExport": true,
+        "encryptedExport": true,
+        "integrityChecking": true
+      },
+      "ui": {
+        "showPatientContext": true,
+        "enableFiltering": true,
+        "defaultPageSize": 100,
+        "enableRealTimeUpdates": true,
+        "showDebugInfo": false,
+        "enableTestData": false
+      },
+      "compliance": {
+        "environment": "production",
+        "auditDetailLevel": "standard",
+        "dataRetentionYears": 7,
+        "requireSecondaryAuth": false,
+        "authTimeoutMinutes": 30
+      }
+    },
+    "security": {
+      "passwordMinLength": 12,
+      "maxLoginAttempts": 5,
+      "accountLockoutMinutes": 30
+    }
+  },
+  "private": {
+    "hipaa": {
+      "security": {
+        "encryptionLevel": "aes",
+        "allowDebugAccess": false,
+        "requireSecondaryAuth": true,
+        "sessionTimeout": 30
+      },
+      "encryption": {
+        "secretKey": "",
+        "algorithm": "aes-256-gcm",
+        "keyRotationDays": 90,
+        "lastKeyRotation": null
+      },
+      "hooks": {
+        "enableCollectionHooks": true,
+        "monitoredCollections": [
+          "Patients", 
+          "Observations", 
+          "Encounters", 
+          "DiagnosticReports", 
+          "MedicationRequests",
+          "Procedures",
+          "Conditions",
+          "CarePlans",
+          "Goals",
+          "CareTeams"
+        ],
+        "excludeSystemUsers": ["system", "migration-user"],
+        "logReadAccess": false,
+        "logToConsole": false
+      },
+      "reporting": {
+        "allowAutomaticExport": false,
+        "maxExportRecords": 10000,
+        "requireApprovalForExport": true,
+        "exportFormats": ["csv", "json", "fhir"],
+        "scheduledReports": false
+      },
+      "notifications": {
+        "alertOnSecurityEvents": true,
+        "alertOnExports": true,
+        "alertOnKeyRotation": true,
+        "notificationEmail": ""
+      },
+      "backup": {
+        "frequency": "daily",
+        "retention": "30 days",
+        "encryption": true
+      }
+    }
+  }
+}
