@@ -207,7 +207,7 @@ function Footer({
 
 
   return (
-    <AppBar id="footerNavigation" position="fixed" style={appStyle} >
+    <AppBar id="footer" position="fixed" style={appStyle} >
       <Toolbar>
         { westNavbar }
       </Toolbar>

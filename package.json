@@ -76,14 +76,14 @@
     "react-router-dom": "^6.26.1",
     "react-swipeable": "^7.0.1",
     "role-acl": "^4.5.4",
+    "sanitize-html": "^2.17.0",
     "setimmediate": "^1.0.5",
     "simpl-schema": "^3.4.6",
     "superagent": "^10.0.2",
     "validator": "^13.12.0",
     "winston": "^3.14.2",
     "xlsx": "^0.16.0",
-    "xml2js": "^0.4.23",
-    "sanitize-html": "^2.17.0"
+    "xml2js": "^0.4.23"
   },
   "meteor": {
     "mainModule": {
@@ -101,8 +101,10 @@
   },
   "devDependencies": {
     "@meteor-community/meteor-desktop": "^3.3.0",
+    "@nightwatch/react": "^3.1.2",
     "electron": "28.3.2",
-    "electron-builder": "24.6.4"
+    "electron-builder": "24.6.4",
+    "nightwatch": "^3.12.1"
   },
   "overrides": {
     "bson": "^6.8.0",
