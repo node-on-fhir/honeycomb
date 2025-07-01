@@ -1,130 +1,52 @@
-# .circleci/config.yml - Modern CircleCI configuration for Meteor v3 + Nightwatch testing
+# .circleci/config.yml - CircleCI configuration for Meteor v3 + Nightwatch testing
 
 version: 2.1
 
 orbs:
   browser-tools: circleci/browser-tools@1.4.8
-  node: circleci/node@5.2.0
 
-executors:
-  meteor-executor:
+jobs:
+  test-e2e:
     docker:
       - image: cimg/node:20.11.0-browsers
-        name: meteor-app
         environment:
-          # CircleCI specific
           CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
           CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
-          
-          # Timezone and locale
           TZ: "America/Chicago"
-          LANG: C.UTF-8
-          LANGUAGE: C.UTF-8
-          LC_ALL: C.UTF-8
-          LC_NUMERIC: en_US.UTF-8
-          
-          # Environment configuration
-          CIRCLE_ENV: test
           NODE_ENV: test
           NIGHTWATCH: true
           DEBUG: true
-          
-          # Display for headless browser testing
           DISPLAY: :99.0
-          
-          # Memory optimization for Node.js and Meteor
           NODE_OPTIONS: --max_old_space_size=4096
           TOOL_NODE_FLAGS: --max_old_space_size=4096
-          
-          # Test configuration
           TEST_BROWSER_DRIVER: chrome
-          
-          # MongoDB connection
-          MONGO_URL: mongodb://localhost:27017/meteor_test
-          
+          MONGO_URL: mongodb://mongo:27017/meteor_test
       - image: mongo:6.0
         name: mongo
-        environment:
-          MONGO_INITDB_DATABASE: meteor_test
     
     resource_class: large
-    working_directory: ~/project
-
-commands:
-  setup-environment:
-    description: "Set up test environment directories"
+    
     steps:
+      - browser-tools/install-browser-tools
+      
+      - checkout
+      
       - run:
-          name: Create artifact and test result directories
+          name: Create directories
           command: |
             mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
-            mkdir -p $CIRCLE_TEST_REPORTS/nightwatch
-
-  install-meteor:
-    description: "Install Meteor with caching"
-    steps:
-      - restore_cache:
-          keys:
-            - meteor-v3-{{ checksum ".meteor/release" }}
-            - meteor-v3-
       
       - run:
-          name: Install Meteor
+          name: Show environment info
           command: |
-            if [ ! -d ~/.meteor ]; then
-              echo "Installing Meteor..."
-              curl https://install.meteor.com/ | sh
-            else
-              echo "Meteor found in cache"
-            fi
-            
-            # Ensure meteor is in PATH
-            echo 'export PATH="$HOME/.meteor:$PATH"' >> $BASH_ENV
-            source $BASH_ENV
-            
-            # Verify installation
-            meteor --version
+            node --version
+            google-chrome --version
+            pwd
+            ls -la
       
-      - save_cache:
-          key: meteor-v3-{{ checksum ".meteor/release" }}
-          paths:
-            - ~/.meteor
-
-  install-dependencies:
-    description: "Install npm dependencies with caching"
-    steps:
-      - restore_cache:
-          keys:
-            - npm-deps-v2-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
-            - npm-deps-v2-{{ checksum "package.json" }}
-            - npm-deps-v2-
-      
-      - run:
-          name: Install Meteor npm dependencies
-          command: |
-            meteor npm install
-          no_output_timeout: 20m
-      
-      - run:
-          name: Install global Nightwatch
-          command: |
-            sudo npm install -g nightwatch@3.0.1
-            nightwatch --version
-      
-      - save_cache:
-          key: npm-deps-v2-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
-          paths:
-            - node_modules
-            - ~/.npm
-            - ~/.meteor/packages
-
-  wait-for-services:
-    description: "Wait for MongoDB to be ready"
-    steps:
       - run:
           name: Wait for MongoDB
           command: |
-            echo "Waiting for MongoDB to start..."
             for i in {1..30}; do
               if mongo --eval "db.version()" > /dev/null 2>&1; then
                 echo "MongoDB is ready!"
@@ -133,117 +55,74 @@ commands:
               echo "Waiting for MongoDB... ($i/30)"
               sleep 2
             done
-
-jobs:
-  test-e2e:
-    executor: meteor-executor
-    steps:
-      - browser-tools/install-browser-tools:
-          chrome-version: "120.0.6099.109"
-      
-      - checkout
-      
-      - setup-environment
       
       - run:
-          name: Display environment info
+          name: Install Meteor
           command: |
-            echo "Node version: $(node --version)"
-            echo "NPM version: $(npm --version)"
-            echo "Chrome version: $(google-chrome --version)"
-            echo "Working directory: $(pwd)"
-            echo "Environment: $NODE_ENV"
-      
-      - wait-for-services
-      
-      - install-meteor
-      
-      - install-dependencies
+            curl https://install.meteor.com/ | sh
+            echo 'export PATH="$HOME/.meteor:$PATH"' >> $BASH_ENV
+            source $BASH_ENV
+            meteor --version
       
       - run:
-          name: Display Meteor project info
+          name: Install dependencies
           command: |
-            echo "Meteor version: $(meteor --version)"
-            echo "Meteor packages:"
-            meteor list
-            echo "Project structure:"
-            ls -la
+            meteor npm install
+            sudo npm install -g nightwatch@3.0.1
+            nightwatch --version
+          no_output_timeout: 20m
       
       - run:
-          name: Start Meteor application
+          name: Start Meteor
           command: |
-            # Use the settings file if it exists, otherwise start without
             if [ -f "configs/settings.nodeonfhir.json" ]; then
-              echo "Starting Meteor with settings file..."
               meteor run --settings configs/settings.nodeonfhir.json --port 3000
             else
-              echo "Starting Meteor without settings file..."
               meteor run --port 3000
             fi
           background: true
           no_output_timeout: 30m
       
       - run:
-          name: Wait for Meteor application to start
+          name: Wait for Meteor to start
           command: |
-            echo "Waiting for Meteor application to start..."
             for i in {1..60}; do
               if curl -f http://localhost:3000 > /dev/null 2>&1; then
-                echo "Meteor application is ready!"
+                echo "Meteor is ready!"
                 break
               fi
-              echo "Waiting for Meteor application... ($i/60)"
+              echo "Waiting for Meteor... ($i/60)"
               sleep 10
             done
             
-            # Final check
             if ! curl -f http://localhost:3000 > /dev/null 2>&1; then
-              echo "ERROR: Meteor application failed to start"
-              echo "Last 50 lines of meteor logs:"
-              tail -50 nohup.out || echo "No meteor logs found"
+              echo "ERROR: Meteor failed to start"
               exit 1
             fi
       
       - run:
-          name: Run Nightwatch E2E tests
+          name: Run Nightwatch tests
           command: |
-            echo "Starting Nightwatch tests..."
-            
-            # Use nightwatch.conf.js if it exists, otherwise look for .meteor/nightwatch.circle.json
             if [ -f "nightwatch.conf.js" ]; then
-              echo "Using nightwatch.conf.js configuration"
               npx nightwatch --config nightwatch.conf.js
             elif [ -f ".meteor/nightwatch.circle.json" ]; then
-              echo "Using .meteor/nightwatch.circle.json configuration"
               npx nightwatch -c .meteor/nightwatch.circle.json
             else
-              echo "ERROR: No Nightwatch configuration file found"
-              echo "Looking for nightwatch.conf.js or .meteor/nightwatch.circle.json"
-              ls -la nightwatch* .meteor/nightwatch* || echo "No nightwatch config files found"
+              echo "No Nightwatch config found"
               exit 1
             fi
           no_output_timeout: 15m
       
       - run:
-          name: Collect test artifacts
+          name: Collect artifacts
           command: |
-            # Copy test results if they exist
             if [ -d "tests_output" ]; then
-              cp -r tests_output/* $CIRCLE_TEST_REPORTS/nightwatch/ || echo "No test output to copy"
+              cp -r tests_output/* $CIRCLE_TEST_REPORTS/ || true
             fi
-            
-            # Copy screenshots if they exist
             if [ -d "screenshots" ]; then
-              cp -r screenshots $CIRCLE_ARTIFACTS/ || echo "No screenshots to copy"
+              cp -r screenshots $CIRCLE_ARTIFACTS/ || true
             fi
-            
-            # Copy any error screenshots
-            find . -name "*.png" -type f -exec cp {} $CIRCLE_ARTIFACTS/ \; || echo "No error screenshots found"
-            
-            # Copy logs
-            if [ -f "nohup.out" ]; then
-              cp nohup.out $CIRCLE_ARTIFACTS/meteor.log || echo "No meteor log to copy"
-            fi
+            find . -name "*.png" -type f -exec cp {} $CIRCLE_ARTIFACTS/ \; || true
           when: always
       
       - store_test_results:
@@ -251,17 +130,8 @@ jobs:
       
       - store_artifacts:
           path: /tmp/circleci-artifacts
-          destination: test-artifacts
 
 workflows:
-  version: 2
-  test-and-deploy:
+  test-workflow:
     jobs:
-      - test-e2e:
-          filters:
-            branches:
-              only:
-                - main
-                - develop
-                - /^feature\/.*/
-                - /^hotfix\/.*/
+      - test-e2e
