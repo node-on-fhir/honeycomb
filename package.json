@@ -9,11 +9,11 @@
     "desktop": "meteor-desktop"
   },
   "dependencies": {
-    "@accounts/client": "^0.33.1",
-    "@accounts/client-password": "^0.32.2",
-    "@accounts/mongo": "^0.34.1",
-    "@accounts/rest-client": "^0.33.1",
-    "@accounts/server": "^0.33.1",
+    "@accounts/client": "0.33.1",
+    "@accounts/client-password": "0.32.2",
+    "@accounts/mongo": "0.34.1",
+    "@accounts/rest-client": "0.33.1",
+    "@accounts/server": "0.33.1",
     "@babel/core": "^7.25.2",
     "@babel/preset-env": "^7.25.4",
     "@babel/runtime": "^7.20.7",
@@ -55,9 +55,9 @@
     "formik": "^2.4.6",
     "history": "^5.3.0",
     "limiter": "^2.1.0",
-    "lodash": "^4.17.21",
+    "lodash": "4.17.21",
     "material-ui-rc-color-picker": "^1.0.4",
-    "meteor-node-stubs": "^1.2.5",
+    "meteor-node-stubs": "1.2.21",
     "moment": "2.29.4",
     "mongo-query": "^0.5.7",
     "mongoose": "^8.5.3",
@@ -82,8 +82,8 @@
     "superagent": "^10.0.2",
     "validator": "^13.12.0",
     "winston": "^3.14.2",
-    "xlsx": "^0.16.0",
-    "xml2js": "^0.4.23"
+    "xlsx": "0.18.5",
+    "xml2js": "0.6.2"
   },
   "meteor": {
     "mainModule": {
