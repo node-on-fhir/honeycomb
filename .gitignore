@@ -9,6 +9,7 @@ version.desktop
 test
 tests_output
 tests/output
+tests/screenshots
 
 packages
 packages/*
