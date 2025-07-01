@@ -50,15 +50,19 @@ jobs:
           command: |
             echo "Waiting for MongoDB to be ready..."
             for i in {1..60}; do
-              if mongo mongo:27017/test --eval "db.version()" > /dev/null 2>&1; then
+              if nc -z mongo 27017; then
                 echo "MongoDB is ready!"
                 break
               fi
               echo "Waiting for MongoDB... ($i/60)"
               sleep 5
             done
-            # Final verification
-            mongo mongo:27017/test --eval "print('MongoDB connection verified: ' + db.version())"
+            
+            # Final verification using netcat
+            if ! nc -z mongo 27017; then
+              echo "ERROR: MongoDB is not responding"
+              exit 1
+            fi
       
       - run:
           name: Install Meteor
