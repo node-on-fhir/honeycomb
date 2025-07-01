@@ -85,10 +85,25 @@ jobs:
       - run:
           name: Install Meteor
           command: |
+            echo "Installing Meteor..."
             curl https://install.meteor.com/ | sh
+            
+            echo "Setting up Meteor PATH..."
             echo 'export PATH="$HOME/.meteor:$PATH"' >> $BASH_ENV
             source $BASH_ENV
+            
+            echo "Verifying Meteor installation..."
+            ls -la $HOME/.meteor/
+            
+            echo "Testing Meteor command..."
+            $HOME/.meteor/meteor --version
+            
+            echo "Creating symlink for global access..."
+            sudo ln -sf $HOME/.meteor/meteor /usr/local/bin/meteor
+            
+            echo "Final verification..."
             meteor --version
+            which meteor
       
       - run:
           name: Install dependencies
