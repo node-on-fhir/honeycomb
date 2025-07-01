@@ -37,24 +37,28 @@ jobs:
             mkdir -p $CIRCLE_ARTIFACTS $CIRCLE_TEST_REPORTS
       
       - run:
-          name: Show environment info
+          name: Show project structure
           command: |
-            node --version
-            google-chrome --version
             pwd
             ls -la
+            echo "Checking for Meteor project files:"
+            ls -la .meteor/ || echo "No .meteor directory found"
+            cat .meteor/release || echo "No .meteor/release file found"
       
       - run:
           name: Wait for MongoDB
           command: |
-            for i in {1..30}; do
-              if mongo --eval "db.version()" > /dev/null 2>&1; then
+            echo "Waiting for MongoDB to be ready..."
+            for i in {1..60}; do
+              if mongo mongo:27017/test --eval "db.version()" > /dev/null 2>&1; then
                 echo "MongoDB is ready!"
                 break
               fi
-              echo "Waiting for MongoDB... ($i/30)"
-              sleep 2
+              echo "Waiting for MongoDB... ($i/60)"
+              sleep 5
             done
+            # Final verification
+            mongo mongo:27017/test --eval "print('MongoDB connection verified: ' + db.version())"
       
       - run:
           name: Install Meteor
@@ -67,7 +71,18 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            # Verify we're in a Meteor project
+            if [ ! -f ".meteor/release" ]; then
+              echo "ERROR: Not in a Meteor project directory!"
+              echo "Current directory contents:"
+              ls -la
+              exit 1
+            fi
+            
+            echo "Installing Meteor dependencies..."
             meteor npm install
+            
+            echo "Installing Nightwatch globally..."
             sudo npm install -g nightwatch@3.0.1
             nightwatch --version
           no_output_timeout: 20m
