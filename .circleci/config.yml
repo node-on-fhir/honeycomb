@@ -39,11 +39,29 @@ jobs:
       - run:
           name: Show project structure
           command: |
+            echo "=== Current working directory ==="
             pwd
+            
+            echo "=== Contents of current directory ==="
             ls -la
-            echo "Checking for Meteor project files:"
-            ls -la .meteor/ || echo "No .meteor directory found"
-            cat .meteor/release || echo "No .meteor/release file found"
+            
+            echo "=== Looking for .meteor directory ==="
+            find . -name ".meteor" -type d 2>/dev/null || echo "No .meteor directory found"
+            
+            echo "=== Looking for .meteor/release file ==="
+            find . -name "release" -path "*/.meteor/*" 2>/dev/null || echo "No .meteor/release file found"
+            
+            echo "=== Contents of .meteor directory (if exists) ==="
+            if [ -d ".meteor" ]; then
+              ls -la .meteor/
+              echo "=== Contents of .meteor/release ==="
+              cat .meteor/release 2>/dev/null || echo "Cannot read .meteor/release"
+            else
+              echo ".meteor directory does not exist in current location"
+            fi
+            
+            echo "=== Checking if this might be a subdirectory issue ==="
+            find . -name "package.json" -type f 2>/dev/null | head -5
       
       - run:
           name: Wait for MongoDB
