@@ -103,5 +103,14 @@
     "@meteor-community/meteor-desktop": "^3.3.0",
     "electron": "28.3.2",
     "electron-builder": "24.6.4"
+  },
+  "overrides": {
+    "bson": "^6.8.0",
+    "mongodb": "^6.8.0",
+    "fhir-react": {
+      "@nivo/core": "^0.84.0",
+      "@nivo/pie": "^0.84.0",
+      "@nivo/tooltip": "^0.84.0"
+    }
   }
 }
