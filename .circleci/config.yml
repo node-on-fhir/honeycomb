@@ -140,7 +140,6 @@ jobs:
     steps:
       - browser-tools/install-browser-tools:
           chrome-version: "120.0.6099.109"
-          replace-existing: true
       
       - checkout
       
