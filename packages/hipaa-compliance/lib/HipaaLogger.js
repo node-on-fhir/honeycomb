@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/lib/HipaaLogger.js
+// packages/hipaa-compliance/lib/HipaaLogger.js
 
 import { Meteor } from 'meteor/meteor';
 import { get, set } from 'lodash';

@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/tests/nightwatch/commands/components/hipaaLogEntryContains.js
+// packages/hipaa-compliance/tests/nightwatch/commands/components/hipaaLogEntryContains.js
 
 exports.command = function(rowIndex, hipaaEvent) {
   this

@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/client/AuditLogFilters.jsx
+// packages/hipaa-compliance/client/AuditLogFilters.jsx
 
 import React, { useState } from 'react';
 import { get } from 'lodash';

@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/lib/Collections.js
+// packages/hipaa-compliance/lib/Collections.js
 
 import { Mongo } from 'meteor/mongo';
 import { Meteor } from 'meteor/meteor';
@@ -14,8 +14,7 @@ const HipaaAuditLogSchema = new SimpleSchema({
   // Event Information
   eventType: {
     type: String,
-    allowedValues: Object.values(EventTypes),
-    index: true
+    allowedValues: Object.values(EventTypes)
   },
   eventDate: {
     type: Date,
@@ -23,15 +22,13 @@ const HipaaAuditLogSchema = new SimpleSchema({
       if (this.isInsert) {
         return new Date();
       }
-    },
-    index: true
+    }
   },
   
   // User Information
   userId: {
     type: String,
-    optional: true,
-    index: true
+    optional: true
   },
   userName: {
     type: String,
@@ -52,25 +49,21 @@ const HipaaAuditLogSchema = new SimpleSchema({
   // Resource Information
   resourceType: {
     type: String,
-    optional: true,
-    index: true
+    optional: true
   },
   resourceId: {
     type: String,
-    optional: true,
-    index: true
+    optional: true
   },
   collectionName: {
     type: String,
-    optional: true,
-    index: true
+    optional: true
   },
   
   // Patient Context
   patientId: {
     type: String,
-    optional: true,
-    index: true
+    optional: true
   },
   patientName: {
     type: String,
@@ -118,14 +111,17 @@ const HipaaAuditLogSchema = new SimpleSchema({
     autoValue: function() {
       if (this.isInsert) {
         return new Date();
+      } else if (this.isUpsert) {
+        return {$setOnInsert: new Date()};
+      } else {
+        this.unset(); // Prevent updates
       }
-    },
-    denyUpdate: true
+    }
   }
 });
 
-// Attach schema
-HipaaAuditLog.attachSchema(HipaaAuditLogSchema);
+// Store schema reference for validation
+HipaaAuditLog.schema = HipaaAuditLogSchema;
 
 // Security rules - Write only, no updates or deletes
 HipaaAuditLog.allow({
@@ -143,28 +139,28 @@ HipaaAuditLog.allow({
   }
 });
 
-// Add helpers
-HipaaAuditLog.helpers({
-  getUser: function() {
-    if (this.userId) {
-      return Meteor.users.findOne(this.userId);
+// Helper functions (exported separately since we're not using collection2)
+export const HipaaAuditLogHelpers = {
+  getUser: function(doc) {
+    if (doc.userId) {
+      return Meteor.users.findOne(doc.userId);
     }
   },
   
-  getPatient: async function() {
-    if (this.patientId && Meteor.isServer) {
+  getPatient: async function(doc) {
+    if (doc.patientId && Meteor.isServer) {
       const Patients = await global.Collections.Patients;
       if (Patients) {
-        return await Patients.findOneAsync(this.patientId);
+        return await Patients.findOneAsync(doc.patientId);
       }
     }
   },
   
-  isPatientRelated: function() {
-    return !!this.patientId;
+  isPatientRelated: function(doc) {
+    return !!doc.patientId;
   },
   
-  getEventIcon: function() {
+  getEventIcon: function(doc) {
     const iconMap = {
       'view': 'visibility',
       'create': 'add_circle',
@@ -176,10 +172,10 @@ HipaaAuditLog.helpers({
       'error': 'error',
       'export': 'file_download'
     };
-    return iconMap[this.eventType] || 'info';
+    return iconMap[doc.eventType] || 'info';
   },
   
-  getEventColor: function() {
+  getEventColor: function(doc) {
     const colorMap = {
       'view': 'info',
       'create': 'success',
@@ -188,9 +184,9 @@ HipaaAuditLog.helpers({
       'denied': 'error',
       'error': 'error'
     };
-    return colorMap[this.eventType] || 'default';
+    return colorMap[doc.eventType] || 'default';
   }
-});
+};
 
 // Export for use in other files
-export { HipaaAuditLog, HipaaAuditLogSchema };
+export { HipaaAuditLog, HipaaAuditLogSchema, HipaaAuditLogHelpers };

@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/lib/PolicyRoutes.js
+// packages/hipaa-compliance/lib/PolicyRoutes.js
 
 // Policy route definitions matching the hipaa-routes package
 export const PolicyRoutes = [

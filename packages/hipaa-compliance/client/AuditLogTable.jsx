@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/client/AuditLogTable.jsx
+// packages/hipaa-compliance/client/AuditLogTable.jsx
 
 import React from 'react';
 import { get } from 'lodash';

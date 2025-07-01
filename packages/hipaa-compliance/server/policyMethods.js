@@ -1,9 +1,4 @@
-// packages/hipaa-audit-starter/server/policyMethods.js
-
-import { checkNpmVersions } from 'meteor/tmeasday:check-npm-versions';
-checkNpmVersions({
-  'marked': '4.3.0'
-}, 'clinical:hipaa-audit-starter');
+// packages/hipaa-compliance/server/policyMethods.js
 
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
@@ -14,11 +9,19 @@ import { PolicyRoutes } from '../lib/PolicyRoutes';
 import { policyGenerator } from '../lib/PolicyGenerator';
 import { HipaaLogger } from '../lib/HipaaLogger';
 
+// Try to import Roles if available
+let Roles;
+try {
+  Roles = Package['alanning:roles']?.Roles;
+} catch (e) {
+  // Roles package not available
+}
+
 // Get the policies directory path
 const getPoliciesPath = () => {
   // In production, this would be configured differently
   const basePath = process.env.PWD || process.cwd();
-  return path.join(basePath, 'packages', 'hipaa-audit-starter', 'client', 'policies');
+  return path.join(basePath, 'packages', 'hipaa-compliance', 'client', 'policies');
 };
 
 Meteor.methods({
@@ -94,7 +97,7 @@ Meteor.methods({
     check(policyType, String);
     
     // Check permissions - only admins can generate policies
-    if (!this.userId || !Roles.userIsInRole(this.userId, ['admin'])) {
+    if (!this.userId || (Roles && !Roles.userIsInRole(this.userId, ['admin']))) {
       throw new Meteor.Error('unauthorized', 'Not authorized to generate policies');
     }
     

@@ -1,9 +1,17 @@
-// packages/hipaa-audit-starter/lib/SecurityValidators.js
+// packages/hipaa-compliance/lib/SecurityValidators.js
 
 import { Meteor } from 'meteor/meteor';
-import { Roles } from 'meteor/alanning:roles';
 import { get } from 'lodash';
 import { UserRoles } from './Constants';
+
+// Try to import Roles if available
+let Roles;
+try {
+  Roles = Package['alanning:roles']?.Roles;
+} catch (e) {
+  // Roles package not available
+  console.warn('alanning:roles package not available, role-based security will be disabled');
+}
 
 // Security validation utilities
 export const SecurityValidators = {
@@ -21,7 +29,7 @@ export const SecurityValidators = {
       UserRoles.AUDITOR
     ];
     
-    return Roles.userIsInRole(userId, allowedRoles);
+    return Roles ? Roles.userIsInRole(userId, allowedRoles) : true; // Allow if no roles package
   },
 
   // Check if user can export audit data
@@ -37,7 +45,7 @@ export const SecurityValidators = {
       UserRoles.HIPAA_OFFICER
     ];
     
-    return Roles.userIsInRole(userId, allowedRoles);
+    return Roles ? Roles.userIsInRole(userId, allowedRoles) : false; // Deny exports if no roles
   },
 
   // Check if user can modify audit settings
@@ -47,7 +55,7 @@ export const SecurityValidators = {
     }
     
     // Only admins can modify settings
-    return Roles.userIsInRole(userId, [UserRoles.ADMIN]);
+    return Roles ? Roles.userIsInRole(userId, [UserRoles.ADMIN]) : false; // Deny settings if no roles
   },
 
   // Check if user can view patient-specific audits
@@ -57,17 +65,17 @@ export const SecurityValidators = {
     }
     
     // Admins and compliance officers can view all
-    if (Roles.userIsInRole(userId, [UserRoles.ADMIN, UserRoles.COMPLIANCE_OFFICER])) {
+    if (Roles && Roles.userIsInRole(userId, [UserRoles.ADMIN, UserRoles.COMPLIANCE_OFFICER])) {
       return true;
     }
     
     // Clinicians can view their assigned patients
-    if (Roles.userIsInRole(userId, [UserRoles.CLINICIAN])) {
+    if (Roles && Roles.userIsInRole(userId, [UserRoles.CLINICIAN])) {
       return this.isAssignedToPatient(userId, patientId);
     }
     
     // Patients can view their own audit logs
-    if (Roles.userIsInRole(userId, [UserRoles.PATIENT])) {
+    if (Roles && Roles.userIsInRole(userId, [UserRoles.PATIENT])) {
       return this.isPatientUser(userId, patientId);
     }
     
@@ -180,7 +188,7 @@ export const SecurityValidators = {
     return {
       userId: userId,
       userName: user?.username || get(user, 'emails[0].address'),
-      userRoles: Roles.getRolesForUser(userId),
+      userRoles: Roles ? Roles.getRolesForUser(userId) : [],
       timestamp: new Date(),
       environment: get(Meteor, 'settings.public.hipaa.compliance.environment', 'production')
     };

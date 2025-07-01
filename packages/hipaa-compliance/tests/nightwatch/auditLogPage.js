@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/tests/nightwatch/auditLogPage.js
+// packages/hipaa-compliance/tests/nightwatch/auditLogPage.js
 
 module.exports = {
   url: function() {

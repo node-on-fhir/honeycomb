@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/client/PolicyMenuPage.jsx
+// packages/hipaa-compliance/client/PolicyMenuPage.jsx
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -20,7 +20,7 @@ import {
   BugReport as IncidentIcon,
   Assessment as RiskIcon
 } from '@mui/icons-material';
-import { PageCanvas } from 'meteor/clinical:hl7-fhir-data-infrastructure';
+// Removed dependency on hl7-fhir-data-infrastructure
 
 // Policy categories
 const policyCategories = [
@@ -97,7 +97,7 @@ export default function PolicyMenuPage(props) {
   };
 
   return (
-    <PageCanvas id="policyMenuPage" paddingLeft={20} paddingRight={20}>
+    <div id="policyMenuPage" style={{ paddingLeft: 20, paddingRight: 20 }}>
       <Container maxWidth="lg">
         <Box mb={4}>
           <Typography variant="h4" gutterBottom>
@@ -163,6 +163,6 @@ export default function PolicyMenuPage(props) {
         
         <DynamicSpacer />
       </Container>
-    </PageCanvas>
+    </div>
   );
 }

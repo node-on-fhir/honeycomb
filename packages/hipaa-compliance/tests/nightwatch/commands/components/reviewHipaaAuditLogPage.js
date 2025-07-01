@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/tests/nightwatch/commands/components/reviewHipaaAuditLogPage.js
+// packages/hipaa-compliance/tests/nightwatch/commands/components/reviewHipaaAuditLogPage.js
 
 exports.command = function() {
   this

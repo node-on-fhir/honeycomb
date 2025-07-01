@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/lib/EncryptionManager.js
+// packages/hipaa-compliance/lib/EncryptionManager.js
 
 import { Meteor } from 'meteor/meteor';
 import { get } from 'lodash';

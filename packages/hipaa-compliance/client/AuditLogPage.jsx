@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/client/AuditLogPage.jsx
+// packages/hipaa-compliance/client/AuditLogPage.jsx
 
 import React, { useState, useEffect } from 'react';
 import { useTracker } from 'meteor/react-meteor-data';
@@ -28,7 +28,7 @@ import {
   Search as SearchIcon
 } from '@mui/icons-material';
 
-import { PageCanvas, StyledCard } from 'meteor/clinical:hl7-fhir-data-infrastructure';
+// Removed dependency on hl7-fhir-data-infrastructure
 import { HipaaAuditLog } from '../lib/Collections';
 import AuditLogTable from './AuditLogTable';
 import AuditLogFilters from './AuditLogFilters';
@@ -182,18 +182,18 @@ export default function AuditLogPage(props) {
   // Render loading state
   if (isLoading) {
     return (
-      <PageCanvas id="auditLogPage" paddingLeft={20} paddingRight={20}>
+      <div id="auditLogPage" style={{ paddingLeft: 20, paddingRight: 20 }}>
         <Container maxWidth="xl">
           <Typography>Loading audit logs...</Typography>
         </Container>
-      </PageCanvas>
+      </div>
     );
   }
 
   return (
-    <PageCanvas id="auditLogPage" paddingLeft={20} paddingRight={20}>
+    <div id="auditLogPage" style={{ paddingLeft: 20, paddingRight: 20 }}>
       <Container maxWidth="xl">
-        <StyledCard>
+        <Card>
           <CardHeader 
             title="HIPAA Audit Log"
             subheader={`${auditEvents.length} events loaded`}
@@ -255,10 +255,10 @@ export default function AuditLogPage(props) {
               )}
             </Box>
           </CardContent>
-        </StyledCard>
+        </Card>
         
         <DynamicSpacer />
       </Container>
-    </PageCanvas>
+    </div>
   );
 }

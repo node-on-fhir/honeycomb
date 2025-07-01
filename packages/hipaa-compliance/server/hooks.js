@@ -1,9 +1,17 @@
-// packages/hipaa-audit-starter/server/hooks.js
+// packages/hipaa-compliance/server/hooks.js
 
 import { Meteor } from 'meteor/meteor';
 import { get } from 'lodash';
 import { HipaaLogger } from '../lib/HipaaLogger';
 import { CollectionNames } from '../lib/Constants';
+
+// Try to get Accounts if available
+let Accounts;
+try {
+  Accounts = Package['accounts-base']?.Accounts;
+} catch (e) {
+  // Accounts package not available
+}
 
 // Setup collection hooks for automatic audit logging
 export const setupAuditHooks = async function() {
@@ -217,6 +225,11 @@ function extractPatientFromSelector(selector) {
 
 // Setup user activity hooks
 export const setupUserActivityHooks = function() {
+  if (!Accounts) {
+    console.log('Accounts package not available, skipping user activity hooks');
+    return;
+  }
+  
   // Log successful logins
   Accounts.onLogin(async function(info) {
     const userId = info.user._id;

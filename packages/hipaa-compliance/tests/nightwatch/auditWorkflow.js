@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/tests/nightwatch/auditWorkflow.js
+// packages/hipaa-compliance/tests/nightwatch/auditWorkflow.js
 
 module.exports = {
   tags: ['hipaa', 'audit', 'compliance'],

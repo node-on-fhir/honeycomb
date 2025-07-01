@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/tests/nightwatch/commands/methods/logHipaaEvent.js
+// packages/hipaa-compliance/tests/nightwatch/commands/methods/logHipaaEvent.js
 
 // async version calls method on the server
 exports.command = function(hipaaEvent, timeout) {

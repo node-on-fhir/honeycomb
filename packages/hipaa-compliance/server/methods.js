@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/server/methods.js
+// packages/hipaa-compliance/server/methods.js
 
 import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';

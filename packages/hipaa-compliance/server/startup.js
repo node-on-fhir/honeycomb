@@ -1,20 +1,28 @@
-// packages/hipaa-audit-starter/server/startup.js
+// packages/hipaa-compliance/server/startup.js
 
 import { Meteor } from 'meteor/meteor';
 import { get, set } from 'lodash';
-import { HipaaAuditLog } from '../lib/Collections';
+import { HipaaAuditLog, HipaaAuditLogSchema } from '../lib/Collections';
 import { HipaaLogger } from '../lib/HipaaLogger';
 import { EncryptionManager } from '../lib/EncryptionManager';
 import { setupAuditHooks, setupUserActivityHooks } from './hooks';
 
 Meteor.startup(async function() {
-  console.log('Initializing HIPAA Audit Starter package...');
+  console.log('Initializing HIPAA Compliance package...');
 
   // Inject environment variables into settings
   injectEnvironmentVariables();
 
   // Initialize the logger
   HipaaLogger.initialize();
+
+  // Add validation to HipaaAuditLog inserts
+  if (HipaaAuditLog.before) {
+    HipaaAuditLog.before.insert(function(userId, doc) {
+      // Validate against schema
+      HipaaAuditLogSchema.validate(doc);
+    });
+  }
 
   // Create indexes for performance
   await createIndexes();
@@ -31,13 +39,13 @@ Meteor.startup(async function() {
 
   // Log startup
   await HipaaLogger.logSystemEvent('init', {
-    package: 'clinical:hipaa-audit-starter',
+    package: 'clinical:hipaa-compliance',
     version: '0.1.0',
     environment: get(Meteor, 'settings.public.hipaa.compliance.environment', 'production'),
     encryptionLevel: get(Meteor, 'settings.private.hipaa.security.encryptionLevel', 'none')
   });
 
-  console.log('HIPAA Audit Starter package initialized successfully');
+  console.log('HIPAA Compliance package initialized successfully');
 });
 
 // Inject environment variables into Meteor.settings

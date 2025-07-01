@@ -4,7 +4,7 @@ A comprehensive HIPAA-compliant audit logging and compliance management package 
 
 ## Overview
 
-The `clinical:hipaa-audit-starter` package provides enterprise-grade HIPAA compliance features including automated audit logging, secure data encryption, compliance reporting, and policy management. Built for Meteor v3 with React and Material-UI.
+The `clinical:hipaa-compliance` package provides enterprise-grade HIPAA compliance features including automated audit logging, secure data encryption, compliance reporting, and policy management. Built for Meteor v3 with React and Material-UI.
 
 ## Features
 
@@ -22,14 +22,14 @@ The `clinical:hipaa-audit-starter` package provides enterprise-grade HIPAA compl
 ## Installation
 
 ```bash
-meteor add clinical:hipaa-audit-starter
+meteor add clinical:hipaa-compliance
 ```
 
 ## Quick Start
 
 1. **Configure Settings**: Copy example configuration to your settings file
 ```bash
-cp packages/hipaa-audit-starter/configs/settings.hipaa.json settings.json
+cp packages/hipaa-compliance/configs/settings.hipaa.json settings.json
 ```
 
 2. **Set Environment Variables**:
@@ -90,7 +90,7 @@ Add to your `settings.json`:
 ### Core Logging API
 
 ```javascript
-import { HipaaLogger } from 'meteor/clinical:hipaa-audit-starter';
+import { HipaaLogger } from 'meteor/clinical:hipaa-compliance';
 
 // Log patient access
 HipaaLogger.logPatientAccess(patientId, 'view');
@@ -220,7 +220,7 @@ const monitoredCollections = [
 ### Testing
 ```bash
 # Run package tests
-meteor test-packages clinical:hipaa-audit-starter
+meteor test-packages clinical:hipaa-compliance
 
 # Run Nightwatch E2E tests
 npm run test:e2e

@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/index.jsx
+// packages/hipaa-compliance/index.jsx
 
 import React from 'react';
 import { Button } from '@mui/material';

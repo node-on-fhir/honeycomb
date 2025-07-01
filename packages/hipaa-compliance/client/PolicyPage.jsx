@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/client/PolicyPage.jsx
+// packages/hipaa-compliance/client/PolicyPage.jsx
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
@@ -12,7 +12,7 @@ import {
   Link,
   CircularProgress
 } from '@mui/material';
-import { PageCanvas, StyledCard } from 'meteor/clinical:hl7-fhir-data-infrastructure';
+// Removed dependency on hl7-fhir-data-infrastructure
 
 // Policy definitions with titles and content
 const policyDefinitions = {
@@ -134,7 +134,7 @@ export default function PolicyPage(props) {
   }, [policyId]);
 
   return (
-    <PageCanvas id="policyPage" paddingLeft={20} paddingRight={20}>
+    <div id="policyPage" style={{ paddingLeft: 20, paddingRight: 20 }}>
       <Container maxWidth="lg">
         <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 2 }}>
           <Link color="inherit" href="/hipaa/policies">
@@ -143,7 +143,7 @@ export default function PolicyPage(props) {
           <Typography color="text.primary">{policy.title}</Typography>
         </Breadcrumbs>
 
-        <StyledCard>
+        <Card>
           <Box sx={{ p: 4 }}>
             <Typography variant="h4" gutterBottom>
               {policy.title}
@@ -172,11 +172,11 @@ export default function PolicyPage(props) {
               </Paper>
             )}
           </Box>
-        </StyledCard>
+        </Card>
         
         <DynamicSpacer />
       </Container>
-    </PageCanvas>
+    </div>
   );
 }
 

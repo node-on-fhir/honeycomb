@@ -1,10 +1,15 @@
-// packages/hipaa-audit-starter/package.js
+// packages/hipaa-compliance/package.js
 
 Package.describe({
   name: 'clinical:hipaa-compliance',
   version: '0.1.0',
   summary: 'HIPAA-compliant audit logging and compliance management for Honeycomb v3',
   documentation: 'README.md'
+});
+
+Npm.depends({
+  'marked': '4.3.0',
+  'simpl-schema': '3.4.6'
 });
 
 Package.onUse(function(api) {
@@ -23,31 +28,18 @@ Package.onUse(function(api) {
 
   // React and UI dependencies
   api.use([
-    'react-meteor-data@2.6.3',
-    'static-html@1.3.2'
+    'react-meteor-data',
+    'static-html'
   ]);
 
-  // Clinical packages
+  // Third party packages - using versions compatible with Meteor 3
   api.use([
-    'clinical:hl7-fhir-data-infrastructure@6.15.1',
-    'clinical:hl7-resource-audit-event@1.3.2'
-  ]);
-
-  // Third party packages
-  api.use([
-    'matb33:collection-hooks@1.0.1',
-    'aldeed:collection2@3.5.0',
-    'meteorhacks:async@1.0.0',
-    'dburles:collection-helpers@1.1.0',
-    'momentjs:moment@2.29.4',
-    'peerlibrary:reactive-publish@0.10.0'
+    'matb33:collection-hooks@2.0.0',
+    'momentjs:moment@2.8.4'
   ]);
   
-  // NPM dependencies
-  api.use('tmeasday:check-npm-versions@1.0.2');
-  Npm.depends({
-    'marked': '4.3.0'
-  });
+  // Roles package for access control
+  api.use('alanning:roles@4.0.0-alpha.2', {weak: true});
 
   // Server files
   api.addFiles([
@@ -84,7 +76,7 @@ Package.onUse(function(api) {
 
 Package.onTest(function(api) {
   api.use('tinytest');
-  api.use('clinical:hipaa-audit-starter');
+  api.use('clinical:hipaa-compliance');
   api.use('ecmascript');
   
   api.addFiles('tests/HipaaAuditLog.tests.js');

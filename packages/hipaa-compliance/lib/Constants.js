@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/lib/Constants.js
+// packages/hipaa-compliance/lib/Constants.js
 
 import { get } from 'lodash';
 

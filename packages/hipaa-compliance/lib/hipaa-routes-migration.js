@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/lib/hipaa-routes-migration.js
+// packages/hipaa-compliance/lib/hipaa-routes-migration.js
 
 // Original hipaa-routes.js content for reference
 // This file preserves the original route structure from the hipaa-routes package

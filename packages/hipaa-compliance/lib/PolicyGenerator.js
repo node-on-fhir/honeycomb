@@ -1,4 +1,4 @@
-// packages/hipaa-audit-starter/lib/PolicyGenerator.js
+// packages/hipaa-compliance/lib/PolicyGenerator.js
 
 import { Meteor } from 'meteor/meteor';
 import { get } from 'lodash';
