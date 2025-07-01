@@ -6,8 +6,12 @@ version.desktop
 .desktop
 .desktop/*
 
+test
 tests_output
+tests/output
+tests/screenshots
 
 packages
 packages/*
 .DS_Store
+
