@@ -5,6 +5,7 @@ let has = _.has;
 let findIndex = _.findIndex;
 
 import moment from 'moment';
+import sanitizeHtml from 'sanitize-html';
 import FhirUtilities from './FhirUtilities';
   
 //========================================================================================
@@ -3399,8 +3400,10 @@ export function flattenOperationOutcome(outcome) {
   result.language = get(outcome, 'language', '');
   
   // Narrative text
-  result.text = get(outcome, 'text.div', '')
-    .replace(/<[^>]*>/g, ''); // Strip HTML tags
+  result.text = sanitizeHtml(get(outcome, 'text.div', ''), {
+    allowedTags: [], // Remove all HTML tags
+    allowedAttributes: {} // Remove all attributes
+  });
     
   // Issue details (taking first issue if multiple exist)
   if (Array.isArray(outcome.issue)) {
