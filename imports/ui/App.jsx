@@ -345,6 +345,9 @@ let dynamicRoutes = [
     path: "/getting-started",
     element: <GettingStartedPage />
   }, {
+    path: "/getting-started-checklist",
+    element: <GettingStartedPage />
+  }, {
     path: "/static-files",
     element: <StaticPatientFileLoaderPage />
   }, {
