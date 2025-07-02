@@ -274,13 +274,12 @@ jobs:
             if [ -f "nightwatch.circle.conf.js" ]; then
               echo "Using CircleCI-specific configuration"
               # Create a modified config that doesn't start ChromeDriver
-              cat > nightwatch.circle.manual.conf.js << 'EOF'
-const config = require('./nightwatch.circle.conf.js');
-config.test_settings.default.webdriver.start_process = false;
-config.test_settings.default.webdriver.port = 9515;
-config.test_settings.default.webdriver.default_path_prefix = '';
-module.exports = config;
-EOF
+              echo "const config = require('./nightwatch.circle.conf.js');" > nightwatch.circle.manual.conf.js
+              echo "config.test_settings.default.webdriver.start_process = false;" >> nightwatch.circle.manual.conf.js
+              echo "config.test_settings.default.webdriver.port = 9515;" >> nightwatch.circle.manual.conf.js
+              echo "config.test_settings.default.webdriver.default_path_prefix = '';" >> nightwatch.circle.manual.conf.js
+              echo "module.exports = config;" >> nightwatch.circle.manual.conf.js
+              
               npx nightwatch --config nightwatch.circle.manual.conf.js --verbose
             elif [ -f "nightwatch.conf.js" ]; then
               echo "Using default configuration with verbose flag"
