@@ -3,10 +3,8 @@
 
 const { get } = require('lodash');
 
-module.exports = {
-  tags: ['accounts', 'login', 'authentication'],
-  
-  before: function(client) {
+describe('Accounts - Login', function() {
+  before(function(client) {
     // Initialize test environment
     client
       .url(get(client, 'globals.launch_url', 'http://localhost:3000'))
@@ -29,9 +27,9 @@ module.exports = {
           done();
         }
       });
-  },
+  });
 
-  'Login Page - Initial Load': function(client) {
+  it('should load the login page with all required elements', function(client) {
     client
       .url('http://localhost:3000/login')
       .pause(1000)
@@ -42,9 +40,9 @@ module.exports = {
       .verify.elementPresent('button[type="submit"]')
       .verify.containsText('h1, h2, h3, h4, h5, h6', 'Sign In')
       .saveScreenshot('tests/nightwatch/screenshots/login/01-initial-load.png');
-  },
+  });
 
-  'Login Page - Form Validation': function(client) {
+  it('should validate form fields before submission', function(client) {
     client
       .url('http://localhost:3000/login')
       .pause(1000)
@@ -64,9 +62,9 @@ module.exports = {
       .pause(500)
       .verify.elementPresent('input[name="password"]:invalid, .error, .alert')
       .saveScreenshot('tests/nightwatch/screenshots/login/03-partial-form-validation.png');
-  },
+  });
 
-  'Login Page - Successful Login': function(client) {
+  it('should successfully log in with valid credentials', function(client) {
     client
       .url('http://localhost:3000/login')
       .pause(1000)
@@ -87,9 +85,9 @@ module.exports = {
       .verify.urlContains('/', 'Should redirect to home page after successful login')
       .verify.not.urlContains('/login', 'Should not remain on login page')
       .saveScreenshot('tests/nightwatch/screenshots/login/05-successful-login.png');
-  },
+  });
 
-  'Login Page - Invalid Credentials': function(client) {
+  it('should show error message for invalid credentials', function(client) {
     client
       // Logout first if logged in
       .executeAsync(function(done) {
@@ -120,9 +118,9 @@ module.exports = {
       .verify.elementPresent('.alert, .error, [role="alert"]')
       .verify.urlContains('/login', 'Should remain on login page after failed login')
       .saveScreenshot('tests/nightwatch/screenshots/login/07-invalid-credentials-error.png');
-  },
+  });
 
-  'Login Page - Email Login': function(client) {
+  it('should allow login with email address', function(client) {
     client
       .url('http://localhost:3000/login')
       .pause(1000)
@@ -142,9 +140,9 @@ module.exports = {
       // Verify successful login with email
       .verify.urlContains('/', 'Should redirect after successful email login')
       .saveScreenshot('tests/nightwatch/screenshots/login/09-email-login-success.png');
-  },
+  });
 
-  'Login Page - Navigation Links': function(client) {
+  it('should provide navigation to signup page', function(client) {
     client
       // Logout first
       .executeAsync(function(done) {
@@ -169,9 +167,9 @@ module.exports = {
       .pause(1000)
       .verify.urlContains('/register', 'Should navigate to register page')
       .saveScreenshot('tests/nightwatch/screenshots/login/11-signup-navigation.png');
-  },
+  });
 
-  'Login Page - Responsive Design': function(client) {
+  it('should be responsive across different screen sizes', function(client) {
     client
       .url('http://localhost:3000/login')
       .pause(1000)
@@ -194,9 +192,9 @@ module.exports = {
       .resizeWindow(1024, 768)
       .pause(500)
       .saveScreenshot('tests/nightwatch/screenshots/login/14-desktop-view.png');
-  },
+  });
 
-  'Login Page - Form Accessibility': function(client) {
+  it('should have proper accessibility attributes', function(client) {
     client
       .url('http://localhost:3000/login')
       .pause(1000)
@@ -212,9 +210,9 @@ module.exports = {
       .pause(100)
       .verify.elementPresent('input[name="password"]:focus, button:focus')
       .saveScreenshot('tests/nightwatch/screenshots/login/15-accessibility-check.png');
-  },
+  });
 
-  after: function(client) {
+  after(function(client) {
     // Cleanup
     client
       .executeAsync(function(done) {
@@ -225,5 +223,5 @@ module.exports = {
         }
       })
       .end();
-  }
-};
+  });
+});

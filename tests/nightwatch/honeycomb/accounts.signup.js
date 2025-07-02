@@ -4,10 +4,8 @@
 const { get } = require('lodash');
 const moment = require('moment');
 
-module.exports = {
-  tags: ['accounts', 'signup', 'registration', 'authentication'],
-  
-  before: function(client) {
+describe('Accounts - Signup/Registration', function() {
+  before(function(client) {
     // Initialize test environment
     client
       .url(get(client, 'globals.launch_url', 'http://localhost:3000'))
@@ -20,9 +18,9 @@ module.exports = {
           done();
         }
       });
-  },
+  });
 
-  'Signup Page - Initial Load': function(client) {
+  it('should load the signup page with all required elements', function(client) {
     client
       .url('http://localhost:3000/register')
       .pause(1000)
@@ -35,9 +33,9 @@ module.exports = {
       .verify.elementPresent('button[type="submit"]')
       .verify.containsText('h1, h2, h3, h4, h5, h6', 'Register')
       .saveScreenshot('tests/nightwatch/screenshots/signup/01-initial-load.png');
-  },
+  });
 
-  'Signup Page - Form Validation Empty Fields': function(client) {
+  it('should validate empty fields on form submission', function(client) {
     client
       .url('http://localhost:3000/register')
       .pause(1000)
@@ -50,9 +48,9 @@ module.exports = {
       // Check for validation messages
       .verify.elementPresent('input[name="username"]:invalid, .error, .alert')
       .saveScreenshot('tests/nightwatch/screenshots/signup/02-empty-form-validation.png');
-  },
+  });
 
-  'Signup Page - Username Requirements': function(client) {
+  it('should enforce username requirements', function(client) {
     client
       .url('http://localhost:3000/register')
       .pause(1000)
@@ -69,9 +67,9 @@ module.exports = {
       .clearValue('input[name="username"]')
       .setValue('input[name="username"]', 'validuser123')
       .saveScreenshot('tests/nightwatch/screenshots/signup/04-valid-username.png');
-  },
+  });
 
-  'Signup Page - Email Validation': function(client) {
+  it('should validate email format', function(client) {
     client
       .url('http://localhost:3000/register')
       .pause(1000)
@@ -89,9 +87,9 @@ module.exports = {
       .clearValue('input[name="email"], input[type="email"]')
       .setValue('input[name="email"], input[type="email"]', 'test@example.com')
       .saveScreenshot('tests/nightwatch/screenshots/signup/06-valid-email.png');
-  },
+  });
 
-  'Signup Page - Password Requirements': function(client) {
+  it('should enforce password requirements', function(client) {
     client
       .url('http://localhost:3000/register')
       .pause(1000)
@@ -108,9 +106,9 @@ module.exports = {
       .clearValue('input[name="password"]')
       .setValue('input[name="password"]', 'StrongPass123!')
       .saveScreenshot('tests/nightwatch/screenshots/signup/08-strong-password.png');
-  },
+  });
 
-  'Signup Page - Password Confirmation': function(client) {
+  it('should validate password confirmation match', function(client) {
     client
       .url('http://localhost:3000/register')
       .pause(1000)
@@ -132,9 +130,9 @@ module.exports = {
       .clearValue('input[name="confirm"], input[name="confirmPassword"]')
       .setValue('input[name="confirm"], input[name="confirmPassword"]', 'TestPassword123')
       .saveScreenshot('tests/nightwatch/screenshots/signup/10-password-match.png');
-  },
+  });
 
-  'Signup Page - Successful Registration': function(client) {
+  it('should successfully register a new user', function(client) {
     const timestamp = moment().format('YYYYMMDDHHmmss');
     const testUsername = `testuser${timestamp}`;
     const testEmail = `test${timestamp}@example.com`;
@@ -169,9 +167,9 @@ module.exports = {
         console.log('After registration:', result.value);
       })
       .saveScreenshot('tests/nightwatch/screenshots/signup/12-registration-success.png');
-  },
+  });
 
-  'Signup Page - Duplicate Username Prevention': function(client) {
+  it('should prevent duplicate username registration', function(client) {
     client
       .url('http://localhost:3000/register')
       .pause(1000)
@@ -196,9 +194,9 @@ module.exports = {
       .verify.elementPresent('.error, .alert, [role="alert"]')
       .verify.urlContains('/register', 'Should remain on register page after duplicate error')
       .saveScreenshot('tests/nightwatch/screenshots/signup/14-duplicate-username-error.png');
-  },
+  });
 
-  'Signup Page - Navigation to Login': function(client) {
+  it('should provide navigation to login page', function(client) {
     client
       .url('http://localhost:3000/register')
       .pause(1000)
@@ -213,9 +211,9 @@ module.exports = {
       .pause(1000)
       .verify.urlContains('/login')
       .saveScreenshot('tests/nightwatch/screenshots/signup/16-navigate-to-login.png');
-  },
+  });
 
-  'Signup Page - Form Field Focus and Tab Order': function(client) {
+  it('should have proper tab order for keyboard navigation', function(client) {
     client
       .url('http://localhost:3000/register')
       .pause(1000)
@@ -237,9 +235,9 @@ module.exports = {
       .verify.elementPresent('input[name="confirm"]:focus, input[name="confirmPassword"]:focus')
       
       .saveScreenshot('tests/nightwatch/screenshots/signup/17-tab-order.png');
-  },
+  });
 
-  'Signup Page - Responsive Design': function(client) {
+  it('should be responsive across different screen sizes', function(client) {
     client
       .url('http://localhost:3000/register')
       .pause(1000)
@@ -262,9 +260,9 @@ module.exports = {
       .resizeWindow(1024, 768)
       .pause(500)
       .saveScreenshot('tests/nightwatch/screenshots/signup/20-desktop-view.png');
-  },
+  });
 
-  'Signup Page - Form Security': function(client) {
+  it('should have proper security attributes on form fields', function(client) {
     client
       .url('http://localhost:3000/register')
       .pause(1000)
@@ -279,9 +277,9 @@ module.exports = {
       .verify.attributeContains('input[name="password"]', 'autocomplete', 'new-password')
       
       .saveScreenshot('tests/nightwatch/screenshots/signup/21-security-check.png');
-  },
+  });
 
-  'Signup Page - First Run Setup': function(client) {
+  it('should handle first-run setup scenario', function(client) {
     client
       // Test first-run setup scenario
       .executeAsync(function(done) {
@@ -309,9 +307,9 @@ module.exports = {
           done();
         }
       });
-  },
+  });
 
-  after: function(client) {
+  after(function(client) {
     // Cleanup
     client
       .executeAsync(function(done) {
@@ -322,5 +320,5 @@ module.exports = {
         }
       })
       .end();
-  }
-};
+  });
+});
