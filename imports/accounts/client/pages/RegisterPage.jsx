@@ -19,7 +19,7 @@ export function RegisterPage() {
 
   return (
     <Container maxWidth="sm">
-      <Box sx={{ mt: 8, mb: 4 }}>
+      <Box sx={{ pt: 8, pb: 4 }}>
         <SignupForm 
           onSuccess={handleSuccess}
           onLoginClick={handleLoginClick}

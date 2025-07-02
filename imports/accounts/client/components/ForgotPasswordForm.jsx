@@ -54,37 +54,97 @@ export function ForgotPasswordForm({ onSuccess, onBackToLogin }) {
   };
 
   return (
-    <Paper sx={{ p: 4, maxWidth: 400, mx: 'auto' }}>
-      <Typography variant="h4" gutterBottom>
+    <Paper 
+      elevation={0} 
+      sx={{ 
+        p: 5, 
+        maxWidth: 440, 
+        mx: 'auto',
+        backgroundColor: 'background.paper',
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: 2
+      }}
+    >
+      <Typography 
+        variant="h4" 
+        gutterBottom 
+        sx={{ 
+          fontWeight: 500,
+          mb: 2,
+          textAlign: 'center'
+        }}
+      >
         Reset Password
       </Typography>
       
-      <Typography variant="body2" color="text.secondary" paragraph>
+      <Typography 
+        variant="body2" 
+        color="text.secondary" 
+        sx={{ mb: 4, textAlign: 'center' }}
+      >
         Enter your email address and we'll send you a link to reset your password.
       </Typography>
       
       <form onSubmit={handleSubmit}>
-        <TextField
-          fullWidth
-          label="Email"
-          name="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          margin="normal"
-          required
-          autoComplete="email"
-          disabled={success}
-        />
+        <Box sx={{ mb: 3 }}>
+          <TextField
+            fullWidth
+            placeholder="Enter your email address"
+            name="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+            disabled={success}
+            variant="outlined"
+            InputLabelProps={{ 
+              shrink: true,
+              sx: { 
+                position: 'relative',
+                transform: 'none',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                color: 'text.secondary',
+                mb: 1
+              }
+            }}
+            label="Email *"
+            InputProps={{
+              sx: { 
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'divider'
+                }
+              }
+            }}
+          />
+        </Box>
         
         {error && (
-          <Alert severity="error" sx={{ mt: 2 }}>
+          <Alert 
+            severity="error" 
+            sx={{ 
+              mb: 3,
+              '& .MuiAlert-message': {
+                width: '100%'
+              }
+            }}
+          >
             {error}
           </Alert>
         )}
         
         {success && (
-          <Alert severity="success" sx={{ mt: 2 }}>
+          <Alert 
+            severity="success" 
+            sx={{ 
+              mb: 3,
+              '& .MuiAlert-message': {
+                width: '100%'
+              }
+            }}
+          >
             Password reset instructions have been sent to {email}
           </Alert>
         )}
@@ -93,19 +153,49 @@ export function ForgotPasswordForm({ onSuccess, onBackToLogin }) {
           type="submit"
           fullWidth
           variant="contained"
-          sx={{ mt: 3, mb: 2 }}
+          size="large"
           disabled={loading || success}
+          sx={{ 
+            mb: 3,
+            py: 1.5,
+            textTransform: 'uppercase',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            letterSpacing: '0.5px',
+            backgroundColor: '#f0ad4e',
+            color: '#000',
+            '&:hover': {
+              backgroundColor: '#ec971f'
+            },
+            '&:disabled': {
+              backgroundColor: '#e0e0e0',
+              color: '#999'
+            }
+          }}
         >
           {loading ? 'Sending...' : 'Send Reset Email'}
         </Button>
         
-        <Box sx={{ textAlign: 'center' }}>
+        <Box sx={{ 
+          textAlign: 'center',
+          pt: 2,
+          borderTop: '1px solid',
+          borderColor: 'divider'
+        }}>
           <Link
             component="button"
             variant="body2"
             onClick={(e) => {
               e.preventDefault();
               onBackToLogin?.();
+            }}
+            sx={{ 
+              color: '#f0ad4e',
+              textDecoration: 'none',
+              fontWeight: 500,
+              '&:hover': {
+                textDecoration: 'underline'
+              }
             }}
           >
             Back to Sign In

@@ -402,7 +402,7 @@ if(get(Meteor, 'settings.public.modules.accounts.enabled', true)){
     path: "/forgot-password",
     element: (
       <Container maxWidth="sm">
-        <Box sx={{ mt: 8, mb: 4 }}>
+        <Box sx={{ pt: 8, pb: 4 }}>
           <ForgotPasswordForm 
             onBackToLogin={() => window.location.href = '/login'}
           />

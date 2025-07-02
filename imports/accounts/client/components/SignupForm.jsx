@@ -186,39 +186,131 @@ export function SignupForm({ onSuccess, onLoginClick }) {
   };
 
   return (
-    <Paper sx={{ p: 4, maxWidth: 400, mx: 'auto' }}>
-      <Typography variant="h4" gutterBottom>
-        Register
+    <Paper 
+      elevation={0} 
+      sx={{ 
+        p: 5, 
+        maxWidth: 440, 
+        mx: 'auto',
+        backgroundColor: 'background.paper',
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: 2
+      }}
+    >
+      <Typography 
+        variant="h4" 
+        gutterBottom 
+        sx={{ 
+          fontWeight: 500,
+          mb: 4,
+          textAlign: 'center'
+        }}
+      >
+        Create Account
       </Typography>
       
       <form onSubmit={handleSubmit}>
-        <TextField
-          fullWidth
-          label="Username"
-          name="username"
-          value={formData.username}
-          onChange={handleChange('username')}
-          margin="normal"
-          required
-          autoComplete="username"
-          inputProps={{ minLength: 3 }}
-          error={!!fieldErrors.username}
-          helperText={
-            fieldErrors.username || 
-            (availability.checking && formData.username ? 'Checking availability...' : 'At least 3 characters')
-          }
-        />
+        <Box sx={{ mb: 3 }}>
+          <TextField
+            fullWidth
+            placeholder="Choose a username"
+            name="username"
+            value={formData.username}
+            onChange={handleChange('username')}
+            required
+            autoComplete="username"
+            inputProps={{ minLength: 3 }}
+            error={!!fieldErrors.username}
+            variant="outlined"
+            InputLabelProps={{ 
+              shrink: true,
+              sx: { 
+                position: 'relative',
+                transform: 'none',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                color: 'text.secondary',
+                mb: 1
+              }
+            }}
+            label="Username *"
+            InputProps={{
+              sx: { 
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: fieldErrors.username ? 'error.main' : 'divider'
+                }
+              }
+            }}
+            FormHelperTextProps={{
+              sx: { 
+                position: 'absolute',
+                bottom: -22,
+                mx: 0,
+                fontSize: '0.75rem'
+              }
+            }}
+            helperText={
+              fieldErrors.username || 
+              (availability.checking && formData.username ? 'Checking...' : 
+               formData.username.length > 0 && formData.username.length < 3 ? 'Must be at least 3 characters' : '')
+            }
+          />
+        </Box>
         
-        {fieldErrors.username && availability.suggestions.length > 0 && (
-          <Alert severity="info" sx={{ mt: 1, mb: 2 }}>
-            <Typography variant="body2">
-              Suggestions: {availability.suggestions.join(', ')}
-            </Typography>
-          </Alert>
-        )}
+        <Box sx={{ mb: 3 }}>
+          <TextField
+            fullWidth
+            placeholder="Your email address"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange('email')}
+            required
+            autoComplete="email"
+            error={!!fieldErrors.email}
+            variant="outlined"
+            InputLabelProps={{ 
+              shrink: true,
+              sx: { 
+                position: 'relative',
+                transform: 'none',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                color: 'text.secondary',
+                mb: 1
+              }
+            }}
+            label="Email *"
+            InputProps={{
+              sx: { 
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: fieldErrors.email ? 'error.main' : 'divider'
+                }
+              }
+            }}
+            FormHelperTextProps={{
+              sx: { 
+                position: 'absolute',
+                bottom: -22,
+                mx: 0,
+                fontSize: '0.75rem'
+              }
+            }}
+            helperText={fieldErrors.email}
+          />
+        </Box>
         
         {(fieldErrors.username || fieldErrors.email) && (
-          <Alert severity="warning" sx={{ mt: 1, mb: 2 }}>
+          <Alert 
+            severity="info" 
+            sx={{ 
+              mb: 3,
+              '& .MuiAlert-message': {
+                width: '100%'
+              }
+            }}
+          >
             <Typography variant="body2">
               Already have an account?{' '}
               <Link
@@ -227,62 +319,120 @@ export function SignupForm({ onSuccess, onLoginClick }) {
                   e.preventDefault();
                   onLoginClick ? onLoginClick() : navigate('/login');
                 }}
+                sx={{ 
+                  color: 'primary.main',
+                  fontWeight: 500,
+                  verticalAlign: 'baseline'
+                }}
               >
                 Sign in instead
               </Link>
             </Typography>
+            {fieldErrors.username && availability.suggestions.length > 0 && (
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                Available: {availability.suggestions.slice(0, 3).join(', ')}
+              </Typography>
+            )}
           </Alert>
         )}
         
-        <TextField
-          fullWidth
-          label="Email"
-          name="email"
-          type="email"
-          value={formData.email}
-          onChange={handleChange('email')}
-          margin="normal"
-          required
-          autoComplete="email"
-          error={!!fieldErrors.email}
-          helperText={
-            fieldErrors.email || 
-            (availability.checking && formData.email ? 'Checking availability...' : '')
-          }
-        />
+        <Box sx={{ mb: 3 }}>
+          <TextField
+            fullWidth
+            placeholder="Create a strong password"
+            name="password"
+            type="password"
+            value={formData.password}
+            onChange={handleChange('password')}
+            required
+            autoComplete="new-password"
+            inputProps={{ minLength: 8 }}
+            variant="outlined"
+            InputLabelProps={{ 
+              shrink: true,
+              sx: { 
+                position: 'relative',
+                transform: 'none',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                color: 'text.secondary',
+                mb: 1
+              }
+            }}
+            label="Password *"
+            InputProps={{
+              sx: { 
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'divider'
+                }
+              }
+            }}
+            FormHelperTextProps={{
+              sx: { 
+                position: 'absolute',
+                bottom: -22,
+                mx: 0,
+                fontSize: '0.75rem'
+              }
+            }}
+            helperText={formData.password.length > 0 && formData.password.length < 8 ? 'Must be at least 8 characters' : ''}
+          />
+        </Box>
         
-        <TextField
-          fullWidth
-          label="Password"
-          name="password"
-          type="password"
-          value={formData.password}
-          onChange={handleChange('password')}
-          margin="normal"
-          required
-          autoComplete="new-password"
-          inputProps={{ minLength: 8 }}
-          helperText="At least 8 characters"
-        />
-        
-        <TextField
-          fullWidth
-          label="Confirm Password"
-          name="confirm"
-          type="password"
-          value={formData.confirmPassword}
-          onChange={handleChange('confirmPassword')}
-          margin="normal"
-          required
-          autoComplete="new-password"
-          error={Boolean(formData.confirmPassword && formData.password !== formData.confirmPassword)}
-          helperText={formData.confirmPassword && formData.password !== formData.confirmPassword ? 'Passwords do not match' : ''}
-          data-testid={formData.confirmPassword && formData.password !== formData.confirmPassword ? 'password-mismatch' : undefined}
-        />
-        
+        <Box sx={{ mb: 3 }}>
+          <TextField
+            fullWidth
+            placeholder="Confirm your password"
+            name="confirm"
+            type="password"
+            value={formData.confirmPassword}
+            onChange={handleChange('confirmPassword')}
+            required
+            autoComplete="new-password"
+            error={Boolean(formData.confirmPassword && formData.password !== formData.confirmPassword)}
+            variant="outlined"
+            InputLabelProps={{ 
+              shrink: true,
+              sx: { 
+                position: 'relative',
+                transform: 'none',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                color: 'text.secondary',
+                mb: 1
+              }
+            }}
+            label="Confirm Password *"
+            InputProps={{
+              sx: { 
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: formData.confirmPassword && formData.password !== formData.confirmPassword ? 'error.main' : 'divider'
+                }
+              }
+            }}
+            FormHelperTextProps={{
+              sx: { 
+                position: 'absolute',
+                bottom: -22,
+                mx: 0,
+                fontSize: '0.75rem'
+              }
+            }}
+            helperText={formData.confirmPassword && formData.password !== formData.confirmPassword ? 'Passwords do not match' : ''}
+            data-testid={formData.confirmPassword && formData.password !== formData.confirmPassword ? 'password-mismatch' : undefined}
+          />
+        </Box>
         
         {error && (
-          <Alert severity="error" sx={{ mt: 2 }}>
+          <Alert 
+            severity="error" 
+            sx={{ 
+              mb: 3,
+              '& .MuiAlert-message': {
+                width: '100%'
+              }
+            }}
+          >
             {error}
           </Alert>
         )}
@@ -291,7 +441,7 @@ export function SignupForm({ onSuccess, onLoginClick }) {
           type="submit"
           fullWidth
           variant="contained"
-          sx={{ mt: 3, mb: 2 }}
+          size="large"
           disabled={
             loading || 
             !formData.username || 
@@ -300,23 +450,58 @@ export function SignupForm({ onSuccess, onLoginClick }) {
             !formData.confirmPassword ||
             !!fieldErrors.username ||
             !!fieldErrors.email ||
-            availability.checking
+            availability.checking ||
+            formData.password !== formData.confirmPassword
           }
+          sx={{ 
+            mb: 3,
+            py: 1.5,
+            textTransform: 'uppercase',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            letterSpacing: '0.5px',
+            backgroundColor: '#f0ad4e',
+            color: '#000',
+            '&:hover': {
+              backgroundColor: '#ec971f'
+            },
+            '&:disabled': {
+              backgroundColor: '#e0e0e0',
+              color: '#999'
+            }
+          }}
         >
-          {loading ? 'Creating account...' : 'Register'}
+          {loading ? 'Creating account...' : 
+           availability.checking ? 'Checking availability...' : 
+           'Create Account'}
         </Button>
         
-        <Box sx={{ textAlign: 'center' }}>
-          <Link
-            component="button"
-            variant="body2"
-            onClick={(e) => {
-              e.preventDefault();
-              onLoginClick ? onLoginClick() : navigate('/login');
-            }}
-          >
-            Already have an account? Sign In
-          </Link>
+        <Box sx={{ 
+          textAlign: 'center',
+          pt: 2,
+          borderTop: '1px solid',
+          borderColor: 'divider'
+        }}>
+          <Typography variant="body2" color="text.secondary">
+            Already have an account?{' '}
+            <Link
+              component="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onLoginClick ? onLoginClick() : navigate('/login');
+              }}
+              sx={{ 
+                color: '#f0ad4e',
+                textDecoration: 'none',
+                fontWeight: 500,
+                '&:hover': {
+                  textDecoration: 'underline'
+                }
+              }}
+            >
+              Sign In
+            </Link>
+          </Typography>
         </Box>
       </form>
     </Paper>
