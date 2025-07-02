@@ -4,7 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 import { Random } from 'meteor/random';
-import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 
 // Create users collection if it doesn't exist
 const Users = new Mongo.Collection('users');
@@ -34,8 +34,9 @@ Meteor.methods({
       }
     }
     
-    // Hash the password (simple version - in production use bcrypt)
-    const hashedPassword = crypto.createHash('sha256').update(userData.password).digest('hex');
+    // Hash the password securely using bcrypt
+    const saltRounds = 10;
+    const hashedPassword = bcrypt.hashSync(userData.password, saltRounds);
     
     // Create the user
     const userId = await Users.insertAsync({
@@ -94,9 +95,9 @@ Meteor.methods({
       throw new Meteor.Error(403, 'User not found');
     }
     
-    // Check password (simplified - in production use proper bcrypt)
-    const hashedPassword = crypto.createHash('sha256').update(credentials.password).digest('hex');
-    if (user.services?.password?.bcrypt !== hashedPassword) {
+    // Check password securely using bcrypt
+    const passwordMatch = bcrypt.compareSync(credentials.password, user.services?.password?.bcrypt);
+    if (!passwordMatch) {
       throw new Meteor.Error(403, 'Incorrect password');
     }
     
