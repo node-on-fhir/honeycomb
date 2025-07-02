@@ -26,6 +26,7 @@ jobs:
     
     steps:
       - browser-tools/install-chrome
+      - browser-tools/install-chromedriver
       
       - checkout
       
@@ -154,12 +155,51 @@ jobs:
           name: Debug - Check test environment
           command: |
             echo "=== Checking Chrome installation ==="
-            which google-chrome || which chrome || which chromium-browser || echo "Chrome not found in PATH"
-            google-chrome --version || chrome --version || chromium-browser --version || echo "Could not get Chrome version"
+            CHROME_BIN=$(which google-chrome || which chrome || which chromium-browser || echo "")
+            if [ -n "$CHROME_BIN" ]; then
+              echo "Chrome found at: $CHROME_BIN"
+              $CHROME_BIN --version
+              # Create symlink if needed
+              if [ ! -f "/usr/bin/google-chrome" ] && [ -f "$CHROME_BIN" ]; then
+                sudo ln -sf "$CHROME_BIN" /usr/bin/google-chrome
+              fi
+            else
+              echo "ERROR: Chrome not found!"
+              exit 1
+            fi
             
             echo "=== Checking ChromeDriver ==="
-            which chromedriver || echo "ChromeDriver not found in PATH"
-            chromedriver --version || echo "Could not get ChromeDriver version"
+            CHROMEDRIVER_BIN=$(which chromedriver || echo "")
+            if [ -n "$CHROMEDRIVER_BIN" ]; then
+              echo "ChromeDriver found at: $CHROMEDRIVER_BIN"
+              $CHROMEDRIVER_BIN --version
+              # Test if ChromeDriver can start
+              timeout 5s $CHROMEDRIVER_BIN --port=9515 --log-level=INFO 2>&1 | head -20 || true
+            else
+              echo "ERROR: ChromeDriver not found!"
+              # Try to find and install it
+              echo "Attempting to install ChromeDriver..."
+              CHROME_VERSION=$($CHROME_BIN --version | grep -oP '\d+\.\d+\.\d+' | head -1)
+              echo "Chrome version: $CHROME_VERSION"
+              
+              # Download matching ChromeDriver
+              CHROME_MAJOR=$(echo $CHROME_VERSION | cut -d. -f1)
+              echo "Chrome major version: $CHROME_MAJOR"
+              
+              # Get the latest ChromeDriver version for this Chrome version
+              CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR}")
+              echo "ChromeDriver version to install: $CHROMEDRIVER_VERSION"
+              
+              # Download and install
+              wget -q "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
+              unzip -o chromedriver_linux64.zip
+              sudo mv chromedriver /usr/local/bin/
+              sudo chmod +x /usr/local/bin/chromedriver
+              rm chromedriver_linux64.zip
+              
+              # Verify installation
+              /usr/local/bin/chromedriver --version
+            fi
             
             echo "=== Checking test files ==="
             ls -la tests/nightwatch/honeycomb/ || echo "Test directory not found"
@@ -173,6 +213,10 @@ jobs:
             echo "=== Node and NPM versions ==="
             node --version
             npm --version
+            
+            echo "=== Create test output directories ==="
+            mkdir -p tests/output/logs tests/screenshots
+            chmod -R 777 tests/output tests/screenshots
       
       - run:
           name: Run Nightwatch tests
@@ -192,14 +236,52 @@ jobs:
             # Clean up function
             cleanup() {
               kill $KEEPALIVE_PID 2>/dev/null || true
+              # Kill ChromeDriver if it's still running
+              pkill -f chromedriver || true
             }
             trap cleanup EXIT
+            
+            # Try to start ChromeDriver manually first
+            echo "=== Starting ChromeDriver manually ==="
+            CHROMEDRIVER_BIN=$(which chromedriver || echo "/usr/local/bin/chromedriver")
+            if [ -f "$CHROMEDRIVER_BIN" ]; then
+              echo "Starting ChromeDriver at $CHROMEDRIVER_BIN"
+              $CHROMEDRIVER_BIN --port=9515 --verbose --log-path=./chromedriver.log --allowed-ips= --whitelisted-ips= &
+              CHROMEDRIVER_PID=$!
+              sleep 5
+              
+              # Check if ChromeDriver is running
+              if ps -p $CHROMEDRIVER_PID > /dev/null; then
+                echo "ChromeDriver started successfully (PID: $CHROMEDRIVER_PID)"
+                
+                # Test connection
+                if curl -s http://localhost:9515/status | grep -q "ready"; then
+                  echo "ChromeDriver is ready and responding"
+                else
+                  echo "WARNING: ChromeDriver started but not responding to status check"
+                fi
+              else
+                echo "ERROR: ChromeDriver failed to start"
+                cat ./chromedriver.log || true
+              fi
+            fi
+            
+            # Export ChromeDriver path for Nightwatch
+            export CHROMEDRIVER_PATH="$CHROMEDRIVER_BIN"
             
             # Run tests with verbose output
             echo "Starting Nightwatch tests with CircleCI configuration..."
             if [ -f "nightwatch.circle.conf.js" ]; then
               echo "Using CircleCI-specific configuration"
-              npx nightwatch --config nightwatch.circle.conf.js --verbose
+              # Create a modified config that doesn't start ChromeDriver
+              cat > nightwatch.circle.manual.conf.js << 'EOF'
+const config = require('./nightwatch.circle.conf.js');
+config.test_settings.default.webdriver.start_process = false;
+config.test_settings.default.webdriver.port = 9515;
+config.test_settings.default.webdriver.default_path_prefix = '';
+module.exports = config;
+EOF
+              npx nightwatch --config nightwatch.circle.manual.conf.js --verbose
             elif [ -f "nightwatch.conf.js" ]; then
               echo "Using default configuration with verbose flag"
               npx nightwatch --config nightwatch.conf.js --verbose --detailed-output
@@ -215,13 +297,36 @@ jobs:
       - run:
           name: Collect artifacts
           command: |
+            # Collect test outputs
+            if [ -d "tests/output" ]; then
+              cp -r tests/output/* $CIRCLE_TEST_REPORTS/ || true
+            fi
             if [ -d "tests_output" ]; then
               cp -r tests_output/* $CIRCLE_TEST_REPORTS/ || true
+            fi
+            
+            # Collect screenshots
+            if [ -d "tests/screenshots" ]; then
+              cp -r tests/screenshots $CIRCLE_ARTIFACTS/ || true
             fi
             if [ -d "screenshots" ]; then
               cp -r screenshots $CIRCLE_ARTIFACTS/ || true
             fi
             find . -name "*.png" -type f -exec cp {} $CIRCLE_ARTIFACTS/ \; || true
+            
+            # Collect logs
+            if [ -d "tests/output/logs" ]; then
+              cp -r tests/output/logs $CIRCLE_ARTIFACTS/ || true
+            fi
+            if [ -f "chromedriver.log" ]; then
+              cp chromedriver.log $CIRCLE_ARTIFACTS/ || true
+            fi
+            
+            # Debug: Show what we collected
+            echo "=== Artifacts collected ==="
+            ls -la $CIRCLE_ARTIFACTS/ || true
+            echo "=== Test reports collected ==="
+            ls -la $CIRCLE_TEST_REPORTS/ || true
           when: always
       
       - store_test_results:

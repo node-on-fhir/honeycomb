@@ -3,6 +3,9 @@
 
 const baseConfig = require('./nightwatch.conf.js');
 
+// Use environment variable if set by CircleCI
+const chromeDriverPath = process.env.CHROMEDRIVER_PATH || '/usr/local/bin/chromedriver';
+
 module.exports = {
   ...baseConfig,
   
@@ -52,17 +55,26 @@ module.exports = {
       
       webdriver: {
         start_process: true,
-        server_path: '',
+        // ChromeDriver will be installed by CircleCI orb
+        server_path: chromeDriverPath,
         log_path: './tests/output/logs',
+        port: 9515,
         cli_args: [
           '--verbose',
-          '--log-level=ALL'
+          '--log-level=ALL',
+          '--port=9515',
+          '--allowed-ips=',
+          '--disable-dev-shm-usage',
+          '--whitelisted-ips='
         ],
         // Increase timeout for webdriver
         timeout_options: {
           timeout: 60000,
           retry_attempts: 3
-        }
+        },
+        // Additional selenium settings
+        keep_alive: true,
+        check_process_delay: 1000
       }
     }
   },
