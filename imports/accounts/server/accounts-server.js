@@ -254,9 +254,9 @@ export const AccountsServer = {
     });
 
     // After login
-    Accounts.onLogin((info) => {
+    Accounts.onLogin(async (info) => {
       // Update last login time
-      Meteor.users.update(info.user._id, {
+      await Meteor.users.updateAsync(info.user._id, {
         $set: {
           lastLoginAt: new Date(),
           lastActivityAt: new Date()
