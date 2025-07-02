@@ -151,17 +151,66 @@ jobs:
             fi
       
       - run:
+          name: Debug - Check test environment
+          command: |
+            echo "=== Checking Chrome installation ==="
+            which google-chrome || which chrome || which chromium-browser || echo "Chrome not found in PATH"
+            google-chrome --version || chrome --version || chromium-browser --version || echo "Could not get Chrome version"
+            
+            echo "=== Checking ChromeDriver ==="
+            which chromedriver || echo "ChromeDriver not found in PATH"
+            chromedriver --version || echo "Could not get ChromeDriver version"
+            
+            echo "=== Checking test files ==="
+            ls -la tests/nightwatch/honeycomb/ || echo "Test directory not found"
+            
+            echo "=== Checking Nightwatch configs ==="
+            ls -la *.conf.js || echo "No config files found"
+            
+            echo "=== Current working directory ==="
+            pwd
+            
+            echo "=== Node and NPM versions ==="
+            node --version
+            npm --version
+      
+      - run:
           name: Run Nightwatch tests
           command: |
-            if [ -f "nightwatch.conf.js" ]; then
-              npx nightwatch --config nightwatch.conf.js
-            elif [ -f ".meteor/nightwatch.circle.json" ]; then
-              npx nightwatch -c .meteor/nightwatch.circle.json
+            # Function to output progress periodically
+            keep_alive() {
+              while true; do
+                echo "Tests still running... $(date)"
+                sleep 60
+              done
+            }
+            
+            # Start keep-alive in background
+            keep_alive &
+            KEEPALIVE_PID=$!
+            
+            # Clean up function
+            cleanup() {
+              kill $KEEPALIVE_PID 2>/dev/null || true
+            }
+            trap cleanup EXIT
+            
+            # Run tests with verbose output
+            echo "Starting Nightwatch tests with CircleCI configuration..."
+            if [ -f "nightwatch.circle.conf.js" ]; then
+              echo "Using CircleCI-specific configuration"
+              npx nightwatch --config nightwatch.circle.conf.js --verbose
+            elif [ -f "nightwatch.conf.js" ]; then
+              echo "Using default configuration with verbose flag"
+              npx nightwatch --config nightwatch.conf.js --verbose --detailed-output
             else
-              echo "No Nightwatch config found"
+              echo "ERROR: No Nightwatch config found"
               exit 1
             fi
-          no_output_timeout: 15m
+            
+            # Cleanup
+            cleanup
+          no_output_timeout: 20m
       
       - run:
           name: Collect artifacts
