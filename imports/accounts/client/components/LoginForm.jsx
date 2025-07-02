@@ -23,7 +23,17 @@ export function LoginForm({ onSuccess, onSignupClick, onForgotPasswordClick }) {
   const [loading, setLoading] = useState(false);
   const [userExists, setUserExists] = useState(null);
   const [checkingUser, setCheckingUser] = useState(false);
+  const [emailConfigured, setEmailConfigured] = useState(false);
   const navigate = useNavigate();
+
+  // Check if email is configured on component mount
+  useEffect(() => {
+    Meteor.call('accounts.isEmailConfigured', (error, result) => {
+      if (!error && result) {
+        setEmailConfigured(result.configured);
+      }
+    });
+  }, []);
 
   // Check if user exists when username changes
   useEffect(() => {
@@ -189,12 +199,12 @@ export function LoginForm({ onSuccess, onSignupClick, onForgotPasswordClick }) {
             InputLabelProps={{ 
               shrink: true,
               sx: { 
-                position: 'relative',
+                position: 'static',
                 transform: 'none',
                 fontSize: '0.875rem',
                 fontWeight: 500,
                 color: 'text.secondary',
-                mb: 1
+                mb: 0.5
               }
             }}
             label="Username or Email *"
@@ -236,12 +246,12 @@ export function LoginForm({ onSuccess, onSignupClick, onForgotPasswordClick }) {
             InputLabelProps={{ 
               shrink: true,
               sx: { 
-                position: 'relative',
+                position: 'static',
                 transform: 'none',
                 fontSize: '0.875rem',
                 fontWeight: 500,
                 color: 'text.secondary',
-                mb: 1
+                mb: 0.5
               }
             }}
             label="Password *"
@@ -337,29 +347,31 @@ export function LoginForm({ onSuccess, onSignupClick, onForgotPasswordClick }) {
         
         <Box sx={{ 
           display: 'flex', 
-          justifyContent: 'space-between',
+          justifyContent: emailConfigured ? 'space-between' : 'center',
           alignItems: 'center',
           pt: 2,
           borderTop: '1px solid',
           borderColor: 'divider'
         }}>
-          <Link
-            component="button"
-            variant="body2"
-            onClick={(e) => {
-              e.preventDefault();
-              onForgotPasswordClick?.();
-            }}
-            sx={{ 
-              color: '#f0ad4e',
-              textDecoration: 'none',
-              '&:hover': {
-                textDecoration: 'underline'
-              }
-            }}
-          >
-            Forgot password?
-          </Link>
+          {emailConfigured && (
+            <Link
+              component="button"
+              variant="body2"
+              onClick={(e) => {
+                e.preventDefault();
+                onForgotPasswordClick?.();
+              }}
+              sx={{ 
+                color: '#f0ad4e',
+                textDecoration: 'none',
+                '&:hover': {
+                  textDecoration: 'underline'
+                }
+              }}
+            >
+              Forgot password?
+            </Link>
+          )}
           
           <Typography variant="body2" color="text.secondary">
             Don't have an account?{' '}

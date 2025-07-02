@@ -226,12 +226,12 @@ export function SignupForm({ onSuccess, onLoginClick }) {
             InputLabelProps={{ 
               shrink: true,
               sx: { 
-                position: 'relative',
+                position: 'static',
                 transform: 'none',
                 fontSize: '0.875rem',
                 fontWeight: 500,
                 color: 'text.secondary',
-                mb: 1
+                mb: 0.5
               }
             }}
             label="Username *"
@@ -273,12 +273,12 @@ export function SignupForm({ onSuccess, onLoginClick }) {
             InputLabelProps={{ 
               shrink: true,
               sx: { 
-                position: 'relative',
+                position: 'static',
                 transform: 'none',
                 fontSize: '0.875rem',
                 fontWeight: 500,
                 color: 'text.secondary',
-                mb: 1
+                mb: 0.5
               }
             }}
             label="Email *"
@@ -351,12 +351,12 @@ export function SignupForm({ onSuccess, onLoginClick }) {
             InputLabelProps={{ 
               shrink: true,
               sx: { 
-                position: 'relative',
+                position: 'static',
                 transform: 'none',
                 fontSize: '0.875rem',
                 fontWeight: 500,
                 color: 'text.secondary',
-                mb: 1
+                mb: 0.5
               }
             }}
             label="Password *"
@@ -394,12 +394,12 @@ export function SignupForm({ onSuccess, onLoginClick }) {
             InputLabelProps={{ 
               shrink: true,
               sx: { 
-                position: 'relative',
+                position: 'static',
                 transform: 'none',
                 fontSize: '0.875rem',
                 fontWeight: 500,
                 color: 'text.secondary',
-                mb: 1
+                mb: 0.5
               }
             }}
             label="Confirm Password *"

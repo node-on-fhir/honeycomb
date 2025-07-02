@@ -99,6 +99,14 @@ Meteor.methods({
     return !user; // true if username is available
   },
   
+  // Check if email is configured
+  'accounts.isEmailConfigured'() {
+    return {
+      configured: !!process.env.MAIL_URL,
+      hasMailUrl: !!process.env.MAIL_URL
+    };
+  },
+
   async 'accounts.checkAvailability'(username, email) {
     check(username, String);
     check(email, String);
