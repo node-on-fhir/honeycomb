@@ -115,30 +115,50 @@ describe('Accounts - Login', function() {
       .pause(1000)
       .waitForElementVisible('form', 5000)
       
-      // Fill in invalid credentials
-      .clearValue('input[name="username"]')
-      .setValue('input[name="username"]', 'invaliduser')
-      .pause(3000) // Wait for user check
-      .clearValue('input[type="password"]')
-      .setValue('input[type="password"]', 'wrongpassword')
-      .saveScreenshot('tests/nightwatch/screenshots/login/06-invalid-credentials.png')
-      
-      // Button might be disabled if user doesn't exist
-      // Try to submit only if button is enabled
-      .execute(function() {
-        const button = document.querySelector('button[type="submit"]');
-        if (button && !button.disabled) {
-          button.click();
-          return 'clicked';
+      // Use a username that exists but with wrong password
+      // First create a test user to ensure we have valid username
+      .executeAsync(function(done) {
+        if (typeof Meteor !== 'undefined') {
+          Meteor.call('test.createTestUser', {
+            username: 'validuser',
+            email: 'validuser@example.com',
+            password: 'correctpassword123'
+          }, done);
+        } else {
+          done();
         }
-        return 'disabled';
-      }, function(result) {
-        console.log('Submit button state:', result.value);
       })
-      .pause(2000)
+      .pause(1000)
       
-      // Verify we're still on login page (either button was disabled or login failed)
-      .verify.urlContains('/login', 'Should remain on login page')
+      // Fill in valid username but wrong password
+      .clearValue('input[name="username"]')
+      .setValue('input[name="username"]', 'validuser')
+      .pause(2000) // Wait for user check
+      
+      // Check if password field is enabled before interacting
+      .execute(function() {
+        const passwordField = document.querySelector('input[type="password"]');
+        return passwordField && !passwordField.disabled;
+      }, function(result) {
+        if (result.value) {
+          client
+            .clearValue('input[type="password"]')
+            .setValue('input[type="password"]', 'wrongpassword')
+            .saveScreenshot('tests/nightwatch/screenshots/login/06-invalid-credentials.png')
+            
+            // Submit form
+            .click('button[type="submit"]')
+            .pause(2000)
+            
+            // Verify error message appears
+            .verify.elementPresent('.MuiAlert-root, [role="alert"]')
+            .verify.urlContains('/login', 'Should remain on login page after failed login');
+        } else {
+          console.log('Password field is disabled - user does not exist');
+          // Just verify we're still on login page
+          client.verify.urlContains('/login', 'Should remain on login page');
+        }
+      })
       .saveScreenshot('tests/nightwatch/screenshots/login/07-invalid-credentials-error.png');
   });
 
