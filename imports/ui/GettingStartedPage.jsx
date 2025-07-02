@@ -257,7 +257,13 @@ function GettingStartedPage(props){
   // Main Render Method  
 
   return (
-    <div id='GettingStartedPage' style={{"height": window.innerHeight, overflow: "scroll", paddingLeft: '40px', paddingRight: '40px', paddingBottom: '80px'}}>
+    <Box id='GettingStartedPage' sx={{
+      height: '100vh',
+      overflow: 'auto',
+      px: 5,
+      pb: 10,
+      bgcolor: 'background.default'
+    }}>
       <Grid container spacing={3} justify="center" style={{paddingBottom: '80px'}}>
           <Grid item xs={12} justify="center">
             <br />
@@ -412,7 +418,7 @@ function GettingStartedPage(props){
 
 
       </Grid>
-    </div>      
+    </Box>      
   );
 }
 

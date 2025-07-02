@@ -363,6 +363,9 @@ let dynamicRoutes = [
     path: "/smart-app-debugger",
     element: <SmartAppDebugger />
   }, {
+    path: "/theming",
+    element: <ThemingPage />
+  }, {
     path: "/cds-hooks-debugger",
     element: <CdsHooksDebugger />
   }, {

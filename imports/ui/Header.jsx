@@ -358,7 +358,11 @@ function Header({ drawerIsOpen, handleDrawerOpen, lastUpdated }) {
           <Typography id="headerTitle" variant="h6" component="div" sx={{ flexGrow: 1 }} color="standard.main">
           { parseTitle() }
           </Typography>
-          <IconButton  onClick={toggleTheme}>
+          <IconButton  
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          >
             {theme === 'light' ? <Brightness4Icon color="standard" /> : <Brightness7Icon color="standard" />}
           </IconButton>
           {/* { userItems }
