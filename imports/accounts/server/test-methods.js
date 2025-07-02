@@ -9,7 +9,7 @@ import { get } from 'lodash';
 if (get(Meteor, 'settings.public.environment') !== 'production') {
   Meteor.methods({
     // Clear all test users (be careful with this!)
-    'test.clearUsers': function() {
+    async 'test.clearUsers'() {
       // Only allow in test environments
       if (get(Meteor, 'settings.public.environment') === 'production') {
         throw new Meteor.Error('not-allowed', 'Cannot clear users in production');
@@ -18,7 +18,7 @@ if (get(Meteor, 'settings.public.environment') !== 'production') {
       // Remove all users except the current one (if any)
       const currentUserId = this.userId;
       
-      Meteor.users.remove({
+      await Meteor.users.removeAsync({
         _id: { $ne: currentUserId },
         // Only remove test users (safety check)
         $or: [
@@ -31,7 +31,7 @@ if (get(Meteor, 'settings.public.environment') !== 'production') {
     },
 
     // Create a test user
-    'test.createTestUser': function(userData) {
+    async 'test.createTestUser'(userData) {
       check(userData, {
         username: String,
         email: String,
@@ -44,8 +44,8 @@ if (get(Meteor, 'settings.public.environment') !== 'production') {
       }
 
       // Check if user already exists
-      const existingUser = Accounts.findUserByUsername(userData.username) || 
-                          Accounts.findUserByEmail(userData.email);
+      const existingUser = await Accounts.findUserByUsername(userData.username) || 
+                          await Accounts.findUserByEmail(userData.email);
       
       if (existingUser) {
         // Update password if user exists
@@ -62,9 +62,9 @@ if (get(Meteor, 'settings.public.environment') !== 'production') {
 
       // Verify email automatically for test users
       if (userId && userData.email) {
-        const user = Meteor.users.findOne(userId);
+        const user = await Meteor.users.findOneAsync(userId);
         if (user.emails && user.emails[0]) {
-          Meteor.users.update(
+          await Meteor.users.updateAsync(
             { _id: userId, 'emails.address': userData.email },
             { $set: { 'emails.$.verified': true } }
           );
@@ -75,7 +75,7 @@ if (get(Meteor, 'settings.public.environment') !== 'production') {
     },
 
     // Set first run status
-    'test.setFirstRun': function(isFirstRun) {
+    async 'test.setFirstRun'(isFirstRun) {
       check(isFirstRun, Boolean);
 
       // Only allow in test environments
@@ -92,15 +92,15 @@ if (get(Meteor, 'settings.public.environment') !== 'production') {
 
       // If first run, clear all users
       if (isFirstRun) {
-        Meteor.users.remove({});
+        await Meteor.users.removeAsync({});
       }
 
       return true;
     },
 
     // Check if system is in first run state
-    'test.isFirstRun': function() {
-      const userCount = Meteor.users.find().count();
+    async 'test.isFirstRun'() {
+      const userCount = await Meteor.users.find().countAsync();
       return userCount === 0;
     }
   });

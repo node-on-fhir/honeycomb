@@ -200,6 +200,7 @@ export function LoginForm({ onSuccess, onSignupClick, onForgotPasswordClick }) {
         <TextField
           fullWidth
           label="Password"
+          name="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
