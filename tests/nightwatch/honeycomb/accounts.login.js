@@ -77,50 +77,24 @@ describe('Accounts - Login', function() {
       
       // Submit form
       .click('button[type="submit"]')
-      .pause(5000) // Give more time for login to process
+      .pause(3000)
       
-      // Verify redirect to authenticated area
-      // First check if we're still on login page
+      // Wait for login to complete - check multiple conditions
+      .waitForElementNotPresent('button[type="submit"][disabled]', 15000) // Wait for button to stop being disabled
+      .pause(2000) // Additional time for redirect
+      
+      // Check if we've left the login page
       .execute(function() {
-        return window.location.pathname;
+        return {
+          path: window.location.pathname,
+          userId: typeof Meteor !== 'undefined' ? Meteor.userId() : null,
+          hasLoginForm: !!document.querySelector('form input[name="username"]')
+        };
       }, function(result) {
-        console.log('Current path after login:', result.value);
+        console.log('Login result:', result.value);
       })
       
-      // More flexible check - either form disappears or URL changes
-      .perform(function(client, done) {
-        // Try multiple times to check if login succeeded
-        let attempts = 0;
-        const maxAttempts = 6; // 30 seconds total
-        
-        function checkLogin() {
-          attempts++;
-          client.execute(function() {
-            return {
-              path: window.location.pathname,
-              hasForm: !!document.querySelector('form'),
-              userId: typeof Meteor !== 'undefined' ? Meteor.userId() : null
-            };
-          }, function(result) {
-            const data = result.value;
-            console.log(`Login check attempt ${attempts}:`, data);
-            
-            if (!data.path.includes('/login') || data.userId) {
-              // Login succeeded
-              done();
-            } else if (attempts < maxAttempts) {
-              // Try again in 5 seconds
-              setTimeout(checkLogin, 5000);
-            } else {
-              // Give up and let the test fail
-              done();
-            }
-          });
-        }
-        
-        checkLogin();
-      })
-      
+      // Verify we're no longer on login page
       .verify.not.urlContains('/login', 'Should not remain on login page')
       .saveScreenshot('tests/nightwatch/screenshots/login/05-successful-login.png');
   });
