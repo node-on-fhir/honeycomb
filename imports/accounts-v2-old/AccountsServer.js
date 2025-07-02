@@ -200,7 +200,7 @@ Meteor.startup(async function(){
   process.env.DEBUG_ACCOUNTS && console.log('Accounts.mongoUrl', mongoUrl)
   process.env.DEBUG_ACCOUNTS && console.log('Accounts.mongoose.connection', mongoose.connection)
   process.env.DEBUG_ACCOUNTS && console.log('Accounts.accountsMongo', accountsMongo)
-  process.env.DEBUG_ACCOUNTS && console.log('Accounts.accountsPassword', accountsPassword)
+  process.env.DEBUG_ACCOUNTS && console.log('Accounts.accountsPassword: [REDACTED]')
   process.env.DEBUG_ACCOUNTS && console.log('Accounts.accountsServer', accountsServer)
   process.env.DEBUG_ACCOUNTS && console.log('==================================================================')
 
