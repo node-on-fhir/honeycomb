@@ -1,5 +1,3 @@
-# .circleci/config.yml - CircleCI configuration for Meteor v3 + Nightwatch testing
-
 version: 2.1
 
 orbs:
