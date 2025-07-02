@@ -1,6 +1,5 @@
 import { Meteor } from 'meteor/meteor';
 import { WebApp } from "meteor/webapp";
-import { Package } from 'meteor/package';
 
 import express from 'express';
 import bodyParser from 'body-parser';
@@ -14,7 +13,7 @@ import { accessTokenCollection } from './OAuthEndpoints';
 
 // Conditionally import Roles if available
 let Roles;
-if (Package['alanning:roles']) {
+if (typeof Package !== 'undefined' && Package['alanning:roles']) {
   Roles = Package['alanning:roles'].Roles;
 }
 
