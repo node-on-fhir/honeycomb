@@ -235,11 +235,24 @@ jobs:
             
             # Clean up function
             cleanup() {
-              kill $KEEPALIVE_PID 2>/dev/null || true
-              # Kill ChromeDriver if it's still running
-              pkill -f chromedriver || true
+              echo "Running cleanup..."
+              # Kill keep-alive first
+              if [ ! -z "$KEEPALIVE_PID" ]; then
+                kill $KEEPALIVE_PID 2>/dev/null || true
+              fi
+              
+              # Give ChromeDriver time to shutdown gracefully
+              if [ ! -z "$CHROMEDRIVER_PID" ]; then
+                kill -TERM $CHROMEDRIVER_PID 2>/dev/null || true
+                sleep 1
+                # Force kill if still running
+                kill -9 $CHROMEDRIVER_PID 2>/dev/null || true
+              fi
+              
+              echo "Cleanup completed"
             }
-            trap cleanup EXIT
+            # Don't trap EXIT - let the script complete naturally
+            # trap cleanup EXIT
             
             # Try to start ChromeDriver manually first
             echo "=== Starting ChromeDriver manually ==="
@@ -280,17 +293,27 @@ jobs:
               echo "config.test_settings.default.webdriver.default_path_prefix = '';" >> nightwatch.circle.manual.conf.js
               echo "module.exports = config;" >> nightwatch.circle.manual.conf.js
               
+              # Run tests and capture exit code
               npx nightwatch --config nightwatch.circle.manual.conf.js --verbose
+              TEST_EXIT_CODE=$?
             elif [ -f "nightwatch.conf.js" ]; then
               echo "Using default configuration with verbose flag"
               npx nightwatch --config nightwatch.conf.js --verbose --detailed-output
+              TEST_EXIT_CODE=$?
             else
               echo "ERROR: No Nightwatch config found"
               exit 1
             fi
             
+            # Give Nightwatch time to clean up
+            echo "Tests completed with exit code: $TEST_EXIT_CODE"
+            sleep 2
+            
             # Cleanup
             cleanup
+            
+            # Exit with the test exit code
+            exit $TEST_EXIT_CODE
           no_output_timeout: 20m
       
       - run:
