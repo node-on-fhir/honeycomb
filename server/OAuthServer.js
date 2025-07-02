@@ -149,7 +149,7 @@ Meteor.publish(OAuthServerConfig.pubSubNames.clientsCollection, function () {
   }
   
   // Check if Roles package is available
-  if (Package['alanning:roles'] && Roles && Roles.userIsInRole) {
+  if (typeof Package !== 'undefined' && Package['alanning:roles'] && Roles && Roles.userIsInRole) {
     // if the user is a sysadmin, return all the clients
     if (Roles.userIsInRole(this.userId, ['sysadmin'])) {
       return OAuthServerConfig.collections.clientsCollection.find();
