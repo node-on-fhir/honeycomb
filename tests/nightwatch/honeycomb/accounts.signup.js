@@ -159,8 +159,27 @@ describe('Accounts - Signup/Registration', function() {
       .setValue('input[name="confirm"], input[name="confirmPassword"]', 'SecurePassword123!')
       .saveScreenshot('tests/nightwatch/screenshots/signup/11-complete-form.png')
       
-      // Submit form
-      .click('button[type="submit"]')
+      // Wait for button to be enabled before clicking
+      .waitForElementNotPresent('button[type="submit"][disabled]', 5000)
+      
+      // Submit form - scroll into view and click
+      .execute(function() {
+        // Scroll the submit button into view and click it
+        const submitButton = document.querySelector('button[type="submit"]');
+        if (submitButton && !submitButton.disabled) {
+          submitButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Use focus and click to ensure proper interaction
+          submitButton.focus();
+          // Wait a bit for scroll to complete
+          setTimeout(() => {
+            submitButton.click();
+          }, 500);
+          return { clicked: true, disabled: submitButton.disabled };
+        }
+        return { clicked: false, disabled: submitButton ? submitButton.disabled : null };
+      }, function(result) {
+        console.log('Submit button interaction:', result.value);
+      })
       .pause(5000)
       
       // Verify successful registration (should redirect or show success)

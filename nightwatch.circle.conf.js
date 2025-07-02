@@ -46,9 +46,10 @@ module.exports = {
             '--disable-setuid-sandbox',
             '--headless',
             '--disable-gpu',
-            '--window-size=1280,800',
+            '--window-size=1920,1080', // Larger window to avoid overlaps
             '--disable-web-security',
-            '--disable-features=VizDisplayCompositor'
+            '--disable-features=VizDisplayCompositor',
+            '--force-device-scale-factor=1'
           ]
         }
       },
