@@ -211,7 +211,7 @@ export function SignupForm({ onSuccess, onLoginClick }) {
       </Typography>
       
       <form onSubmit={handleSubmit}>
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 4 }}>
           <TextField
             fullWidth
             placeholder="Choose a username"
@@ -258,7 +258,7 @@ export function SignupForm({ onSuccess, onLoginClick }) {
           />
         </Box>
         
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 4 }}>
           <TextField
             fullWidth
             placeholder="Your email address"
@@ -305,7 +305,7 @@ export function SignupForm({ onSuccess, onLoginClick }) {
           <Alert 
             severity="info" 
             sx={{ 
-              mb: 3,
+              mb: 4,
               '& .MuiAlert-message': {
                 width: '100%'
               }
@@ -336,17 +336,17 @@ export function SignupForm({ onSuccess, onLoginClick }) {
           </Alert>
         )}
         
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 4 }}>
           <TextField
             fullWidth
-            placeholder="Create a strong password"
+            placeholder="Create a strong password (min 12 chars)"
             name="password"
             type="password"
             value={formData.password}
             onChange={handleChange('password')}
             required
             autoComplete="new-password"
-            inputProps={{ minLength: 8 }}
+            inputProps={{ minLength: 12 }}
             variant="outlined"
             InputLabelProps={{ 
               shrink: true,
@@ -363,7 +363,10 @@ export function SignupForm({ onSuccess, onLoginClick }) {
             InputProps={{
               sx: { 
                 '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: 'divider'
+                  borderColor: formData.password.length >= 16 ? '#5cb85c' : 
+                               formData.password.length >= 12 ? '#f0ad4e' : 
+                               'divider',
+                  borderWidth: formData.password.length >= 12 ? 2 : 1
                 }
               }
             }}
@@ -372,14 +375,33 @@ export function SignupForm({ onSuccess, onLoginClick }) {
                 position: 'absolute',
                 bottom: -22,
                 mx: 0,
-                fontSize: '0.75rem'
+                fontSize: '0.75rem',
+                color: formData.password.length >= 16 ? '#5cb85c' : 
+                       formData.password.length >= 12 ? '#f0ad4e' : 
+                       'text.secondary'
               }
             }}
-            helperText={formData.password.length > 0 && formData.password.length < 8 ? 'Must be at least 8 characters' : ''}
+            helperText={
+              formData.password.length > 0 ? 
+                (formData.password.length < 12 ? `${formData.password.length}/12 characters minimum` :
+                 formData.password.length < 16 ? `${formData.password.length} characters (16+ recommended)` :
+                 `${formData.password.length} characters (strong password)`) : ''
+            }
           />
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              display: 'block',
+              mt: formData.password.length > 0 ? 3.5 : 1,
+              color: 'text.secondary',
+              fontStyle: 'italic'
+            }}
+          >
+            NIST 800-63B recommends a passphrase of 12 chars or more
+          </Typography>
         </Box>
         
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 4 }}>
           <TextField
             fullWidth
             placeholder="Confirm your password"
@@ -389,6 +411,7 @@ export function SignupForm({ onSuccess, onLoginClick }) {
             onChange={handleChange('confirmPassword')}
             required
             autoComplete="new-password"
+            disabled={formData.password.length < 12}
             error={Boolean(formData.confirmPassword && formData.password !== formData.confirmPassword)}
             variant="outlined"
             InputLabelProps={{ 
@@ -427,7 +450,7 @@ export function SignupForm({ onSuccess, onLoginClick }) {
           <Alert 
             severity="error" 
             sx={{ 
-              mb: 3,
+              mb: 4,
               '& .MuiAlert-message': {
                 width: '100%'
               }
@@ -454,7 +477,7 @@ export function SignupForm({ onSuccess, onLoginClick }) {
             formData.password !== formData.confirmPassword
           }
           sx={{ 
-            mb: 3,
+            mb: 4,
             py: 1.5,
             textTransform: 'uppercase',
             fontWeight: 600,
