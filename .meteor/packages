@@ -26,3 +26,6 @@ clinical:hl7-resource-datatypes
 clinical:extended-api
 clinical:fonts
 
+accounts-base
+service-configuration
+accounts-password
