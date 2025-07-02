@@ -14,8 +14,8 @@ module.exports = {
     enabled: false
   },
   
-  // More verbose output for CI
-  detailed_output: true,
+  // Moderate output for CI - not too verbose
+  detailed_output: false,
   live_output: true,
   
   test_settings: {
@@ -30,12 +30,12 @@ module.exports = {
         retryAssertionTimeout: 10000
       },
       
-      // More verbose logging
+      // Moderate logging - show important info only
       silent: false,
       output: true,
-      detailed_output: true,
+      detailed_output: false,
       disable_error_log: false,
-      log_screenshot_data: true,
+      log_screenshot_data: false, // Don't log base64 data, but still take screenshots
       
       desiredCapabilities: {
         browserName: 'chrome',
@@ -61,8 +61,7 @@ module.exports = {
         log_path: './tests/output/logs',
         port: 9515,
         cli_args: [
-          '--verbose',
-          '--log-level=ALL',
+          '--log-level=WARNING',  // Only show warnings and errors
           '--port=9515',
           '--allowed-ips=',
           '--disable-dev-shm-usage',
@@ -80,14 +79,10 @@ module.exports = {
     }
   },
   
-  // Custom reporter function to ensure output
+  // Custom reporter function to ensure output without being too verbose
   reporter: function(results, done) {
-    console.log('Test run completed');
-    console.log('Total tests:', results.tests);
-    console.log('Passed:', results.passed);
-    console.log('Failed:', results.failed);
-    console.log('Errors:', results.errors);
-    console.log('Skipped:', results.skipped);
+    const status = results.failed > 0 || results.errors > 0 ? '❌ FAILED' : '✅ PASSED';
+    console.log(`\n${status} - ${results.passed}/${results.tests} tests passed, ${results.failed} failed, ${results.errors} errors\n`);
     done();
   }
 };

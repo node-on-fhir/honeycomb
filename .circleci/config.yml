@@ -259,7 +259,7 @@ jobs:
             CHROMEDRIVER_BIN=$(which chromedriver || echo "/usr/local/bin/chromedriver")
             if [ -f "$CHROMEDRIVER_BIN" ]; then
               echo "Starting ChromeDriver at $CHROMEDRIVER_BIN"
-              $CHROMEDRIVER_BIN --port=9515 --verbose --log-path=./chromedriver.log --allowed-ips= --whitelisted-ips= &
+              $CHROMEDRIVER_BIN --port=9515 --log-level=WARNING --log-path=./chromedriver.log --allowed-ips= --whitelisted-ips= &
               CHROMEDRIVER_PID=$!
               sleep 5
               
@@ -294,11 +294,11 @@ jobs:
               echo "module.exports = config;" >> nightwatch.circle.manual.conf.js
               
               # Run tests and capture exit code
-              npx nightwatch --config nightwatch.circle.manual.conf.js --verbose
+              npx nightwatch --config nightwatch.circle.manual.conf.js
               TEST_EXIT_CODE=$?
             elif [ -f "nightwatch.conf.js" ]; then
-              echo "Using default configuration with verbose flag"
-              npx nightwatch --config nightwatch.conf.js --verbose --detailed-output
+              echo "Using default configuration"
+              npx nightwatch --config nightwatch.conf.js
               TEST_EXIT_CODE=$?
             else
               echo "ERROR: No Nightwatch config found"
