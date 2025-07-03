@@ -24,6 +24,9 @@ import './ProxyRelay.js';
 import './VaultServer.js';
 import '../imports/lib/UdapMethods.js';
 
+// Import accounts startup if enabled
+import '../imports/startup/server/index.js';
+
 
 
 
@@ -228,6 +231,81 @@ export async function parseRpcAuthorization(accessToken){
 async function insertLink({ title, url }) {
   await LinksCollection.insertAsync({ title, url, createdAt: new Date() });
 }
+
+// Override Accounts.createUser to add detailed logging
+const originalCreateUser = Accounts.createUser;
+Accounts.createUser = function(options, callback) {
+  console.log('[Debug] Server Accounts.createUser called');
+  console.log('[Debug] Options:', JSON.stringify({
+    username: options.username,
+    email: options.email,
+    hasPassword: !!options.password
+  }));
+  
+  try {
+    const result = originalCreateUser.call(this, options, callback);
+    console.log('[Debug] createUser succeeded, result:', result);
+    return result;
+  } catch (error) {
+    console.error('[Debug] createUser error:', error);
+    console.error('[Debug] Error type:', error.constructor.name);
+    console.error('[Debug] Error code:', error.error);
+    console.error('[Debug] Error reason:', error.reason);
+    throw error;
+  }
+};
+
+// Add test method to verify accounts system
+Meteor.methods({
+  'test.accounts': function() {
+    console.log('[Test] Accounts test method called');
+    return {
+      success: true,
+      accountsConfig: Accounts._options,
+      timestamp: new Date()
+    };
+  },
+  
+  'test.createUser': function(userData) {
+    console.log('[Test] Creating user:', userData);
+    try {
+      const userId = Accounts.createUser(userData);
+      console.log('[Test] User created with ID:', userId);
+      return { success: true, userId };
+    } catch (error) {
+      console.error('[Test] Create user error:', error);
+      throw error;
+    }
+  },
+  
+  'test.checkExistingUser': async function(username, email) {
+    console.log('[Test] Checking for existing user:', { username, email });
+    
+    const byUsername = await Meteor.users.findOneAsync({ username });
+    const byEmail = await Meteor.users.findOneAsync({ 'emails.address': email });
+    
+    return {
+      usernameExists: !!byUsername,
+      emailExists: !!byEmail,
+      userByUsername: byUsername ? { _id: byUsername._id, username: byUsername.username } : null,
+      userByEmail: byEmail ? { _id: byEmail._id, emails: byEmail.emails } : null
+    };
+  },
+  
+  'test.listUsers': async function() {
+    console.log('[Test] Listing all users');
+    const users = await Meteor.users.find({}, { 
+      fields: { username: 1, emails: 1, createdAt: 1 } 
+    }).fetchAsync();
+    
+    return users.map(u => ({
+      _id: u._id,
+      username: u.username,
+      email: u.emails?.[0]?.address,
+      createdAt: u.createdAt
+    }));
+  }
+});
 
 Meteor.startup(async () => {
   // If the Links collection is empty, add some data.
