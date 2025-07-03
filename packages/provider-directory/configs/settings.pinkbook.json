@@ -1,0 +1,376 @@
+{
+  "public": {
+    "title": "Protected Women's Shelters",
+    "fhirVersion": "4.0.1",
+    "smartOnFhir": [{
+      "vendor": "SmartHealth IT",
+      "client_id": "my-client-id",
+      "scope": "launch launch/patient patient/read encounter/read procedure/read condition/read observation/read offline_access",
+      "fhirServiceUrl": "https://launch.smarthealthit.org/v/r3/sim/",
+      "redirect_uri": "./patient-quickchart",
+      "iss": "https://launch.smarthealthit.org/v/r3/sim/eyJoIjoiMSIsImIiOiJmMDQ2MjkzNi1lYjRiLTRkYTEtYjQ1YS1mYmQ5NmViZjhjY2IiLCJlIjoic21hcnQtUHJhY3RpdGlvbmVyLTcxNjE0NTAyIn0/fhir"
+    }],
+    "socialmedia": {
+      "title": "PinkBook - Protected Womens Services",
+      "type": "article",
+      "url": "https://federated-dir.meteorapp.com",
+      "image": "https://federated-dir.meteorapp.com/packages/mitre_national-directory/assets/SocialMedia-WomensShelters.jpg",
+      "description": "PinkBook - a directory of women's health services.",
+      "site_name": "PinkBook - Protected Womens Services",
+      "app_id": "pinkbook.mitre.us"
+    },
+    "theme": {
+      "showVideoBackground": false,
+      "defaultVideo": "/VideoBackgrounds/GrayWaves.mp4",
+      "backgroundImagePath": "/backgrounds/medical/Gradient.jpg",
+      "palette": {
+        "primaryColor": "#E5537E",
+        "primaryText": "rgba(255, 255, 255, 1) !important",
+      
+        "secondaryColor": "#fdb813",
+        "secondaryText": "rgba(255, 255, 255, 1) !important",
+      
+        "cardColor": "#ffffff !important",
+        "cardTextColor": "rgba(0, 0, 0, 1) !important",
+      
+        "errorColor": "rgb(128,20,60) !important",
+        "errorText": "#ffffff !important",
+      
+        "appBarColor": "repeating-linear-gradient( 135deg, rgba(226, 80, 152, 0.45), rgba(229, 83, 126, 0.45) 5px, rgba(204, 53, 140, 0.5) 10px, rgba(203, 34, 115, 0.5) 10px ), url(http://s3-us-west-2.amazonaws.com/s.cdpn.io/3/old_map_@2X.png)",
+        "appBarTextColor": "#ffffff !important",
+      
+        "paperColor": "#ffffff !important",
+        "paperTextColor": "rgba(0, 0, 0, 1) !important",
+      
+        "backgroundCanvas": "#e6e6e6",
+        "background": "linear-gradient(45deg, rgb(108, 183, 110) 30%, rgb(150, 202, 144) 90%)",
+
+        "nivoTheme": "red_grey"
+      }
+    },
+    "loggingThreshold": "debug",
+    "fhirAutoSubscribe": true,
+    "basicAuthToken": "test:12345",
+    "defaults": {
+      "route": "/project-page",
+      "landingPage": "/project-page",
+      "homePage": "/project-page",
+      "prominantHeader": false,
+      "useDateRangeInQueries": false,
+      "showPatientNameInHeader": false,
+      "displayUserNameInHeader": true,
+      "displayNavbars": true,
+      "disableHeader": false,
+      "disableFooter": false,
+      "initialScale": 1.0,
+      "paginationLimit": 100,
+      "subscriptionLimit": 1000,
+      "enableAccessRestrictions": true,
+      "registration": {
+        "displayPatientId": false,
+        "displayFullLegalName": true,
+        "displayNickname": true,
+        "displayGivenAndFamily": false,
+        "displayFirstAndLast": false,
+        "displayEmail": true,
+        "displayPassword": true,
+        "displayUsername": false,
+        "displayInventationCode": true
+      },
+      "sidebar": {
+        "menuItems": {
+          "HomePage": false,
+          "FhirResources": false,
+          "DynamicModules": true,
+          "SidebarWorkflows": true,
+          "Theme": false,
+          "About": true,
+          "ConstructionZone": false,
+          "Navbars": false,
+          "DataImport": true,
+          "DataExport": true,
+          "SmartLauncher": false,
+          "HealthRecords": false,
+          "Profile": false,
+          "Login": false,
+          "Logout": true,
+          "Registration": true,
+          "Documentation": false,
+          "Marketing": false,
+          "TermsAndConditions": true,
+          "Privacy": true,
+          "QrScanner": false
+        },
+        "hidden": [
+          "/allergies",
+          "/allergy-intolerances",
+          "/audit-events",
+          "/body-mass-calculator",
+          "/body-mass-index",
+          "/bundles",
+          "/careplans",
+          "/conditions",
+          "/consents",
+          "/contracts",
+          "/devices",
+          "/diagnostic-reports",
+          "/document-references",
+          "/encounters",
+          "/example-route",
+          "/explanation-of-benefits",
+          "/immunizations",
+          "/import-data",
+          "/data-management",
+          "/imaging-studies",
+          "/goals",
+          "/lists",
+          "/measures",
+          "/measure-reports",
+          "/message-headers",
+          "/medications",
+          "/medication-orders",
+          "/medication-statements",
+          "/observations",
+          "/patients",
+          "/persons",
+          "/procedures",
+          "/questionnaires",
+          "/questionnaire-responses",
+          "/related-person",
+          "/risk-assessments",
+          "/service-requests",
+          "/vitals-tracking"
+        ],
+        "hiddenWorkflow": [
+          "/patient-quickchart"
+        ]
+      }
+    },
+    "interfaces": {
+      "upstreamDirectory": {
+        "name": "National Directory",
+        "status": "active",
+        "channel": {
+          "endpoint": "https://national-directory.meteorapp.com/baseR4",
+          "paths": [
+            "/Organization?address-state=RI,CT,MA&specialty=163WW0101X,282NW0100X,363LW0102X,364SW0102X",
+            "/Practitioner?address-state=RI,CT,MA&specialty=163WW0101X,363LW0102X,364SW0102X"
+          ]
+        }
+      },
+      "oauthServer": {
+        "name": "OAuth Server",
+        "status": "active",
+        "channel": {
+          "endpoint": "http://localhost:3000/"
+        }
+      },
+      "accountsServer": {      
+        "name": "Accounts Server",
+        "database": "meteor",
+        "host": "http://localhost",
+        "port": 3000
+      }
+    }
+  },
+  "private": {    
+    "debug": true,
+    "trace": true,
+    "invitationCode": "MITRE",
+    "clinicianInvitationCode": "MitreClinician",
+    "enableCronAutomation": true,
+    "enableAccessRestrictions": true,
+    "enableBasicAuth": true,
+    "enableServerStats": true,
+    "x509": {
+      "publicKey": "-----BEGIN PUBLIC KEY-----\r\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApVWm5oKx94R8qFh5mnnD\r\nGS6B26j0ag+RYz0Pqj8zlrkV3C4AkFZeytvP47ax2VrEEx3TcMThTdfb2UE7UPRV\r\n4+aF9T+8i5odcYYssBNkoN0O43XByRp+kXeUR+13Ds+jDIg98tWwRWJOf9ZomGI2\r\n4hQ0ukwtISyWV9dmLNB4a5V/d0W9AA3PPLKJKAuR1myj2Sj69ZriGIrJmK7M35Og\r\n6nnTmK6z4N9225MCY2pJPfERpRHKmdE61Ou7D7qvdsZ7ro1D577YrVQVZFUlwLvm\r\nDgZg0ySiaOANWfz7G2095jJiSFzco9HyjhvO1wt7Wq6g+tVHRQvaAyyLYxk+xL1u\r\nKwIDAQAB\r\n-----END PUBLIC KEY-----\r\n",
+      "privateKey": "-----BEGIN RSA PRIVATE KEY-----\r\nMIIEpAIBAAKCAQEApVWm5oKx94R8qFh5mnnDGS6B26j0ag+RYz0Pqj8zlrkV3C4A\r\nkFZeytvP47ax2VrEEx3TcMThTdfb2UE7UPRV4+aF9T+8i5odcYYssBNkoN0O43XB\r\nyRp+kXeUR+13Ds+jDIg98tWwRWJOf9ZomGI24hQ0ukwtISyWV9dmLNB4a5V/d0W9\r\nAA3PPLKJKAuR1myj2Sj69ZriGIrJmK7M35Og6nnTmK6z4N9225MCY2pJPfERpRHK\r\nmdE61Ou7D7qvdsZ7ro1D577YrVQVZFUlwLvmDgZg0ySiaOANWfz7G2095jJiSFzc\r\no9HyjhvO1wt7Wq6g+tVHRQvaAyyLYxk+xL1uKwIDAQABAoIBABvsBy/Oyrd+jH7x\r\n0jegcK6ECDJMqlpvHqKf4VFjMxc1UtfIfRfjPkcMMGPIquiGR67izp6w4UwANITQ\r\nW3Akk4zVlbIBfZomAOr3OfzSiaARNT582KlZ7B4tD8HF/OFnd6XaLHwiUo6lN5Sn\r\nZSq3C4XK28zKqKR9nzZejkbrPisM4Yg079eWUP0+dFNKAHCCv8Mqu5Qvss7NEbVx\r\n14uQ/HoTIu0cTS5ARq0AXWvEMNf2PPlZiIgpz29nfaav4Rn3vtaqtg4UWrNY0EVK\r\nPykheDtF72zyKEuEuIwNNQ+tCKDXGjbLQrwQOBQVlyW9Cf3AP2Htmtl49zoOolor\r\nCWax+8ECgYEA+vZNPYKCwOe2Gg7+AEGKdF7Jd1yBMoS0q+BhF2GlnznbNVRs/SzF\r\njSATtJjfpJzFkY00VGH/k5GUAME62onoekrY9CaczgaKuLJ3XiCPOaJIwxYSEZDX\r\n2RWhv4ttfblVjckSmyWqr2wr2f38Ov/zaNvmHyUv+bDCNCYjYGR5b8kCgYEAqKdP\r\nGDojsu7zVLCLlfbhQQMmpNZdVyn/XiXDjiOGwSImOlcl/11I5CbXax3dJ+kUEkhh\r\nKlAwlk3Sedzxcy64m+7RKSfdpuxHkRq5gH40mUCTpISxHVdoPMLKC26kzCjMSoHw\r\nYnH3Dnt1BDi4SjB9qvqk2JRYNKEbIpOGq7pksFMCgYEAjbFGhvYK8PNiY3AXhPl8\r\nPJvPz+6Qm39Fqs0yxErDghTeaUvThVYj67wypAK0MnK5Maax5vq1nBHTqGFw4zZ9\r\n5Z4gxCiQ29nhtMo+jwx/ESFJR6xMY1KOK+kEu+ry1MsxPK5MLQClUAoY8Clwobcl\r\nLQ0K7obGgYmE/ICT9LaFwdECgYEAhAQTIb/A2fu5dX2MhiLuR9mTkkxKXER/pM6i\r\nuMyOWvfEPL6i+7WlrRHKZgrGZstH7tfBV0HWBpF8Q+/zAFp+H3FdQH34PwWNL8Rf\r\nmHkx6xRlfc5wZatZ6NYBGdnOHhGBeIEmDalv3mI9QsSzXT9/3yq7htz3/ppthy87\r\np4kL8AkCgYB6vQVJ5aA/KxSrDtXSbqc64TyzSSUN/FgqNs/OVhawgNHzTn4Wq7tJ\r\nults5BJMh3DEO5KAGo5djSIT3wCdvgj7h29uklA8ka163sGzAhVeOyWwxRIRg/KA\r\nhu9jc6O+3DF9KnjH1I99as/rQrOCzfzJFzk2avBclLoldYrP8eO5Vg==\r\n-----END RSA PRIVATE KEY-----\r\n"
+    },
+    "fhir": {
+      "disableOauth": true,
+      "inboundQueue": true,
+      "schemaValidation": {
+        "filter": false,
+        "validate": false
+      },
+      "fhirPath": "baseR4",
+      "autopublishSubscriptions": false,
+      "autoGenerateSubscriptions": true,
+      "publicationLimit": 10000,
+      "rest": {
+        "AuditEvent": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete", "history-type", "history-instance"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "Bundle": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "CareTeam": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "CodeSystem": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete", "history-type", "history-instance"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "Communication": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "CommunicationRequest": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "Consent": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "Endpoint": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "HealthcareService": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete", "history-type", "history-instance"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "InsurancePlan": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "Location": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete", "history-type", "history-instance"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "Organization": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete", "history-type", "history-instance"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "OrganizationAffiliation": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete", "history-type", "history-instance"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "Practitioner": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete", "history-type", "history-instance"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "PractitionerRole": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete", "history-type", "history-instance"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "Provenance": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "Restriction": {
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "SearchParameter": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "Task": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete", "history-type", "history-instance"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "StructureDefinition": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "Subscription": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "ValueSet": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "VerificationResult": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        }
+      },
+      "experimentalRest": {
+        "Network": {
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        }
+      }
+    }
+  },
+  "galaxy.meteor.com": {
+    "env": {
+      "ROOT_URL": "https://federated-dir.meteorapp.com",
+      "MONGO_URL": "mongodb+srv://healthadmin:GhrKAVK0Q5Tgw7U5@federateddircluster.k5gby.mongodb.net/meteor?retryWrites=true&w=majority",
+      "MONGO_OPLOG_URL": "mongodb+srv://oplog:XZ61u4vsmZo5KsdK@federateddircluster.k5gby.mongodb.net/local?retryWrites=true&w=majority&authSource=admin&ssl=true&replicaSet=federateddircluster-shard-00-01",
+      "NODE_ENV": "production",
+      "DEBUG": 1,
+      "TRACE": 0,
+      "RELAX_UDAP_REGISTRATION": 1
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "careteam-name",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: careteam-name</p><p><b>url</b>: <a href=\"http://hl7.org/fhir/uv/vhdir/SearchParameter/careteam-name\">http://hl7.org/fhir/uv/vhdir/SearchParameter/careteam-name</a></p><p><b>version</b>: 0.2.0</p><p><b>name</b>: VhDir_sp_careteam_name</p><p><b>status</b>: draft</p><p><b>date</b>: May 23, 2018, 12:00:00 AM</p><p><b>publisher</b>: HL7 Patient Administration Committee</p><p><b>contact</b>: </p><p><b>description</b>: Select care teams with the specified name</p><p><b>code</b>: name</p><p><b>base</b>: CareTeam</p><p><b>type</b>: string</p><p><b>expression</b>: CareTeam.name|CareTeam.extension('http://hl7.org/fhir/uv/vhdir/StructureDefinition/careteam-alias')</p><p><b>multipleOr</b>: true</p><p><b>multipleAnd</b>: true</p><p><b>modifier</b>: exact, contains</p></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/SearchParameter/careteam-name",
+    "version": "0.2.0",
+    "name": "VhDir_sp_careteam_name",
+    "status": "draft",
+    "date": "2018-05-23T00:00:00+00:00",
+    "publisher": "HL7 Patient Administration Committee",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "http://www.hl7.org/Special/committees/pafm/index.cfm"
+                }
+            ]
+        }
+    ],
+    "description": "Select care teams with the specified name",
+    "code": "name",
+    "base": [
+        "CareTeam"
+    ],
+    "type": "string",
+    "expression": "CareTeam.name|CareTeam.extension('http://hl7.org/fhir/uv/vhdir/StructureDefinition/careteam-alias')",
+    "multipleOr": true,
+    "multipleAnd": true,
+    "modifier": [
+        "exact",
+        "contains"
+    ]
+}

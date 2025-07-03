@@ -1,0 +1,361 @@
+{
+  "public": {
+    "title": "National Care Directory",
+    "fhirVersion": "4.0.1",
+    "smartOnFhir": [{
+      "vendor": "SmartHealth IT",
+      "client_id": "my-client-id",
+      "scope": "launch launch/patient patient/read encounter/read procedure/read condition/read observation/read offline_access",
+      "fhirServiceUrl": "https://launch.smarthealthit.org/v/r3/sim/",
+      "redirect_uri": "./patient-quickchart",
+      "iss": "https://launch.smarthealthit.org/v/r3/sim/eyJoIjoiMSIsImIiOiJmMDQ2MjkzNi1lYjRiLTRkYTEtYjQ1YS1mYmQ5NmViZjhjY2IiLCJlIjoic21hcnQtUHJhY3RpdGlvbmVyLTcxNjE0NTAyIn0/fhir"
+    }],
+    "theme": {
+      "showVideoBackground": false,
+      "defaultVideo": "/VideoBackgrounds/GrayWaves.mp4",
+      "backgroundImagePath": "/backgrounds/medical/Gradient.jpg",
+      "palette": {
+        "primaryColor": "rgb(108, 183, 110)",
+        "primaryText": "rgba(255, 255, 255, 1) !important",
+      
+        "secondaryColor": "#fdb813",
+        "secondaryText": "rgba(255, 255, 255, 1) !important",
+      
+        "cardColor": "#ffffff !important",
+        "cardTextColor": "rgba(0, 0, 0, 1) !important",
+      
+        "errorColor": "rgb(128,20,60) !important",
+        "errorText": "#ffffff !important",
+      
+        "appBarColor": "#005b94",
+        "appBarTextColor": "#ffffff !important",
+      
+        "paperColor": "#ffffff !important",
+        "paperTextColor": "rgba(0, 0, 0, 1) !important",
+      
+        "backgroundCanvas": "#e6e6e6",
+        "background": "linear-gradient(45deg, rgb(108, 183, 110) 30%, rgb(150, 202, 144) 90%)",
+
+        "nivoTheme": "red_grey"
+      }
+    },
+    "loggingThreshold": "debug",
+    "fhirAutoSubscribe": true,
+    "defaults": {
+      "route": "/project-page",
+      "landingPage": "/project-page",
+      "homePage": "/project-page",
+      "prominantHeader": false,
+      "useDateRangeInQueries": false,
+      "showPatientNameInHeader": false,
+      "displayUserNameInHeader": true,
+      "displayNavbars": true,
+      "disableHeader": false,
+      "disableFooter": false,
+      "initialScale": 1.0,
+      "paginationLimit": 100,
+      "subscriptionLimit": 1000,
+      "registration": {
+        "displayPatientId": false,
+        "displayFullLegalName": true,
+        "displayNickname": true,
+        "displayGivenAndFamily": false,
+        "displayFirstAndLast": false,
+        "displayEmail": true,
+        "displayPassword": true,
+        "displayUsername": false,
+        "displayInventationCode": true
+      },
+      "sidebar": {
+        "menuItems": {
+          "HomePage": false,
+          "FhirResources": false,
+          "DynamicModules": true,
+          "SidebarWorkflows": true,
+          "Theme": false,
+          "About": true,
+          "ConstructionZone": false,
+          "Navbars": false,
+          "DataImport": true,
+          "DataExport": true,
+          "SmartLauncher": false,
+          "HealthRecords": false,
+          "Profile": false,
+          "Login": false,
+          "Logout": true,
+          "Registration": true,
+          "Documentation": false,
+          "Marketing": false,
+          "TermsAndConditions": true,
+          "Privacy": true,
+          "QrScanner": false
+        },
+        "hidden": [
+          "/allergies",
+          "/allergy-intolerances",
+          "/audit-events",
+          "/body-mass-calculator",
+          "/body-mass-index",
+          "/bundles",
+          "/careplans",
+          "/conditions",
+          "/consents",
+          "/contracts",
+          "/devices",
+          "/diagnostic-reports",
+          "/document-references",
+          "/encounters",
+          "/example-route",
+          "/explanation-of-benefits",
+          "/immunizations",
+          "/import-data",
+          "/data-management",
+          "/imaging-studies",
+          "/goals",
+          "/lists",
+          "/measures",
+          "/measure-reports",
+          "/message-headers",
+          "/medications",
+          "/medication-orders",
+          "/medication-statements",
+          "/observations",
+          "/patients",
+          "/persons",
+          "/procedures",
+          "/questionnaires",
+          "/questionnaire-responses",
+          "/related-person",
+          "/risk-assessments",
+          "/service-requests",
+          "/vitals-tracking"
+        ],
+        "hiddenWorkflow": [
+          "/patient-quickchart"
+        ]
+      }
+    },
+    "interfaces": {
+      "fhirRelay": {
+        "name": "FHIR Relay",
+        "status": "inactive",
+        "channel": {
+          "endpoint": "http://localhost:3000/baseR4"
+        }
+      },
+      "symptomaticFhirServer": {
+        "name": "FHIR Server",
+        "status": "active",
+        "channel": {
+          "endpoint": "http://localhost:3000/baseR4"
+        }
+      },
+      "oauthServer": {
+        "name": "OAuth Server",
+        "status": "active",
+        "channel": {
+          "endpoint": "http://localhost:3000/"
+        }
+      },
+      "accountsServer": {      
+        "name": "Accounts Server",
+        "database": "meteor",
+        "host": "http://localhost",
+        "port": 3000
+      }
+    }
+  },
+  "private": {
+    "debug": true,
+    "trace": true,
+    "invitationCode": "MITRE",
+    "clinicianInvitationCode": "MitreClinician",
+    "enableCronAutomation": true,
+    "enableServerStats": false,
+    "recordVersioningEnabled": true,
+    "x509": {
+      "publicKey": "-----BEGIN PUBLIC KEY-----\r\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAi0IlmAWwsjhg9fMJfQgy\r\nvGrAGP4CRWbBFkIS+rJObUMcjkPnWQYIJxq7wKnc/po8S0Dro/7R8T8anNOtuki6\r\nsc7VSXFmhDpUhGq2kQbJfg+D8Tl6ZzZozSxW19YxWVaOpOKkEFl1I7hK2UcP3Qml\r\nt0/Yxkf+G2xZjwJZADGbU5ER5XwYslpezTfBeKV8tc6DITR1I5UaFIftw/ZXj1kB\r\ngI5QyPowhm+IngWRagHtOc/JBEN11G+vlHAdCrfKNLGRWlj/AGbK7I8vPVxHrp+z\r\nZRpHx9UR3QVTQLSJFn0YjQzQSIxChQ8/iW0cmJsu802MXi3ovo+OPoFMOHf12D6/\r\ntQIDAQAB\r\n-----END PUBLIC KEY-----\r\n",
+      "privateKey": "-----BEGIN RSA PRIVATE KEY-----\r\nMIIEpAIBAAKCAQEAi0IlmAWwsjhg9fMJfQgyvGrAGP4CRWbBFkIS+rJObUMcjkPn\r\nWQYIJxq7wKnc/po8S0Dro/7R8T8anNOtuki6sc7VSXFmhDpUhGq2kQbJfg+D8Tl6\r\nZzZozSxW19YxWVaOpOKkEFl1I7hK2UcP3Qmlt0/Yxkf+G2xZjwJZADGbU5ER5XwY\r\nslpezTfBeKV8tc6DITR1I5UaFIftw/ZXj1kBgI5QyPowhm+IngWRagHtOc/JBEN1\r\n1G+vlHAdCrfKNLGRWlj/AGbK7I8vPVxHrp+zZRpHx9UR3QVTQLSJFn0YjQzQSIxC\r\nhQ8/iW0cmJsu802MXi3ovo+OPoFMOHf12D6/tQIDAQABAoIBAHRMjbDkL6jnRLKi\r\nge4VhqmsTTmSCLuFEQRRsiAEAVNmlNaLBw5l5zEhNmO0eId4r5n5YdHX4eUj2knW\r\nzmOgkaolHiLzvbX4MNVVeZqsnGHW+03dvservOJ8gRpIG3aMvxwc2v98dkOaiYfj\r\nvO/QOsFYwaT2QtUMK88vGrz6sMmcRizrr5AOwlzXmbrez6QEPxxAmBZQbYJMds3M\r\naEi73xyCmpqLjD2jwh4PLWs8opVroXGRekShKzBRzLwxONEhctEiNfWKF1JTViGc\r\nfsnM+r5klvWfFrQzWhgHae+uJ5ba2E7vdSwk48rdmgOmuflBnKUFxHYEBMunht9p\r\nUTMq/RECgYEAxbrBrjx/Vs6g033xg0d6Y+XbQie2ET14BxJ75lCErxlZyCIw04Cl\r\nVAnpbWg7owdrqQ/hw72lA0aPD3sM9IEETIsEQDTZ6Xg4259zOGfLnJou+jQw7bRS\r\nrkH3Qq5BPgFXXNEOXbHSHuwPOxlD8T0WKEallPVZWgSi1Ek07Z0tXzsCgYEAtEwr\r\n+rXsm1BST3ZQKrxPR8XMimryOyyXjrYaao+UBMHwAW8FzNyN8Zcw34AvHBsplq2z\r\n58GcVLM5GB9m7w+MPz265w8Nq/suh5sN5YG1N0/7r6QKKWtsqSuPVZp3zUatul3q\r\nzOqdpjNaYMo7GDfkjkmzIJklKlSQ1OM7GLYeTc8CgYBx2uT1mD5W1OpEfcvYpQrz\r\nhQKo6EbtTHDV2a3gY9LTJIzPMejdkMEiUAbKie91I6u5kLyWQphG95Ue++Ls03GP\r\nRakv837a8fADfqARBat3xExypCTcay4Ey1U+XyqQMqOEfZiBGQh9572pcRXvThZ5\r\nIJzt1g0aSXsdM/43KH9cywKBgQCEE5zQDz8h06hIb6pwc/w73qlk6M1EDfmEYOBf\r\nGYjcJ1nzIuqD1TniNdhmkddw5nED4YF+D/W+koALrM1R6PjbRxRIuV1RlDLUwgBf\r\nFTK0L1J3q1qKVxiFoNRiaELEzLbtZGlh7ajJHKtjZiH+LsuudEzVX3q7VLG4UjFz\r\ne84dPwKBgQC/jvI8eKfeAmx9B9okgu8/0gyl13m8b6pGZrlL1kw/45azDOaemepZ\r\ncr40t6GNqKSW9/9EmfkfpP2Es0DsB5S7FLZ7G7l9QKHGcWJkcdgvTGX1TW5+wOAo\r\n8tcchy7yKw+2BjFmI8MDdyv6V2dimpcz2vveuipN4JLo+XkLnWZiUg==\r\n-----END RSA PRIVATE KEY-----\r\n",
+      "publicCertPem": "-----BEGIN CERTIFICATE-----\r\nMIIC3zCCAcegAwIBAgIBATANBgkqhkiG9w0BAQUFADBmMRIwEAYDVQQDEwltaXRy\r\nZS5vcmcxCzAJBgNVBAYTAlVTMREwDwYDVQQIEwhJbGxpbm9pczEQMA4GA1UEBxMH\r\nQ2hpY2FnbzEOMAwGA1UEChMFTUlUUkUxDjAMBgNVBAsTBU1JVFJFMB4XDTIyMDEx\r\nMTE5MTk1MloXDTIzMDExMTE5MTk1MlowADCCASIwDQYJKoZIhvcNAQEBBQADggEP\r\nADCCAQoCggEBAItCJZgFsLI4YPXzCX0IMrxqwBj+AkVmwRZCEvqyTm1DHI5D51kG\r\nCCcau8Cp3P6aPEtA66P+0fE/GpzTrbpIurHO1UlxZoQ6VIRqtpEGyX4Pg/E5emc2\r\naM0sVtfWMVlWjqTipBBZdSO4StlHD90JpbdP2MZH/htsWY8CWQAxm1OREeV8GLJa\r\nXs03wXilfLXOgyE0dSOVGhSH7cP2V49ZAYCOUMj6MIZviJ4FkWoB7TnPyQRDddRv\r\nr5RwHQq3yjSxkVpY/wBmyuyPLz1cR66fs2UaR8fVEd0FU0C0iRZ9GI0M0EiMQoUP\r\nP4ltHJibLvNNjF4t6L6Pjj6BTDh39dg+v7UCAwEAATANBgkqhkiG9w0BAQUFAAOC\r\nAQEAS1JU+8FeJ6LOyqPsq/Taw+9Se+7zQHICi/6FU2ebIP/SOF/AkOzgNaKCidMo\r\nYGrb5eC5OkvKCMl1wkc/xkUms5LLcgyWJjNSZhvkrRMYE2uZg0wCeu6x3A29vacv\r\nCNJ51JoVaTrk6HfKqD1tLNU9L2Kny0qHQ+gAND7b/uCDt3tU2X+LwgE17bYWkd6L\r\nu2enmofTFoaYciwDuI/iVJNvN+/DcyxmqItRsvj7nCWEKAKsi9XWGw8XaFvjzzTR\r\nuKzIjT7AEbdloY77omLHXW/FBgyRgW6Y2UuAmXKM6sasMAYcqX+q2+b7rdm15m+G\r\nKgsYor4VM71qVXx2a0vMb3PPag==\r\n-----END CERTIFICATE-----\r\n"
+    },
+    "fhir": {
+      "disableOauth": true,
+      "inboundQueue": true,
+      "schemaValidation": {
+        "filter": false,
+        "validate": false
+      },
+      "fhirPath": "baseR4",
+      "autopublishSubscriptions": false,
+      "autoGenerateSubscriptions": true,
+      "publicationLimit": 1000,
+      "rest": {
+        "AuditEvent": {
+          "disableOauth": true,
+          "interactions": ["read", "vread", "create", "update", "patch", "delete", "history-type", "history-instance", "vread"],
+          "search": true,
+          "publication": true,
+          "versioning": "no-version"
+        },
+        "Bundle": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "CareTeam": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "CodeSystem": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "Communication": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "CommunicationRequest": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "Endpoint": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "patch", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "HealthcareService": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "InsurancePlan": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "Location": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "patch", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "Measure": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "patch", "delete", "history-type", "history-instance", "vread"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "MeasureReport": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "patch", "delete", "history-type", "history-instance", "vread"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "Organization": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "patch", "delete", "history-type", "history-instance", "vread"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "OrganizationAffiliation": {
+          "disableOauth": true,
+          "interactions": ["read", "vread", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "Practitioner": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "patch", "delete", "history-type", "history-instance"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "PractitionerRole": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "Provenance": {
+          "disableOauth": true,
+          "interactions": ["read", "vread", "create", "update", "patch", "delete", "history-type", "history-instance", "vread"],
+          "search": true,
+          "publication": true,
+          "versioning": "no-version"
+        },
+        "SearchParameter": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "Subscription": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "Task": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        },
+        "StructureDefinition": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "ValueSet": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "VerificationResult": {
+          "disableOauth": true,
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true,
+          "versioning": "versioned"
+        }
+      },
+      "experimentalRest": {
+        "Network": {
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        },
+        "Restriction": {
+          "interactions": ["read", "create", "update", "delete"],
+          "search": true,
+          "publication": true
+        }
+      }
+    }
+  }
+}

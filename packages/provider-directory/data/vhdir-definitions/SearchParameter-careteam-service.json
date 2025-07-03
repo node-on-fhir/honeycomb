@@ -1,0 +1,42 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "careteam-service",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: careteam-service</p><p><b>url</b>: <a href=\"http://hl7.org/fhir/uv/vhdir/SearchParameter/careteam-service\">http://hl7.org/fhir/uv/vhdir/SearchParameter/careteam-service</a></p><p><b>version</b>: 0.2.0</p><p><b>name</b>: VhDir_sp_careteam_service</p><p><b>status</b>: draft</p><p><b>date</b>: May 23, 2018, 12:00:00 AM</p><p><b>publisher</b>: HL7 Patient Administration Committee</p><p><b>contact</b>: </p><p><b>description</b>: Select care teams providing the specified service</p><p><b>code</b>: service</p><p><b>base</b>: CareTeam</p><p><b>type</b>: reference</p><p><b>expression</b>: CareTeam.extension('http://hl7.org/fhir/uv/vhdir/StructureDefinition/healthcareservice-reference')</p><p><b>target</b>: HealthcareService</p><p><b>multipleOr</b>: true</p><p><b>multipleAnd</b>: true</p><p><b>chain</b>: identifier, service-category, organization, location</p></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/SearchParameter/careteam-service",
+    "version": "0.2.0",
+    "name": "VhDir_sp_careteam_service",
+    "status": "draft",
+    "date": "2018-05-23T00:00:00+00:00",
+    "publisher": "HL7 Patient Administration Committee",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "http://www.hl7.org/Special/committees/pafm/index.cfm"
+                }
+            ]
+        }
+    ],
+    "description": "Select care teams providing the specified service",
+    "code": "service",
+    "base": [
+        "CareTeam"
+    ],
+    "type": "reference",
+    "expression": "CareTeam.extension('http://hl7.org/fhir/uv/vhdir/StructureDefinition/healthcareservice-reference')",
+    "target": [
+        "HealthcareService"
+    ],
+    "multipleOr": true,
+    "multipleAnd": true,
+    "chain": [
+        "identifier",
+        "service-category",
+        "organization",
+        "location"
+    ]
+}

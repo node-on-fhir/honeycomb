@@ -1,0 +1,36 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "endpoint-usecase-standard",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: endpoint-usecase-standard</p><p><b>url</b>: <a href=\"http://hl7.org/fhir/uv/vhdir/SearchParameter/endpoint-usecase-standard\">http://hl7.org/fhir/uv/vhdir/SearchParameter/endpoint-usecase-standard</a></p><p><b>version</b>: 0.2.0</p><p><b>name</b>: VhDir_sp_endpoint_usecase_standard</p><p><b>status</b>: draft</p><p><b>date</b>: May 23, 2018, 12:00:00 AM</p><p><b>publisher</b>: HL7 Patient Administration Committee</p><p><b>contact</b>: </p><p><b>description</b>: Select endpoints that support the specified standard</p><p><b>code</b>: usecase-standard</p><p><b>base</b>: Endpoint</p><p><b>type</b>: uri</p><p><b>expression</b>: Endpoint.extension('http://hl7.org/fhir/uv/vhdir/StructureDefinition/endpoint-usecase').extension('standard')</p><p><b>multipleOr</b>: true</p><p><b>multipleAnd</b>: true</p><p><b>modifier</b>: below</p></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/SearchParameter/endpoint-usecase-standard",
+    "version": "0.2.0",
+    "name": "VhDir_sp_endpoint_usecase_standard",
+    "status": "draft",
+    "date": "2018-05-23T00:00:00+00:00",
+    "publisher": "HL7 Patient Administration Committee",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "http://www.hl7.org/Special/committees/pafm/index.cfm"
+                }
+            ]
+        }
+    ],
+    "description": "Select endpoints that support the specified standard",
+    "code": "usecase-standard",
+    "base": [
+        "Endpoint"
+    ],
+    "type": "uri",
+    "expression": "Endpoint.extension('http://hl7.org/fhir/uv/vhdir/StructureDefinition/endpoint-usecase').extension('standard')",
+    "multipleOr": true,
+    "multipleAnd": true,
+    "modifier": [
+        "below"
+    ]
+}
