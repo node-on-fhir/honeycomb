@@ -375,17 +375,24 @@ function Header({ drawerIsOpen, handleDrawerOpen, lastUpdated }) {
               <Typography variant="body2" sx={{ mr: 2 }}>
                 {currentUser.username || currentUser.emails?.[0]?.address}
               </Typography>
-              <Button color="standard" onClick={() => {
-                console.log('Logout clicked');
-                Meteor.logout((err) => {
-                  if (err) {
-                    console.error('Logout error:', err);
-                  } else {
-                    console.log('Logged out successfully');
-                    navigate('/');
-                  }
-                });
-              }}>Logout</Button>
+              <Button 
+                color="standard" 
+                name="logout"
+                id="logout"
+                onClick={() => {
+                  console.log('Logout clicked');
+                  Meteor.logout((err) => {
+                    if (err) {
+                      console.error('Logout error:', err);
+                    } else {
+                      console.log('Logged out successfully');
+                      navigate('/');
+                    }
+                  });
+                }}
+              >
+                Logout
+              </Button>
             </>
           ) : (
             <Button color="standard" onClick={() => navigate('/login')}>Login</Button>
