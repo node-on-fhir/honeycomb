@@ -11,6 +11,12 @@ import { clientsCollection } from '/imports/collections/clientsCollection';
 
 import { accessTokenCollection } from './OAuthEndpoints';
 
+// Conditionally import Roles if available
+let Roles;
+if (typeof Package !== 'undefined' && Package['alanning:roles']) {
+  Roles = Package['alanning:roles'].Roles;
+}
+
 export const OAuthServerConfig = {
   pubSubNames: {
     authCodes: 'oauth2/authCodes',
@@ -141,15 +147,19 @@ Meteor.publish(OAuthServerConfig.pubSubNames.clientsCollection, function () {
   if (!this.userId) {
     return this.ready();
   }
-  // if the user is a sysadmin, return all the clients
-  if (Roles.userIsInRole(this.userId, ['sysadmin'])) {
-    return OAuthServerConfig.collections.clientsCollection.find();
-  } else {
-    // otherwise, onlly return a user's own clients
-    return OAuthServerConfig.collections.clientsCollection.find({
-      'owner.reference': this.userId
-    });
+  
+  // Check if Roles package is available
+  if (typeof Package !== 'undefined' && Package['alanning:roles'] && Roles && Roles.userIsInRole) {
+    // if the user is a sysadmin, return all the clients
+    if (Roles.userIsInRole(this.userId, ['sysadmin'])) {
+      return OAuthServerConfig.collections.clientsCollection.find();
+    }
   }
+  
+  // otherwise, only return a user's own clients
+  return OAuthServerConfig.collections.clientsCollection.find({
+    'owner.reference': this.userId
+  });
 
 
 });
