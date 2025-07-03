@@ -19,6 +19,7 @@ import {
 } from "react-router-dom";
 
 import { useTracker } from 'meteor/react-meteor-data';
+import { Container, Box } from '@mui/material';
 
 // import NotFound from './NotFound.jsx';
 // import AppCanvas from './AppCanvas.jsx';
@@ -48,6 +49,11 @@ import HomePage from './HomePage.jsx';
 import ServerConfigurationPage from '../ui-vault-server/ServerConfigurationPage.jsx';
 import UdapRegistrationPage from '../ui-vault-server/UdapRegistrationPage.jsx';
 import OAuthClientsPage from '../ui-vault-server/OAuthClientsPage.jsx';
+
+// Account components (conditionally loaded)
+import { LoginPage } from '../accounts/client/pages/LoginPage';
+import { RegisterPage } from '../accounts/client/pages/RegisterPage';
+import { ForgotPasswordForm } from '../accounts/client/components/ForgotPasswordForm';
 
 import PatientQuickChart from '../patient/PatientQuickChart.jsx';
 import PatientChart from '../patient/PatientChart.jsx';
@@ -339,6 +345,9 @@ let dynamicRoutes = [
     path: "/getting-started",
     element: <GettingStartedPage />
   }, {
+    path: "/getting-started-checklist",
+    element: <GettingStartedPage />
+  }, {
     path: "/static-files",
     element: <StaticPatientFileLoaderPage />
   }, {
@@ -353,6 +362,9 @@ let dynamicRoutes = [
   }, {
     path: "/smart-app-debugger",
     element: <SmartAppDebugger />
+  }, {
+    path: "/theming",
+    element: <ThemingPage />
   }, {
     path: "/cds-hooks-debugger",
     element: <CdsHooksDebugger />
@@ -373,6 +385,38 @@ let dynamicRoutes = [
     element: <PatientChart />
   }  
 ]
+
+// Account routes
+if(get(Meteor, 'settings.public.modules.accounts.enabled', true)){
+  dynamicRoutes.push({
+    path: "/login",
+    element: <LoginPage />
+  });
+  dynamicRoutes.push({
+    path: "/signin",
+    element: <LoginPage />
+  });
+  dynamicRoutes.push({
+    path: "/register", 
+    element: <RegisterPage />
+  });
+  dynamicRoutes.push({
+    path: "/signup",
+    element: <RegisterPage />
+  });
+  dynamicRoutes.push({
+    path: "/forgot-password",
+    element: (
+      <Container maxWidth="sm">
+        <Box sx={{ pt: 8, pb: 4 }}>
+          <ForgotPasswordForm 
+            onBackToLogin={() => window.location.href = '/login'}
+          />
+        </Box>
+      </Container>
+    )
+  });
+}
 
 if(get(Meteor, 'settings.public.modules.PatientsDirectory')){
   dynamicRoutes.push({

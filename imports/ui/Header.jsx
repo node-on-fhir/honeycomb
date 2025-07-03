@@ -133,43 +133,17 @@ function Header({ drawerIsOpen, handleDrawerOpen, lastUpdated }) {
       return Session.get("displayNavbars");  
     }, []);  
 
-    currentUser = useTracker(function(){  
-      let currentUser = Session.get('currentUser');
-      let userName = '';
-      // Meteor Accounts
-      if(has(currentUser, 'fullLegalName')){
-        userName = get(currentUser, 'fullLegalName', '');
-
-      // Patient, R4
-      } else if(has(currentUser, 'givenName') || has(currentUser, 'familyName')){
-        userName = get(currentUser, 'givenName', '') + ' ' + get(currentUser, 'familyName', '');
-
-      // Patient, R4
-      } else if(has(currentUser, 'name[0].text')) {
-        userName = get(currentUser, 'name[0].text', '');
-      // Patient, R4
-      } else if(has(currentUser, 'name[0].given[0]') || has(currentUser, 'name[0].family')) {
-        userName = get(currentUser, 'name[0].given[0]', '') + ' ' + get(currentUser, 'name[0].family', '');
-      // Patient, DSTU2
-      } else if(has(currentUser, 'name[0].given[0]') || has(currentUser, 'name[0].family[0]')) {
-        userName = get(currentUser, 'name[0].given[0]', '') + ' ' + get(currentUser, 'name[0].family[0]', '');
-
-        // Practitioner, R4
-      } else if(has(currentUser, 'name.text')) {
-        userName = get(currentUser, 'name.text', '');
-      // Practitioner, R4
-      } else if(has(currentUser, 'name.given[0]') || has(currentUser, 'name.family')) {
-        userName = get(currentUser, 'name[0].given[0]', '') + ' ' + get(currentUser, 'name[0].family', '');
-      // Practitioner, DSTU2
-      } else if(has(currentUser, 'name.given[0]') || has(currentUser, 'name.family[0]')) {
-        userName = get(currentUser, 'name[0].given[0]', '') + ' ' + get(currentUser, 'name[0].family[0]', '');
-
-      } else {
-        userName = 'Anonymous'
-      }
-      return userName; 
-    }, []);  
-  }
+    // Get the actual Meteor user
+    const meteorUser = useTracker(() => {
+      const user = Meteor.user();
+      console.log('Meteor.user():', user);
+      console.log('Meteor.userId():', Meteor.userId());
+      return user;
+    });
+    
+    // Use the Meteor user directly
+    currentUser = meteorUser;
+  } // Close the if(Meteor.isClient) block
 
   // if(!displayNavbars){
   //   componentStyles.headerNavContainer.top = '-128px'
@@ -384,7 +358,11 @@ function Header({ drawerIsOpen, handleDrawerOpen, lastUpdated }) {
           <Typography id="headerTitle" variant="h6" component="div" sx={{ flexGrow: 1 }} color="standard.main">
           { parseTitle() }
           </Typography>
-          <IconButton  onClick={toggleTheme}>
+          <IconButton  
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          >
             {theme === 'light' ? <Brightness4Icon color="standard" /> : <Brightness7Icon color="standard" />}
           </IconButton>
           {/* { userItems }
@@ -392,7 +370,33 @@ function Header({ drawerIsOpen, handleDrawerOpen, lastUpdated }) {
           { demographicItems }
           { workflowTabsToRender }
           */}
-          <Button color="standard">Login</Button>
+          {(console.log('currentUser in render:', currentUser), currentUser) ? (
+            <>
+              <Typography variant="body2" sx={{ mr: 2 }}>
+                {currentUser.username || currentUser.emails?.[0]?.address}
+              </Typography>
+              <Button 
+                color="standard" 
+                name="logout"
+                id="logout"
+                onClick={() => {
+                  console.log('Logout clicked');
+                  Meteor.logout((err) => {
+                    if (err) {
+                      console.error('Logout error:', err);
+                    } else {
+                      console.log('Logged out successfully');
+                      navigate('/');
+                    }
+                  });
+                }}
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <Button color="standard" onClick={() => navigate('/login')}>Login</Button>
+          )}
         </Toolbar>
       </AppBar>
     </Box>

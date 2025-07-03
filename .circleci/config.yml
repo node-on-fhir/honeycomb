@@ -1,5 +1,3 @@
-# .circleci/config.yml - CircleCI configuration for Meteor v3 + Nightwatch testing
-
 version: 2.1
 
 orbs:
@@ -28,6 +26,7 @@ jobs:
     
     steps:
       - browser-tools/install-chrome
+      - browser-tools/install-chromedriver
       
       - checkout
       
@@ -127,8 +126,8 @@ jobs:
       - run:
           name: Start Meteor
           command: |
-            if [ -f "configs/settings.nodeonfhir.json" ]; then
-              meteor run --settings configs/settings.nodeonfhir.json --port 3000
+            if [ -f "configs/accounts.multiuser.settings.json" ]; then
+              meteor run --settings configs/accounts.multiuser.settings.json --port 3000
             else
               meteor run --port 3000
             fi
@@ -153,28 +152,203 @@ jobs:
             fi
       
       - run:
-          name: Run Nightwatch tests
+          name: Debug - Check test environment
           command: |
-            if [ -f "nightwatch.conf.js" ]; then
-              npx nightwatch --config nightwatch.conf.js
-            elif [ -f ".meteor/nightwatch.circle.json" ]; then
-              npx nightwatch -c .meteor/nightwatch.circle.json
+            echo "=== Checking Chrome installation ==="
+            CHROME_BIN=$(which google-chrome || which chrome || which chromium-browser || echo "")
+            if [ -n "$CHROME_BIN" ]; then
+              echo "Chrome found at: $CHROME_BIN"
+              $CHROME_BIN --version
+              # Create symlink if needed
+              if [ ! -f "/usr/bin/google-chrome" ] && [ -f "$CHROME_BIN" ]; then
+                sudo ln -sf "$CHROME_BIN" /usr/bin/google-chrome
+              fi
             else
-              echo "No Nightwatch config found"
+              echo "ERROR: Chrome not found!"
               exit 1
             fi
-          no_output_timeout: 15m
+            
+            echo "=== Checking ChromeDriver ==="
+            CHROMEDRIVER_BIN=$(which chromedriver || echo "")
+            if [ -n "$CHROMEDRIVER_BIN" ]; then
+              echo "ChromeDriver found at: $CHROMEDRIVER_BIN"
+              $CHROMEDRIVER_BIN --version
+              # Test if ChromeDriver can start
+              timeout 5s $CHROMEDRIVER_BIN --port=9515 --log-level=INFO 2>&1 | head -20 || true
+            else
+              echo "ERROR: ChromeDriver not found!"
+              # Try to find and install it
+              echo "Attempting to install ChromeDriver..."
+              CHROME_VERSION=$($CHROME_BIN --version | grep -oP '\d+\.\d+\.\d+' | head -1)
+              echo "Chrome version: $CHROME_VERSION"
+              
+              # Download matching ChromeDriver
+              CHROME_MAJOR=$(echo $CHROME_VERSION | cut -d. -f1)
+              echo "Chrome major version: $CHROME_MAJOR"
+              
+              # Get the latest ChromeDriver version for this Chrome version
+              CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR}")
+              echo "ChromeDriver version to install: $CHROMEDRIVER_VERSION"
+              
+              # Download and install
+              wget -q "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
+              unzip -o chromedriver_linux64.zip
+              sudo mv chromedriver /usr/local/bin/
+              sudo chmod +x /usr/local/bin/chromedriver
+              rm chromedriver_linux64.zip
+              
+              # Verify installation
+              /usr/local/bin/chromedriver --version
+            fi
+            
+            echo "=== Checking test files ==="
+            ls -la tests/nightwatch/honeycomb/ || echo "Test directory not found"
+            
+            echo "=== Checking Nightwatch configs ==="
+            ls -la *.conf.js || echo "No config files found"
+            
+            echo "=== Current working directory ==="
+            pwd
+            
+            echo "=== Node and NPM versions ==="
+            node --version
+            npm --version
+            
+            echo "=== Create test output directories ==="
+            mkdir -p tests/output/logs tests/screenshots
+            chmod -R 777 tests/output tests/screenshots
+      
+      - run:
+          name: Run Nightwatch tests
+          command: |
+            # Function to output progress periodically
+            keep_alive() {
+              while true; do
+                echo "Tests still running... $(date)"
+                sleep 60
+              done
+            }
+            
+            # Start keep-alive in background
+            keep_alive &
+            KEEPALIVE_PID=$!
+            
+            # Clean up function
+            cleanup() {
+              echo "Running cleanup..."
+              # Kill keep-alive first
+              if [ ! -z "$KEEPALIVE_PID" ]; then
+                kill $KEEPALIVE_PID 2>/dev/null || true
+              fi
+              
+              # Give ChromeDriver time to shutdown gracefully
+              if [ ! -z "$CHROMEDRIVER_PID" ]; then
+                kill -TERM $CHROMEDRIVER_PID 2>/dev/null || true
+                sleep 1
+                # Force kill if still running
+                kill -9 $CHROMEDRIVER_PID 2>/dev/null || true
+              fi
+              
+              echo "Cleanup completed"
+            }
+            # Don't trap EXIT - let the script complete naturally
+            # trap cleanup EXIT
+            
+            # Try to start ChromeDriver manually first
+            echo "=== Starting ChromeDriver manually ==="
+            CHROMEDRIVER_BIN=$(which chromedriver || echo "/usr/local/bin/chromedriver")
+            if [ -f "$CHROMEDRIVER_BIN" ]; then
+              echo "Starting ChromeDriver at $CHROMEDRIVER_BIN"
+              $CHROMEDRIVER_BIN --port=9515 --log-level=WARNING --log-path=./chromedriver.log --allowed-ips= --whitelisted-ips= &
+              CHROMEDRIVER_PID=$!
+              sleep 5
+              
+              # Check if ChromeDriver is running
+              if ps -p $CHROMEDRIVER_PID > /dev/null; then
+                echo "ChromeDriver started successfully (PID: $CHROMEDRIVER_PID)"
+                
+                # Test connection
+                if curl -s http://localhost:9515/status | grep -q "ready"; then
+                  echo "ChromeDriver is ready and responding"
+                else
+                  echo "WARNING: ChromeDriver started but not responding to status check"
+                fi
+              else
+                echo "ERROR: ChromeDriver failed to start"
+                cat ./chromedriver.log || true
+              fi
+            fi
+            
+            # Export ChromeDriver path for Nightwatch
+            export CHROMEDRIVER_PATH="$CHROMEDRIVER_BIN"
+            
+            # Run tests with verbose output
+            echo "Starting Nightwatch tests with CircleCI configuration..."
+            if [ -f "nightwatch.circle.conf.js" ]; then
+              echo "Using CircleCI-specific configuration"
+              # Create a modified config that doesn't start ChromeDriver
+              echo "const config = require('./nightwatch.circle.conf.js');" > nightwatch.circle.manual.conf.js
+              echo "config.test_settings.default.webdriver.start_process = false;" >> nightwatch.circle.manual.conf.js
+              echo "config.test_settings.default.webdriver.port = 9515;" >> nightwatch.circle.manual.conf.js
+              echo "config.test_settings.default.webdriver.default_path_prefix = '';" >> nightwatch.circle.manual.conf.js
+              echo "module.exports = config;" >> nightwatch.circle.manual.conf.js
+              
+              # Run tests and capture exit code
+              npx nightwatch --config nightwatch.circle.manual.conf.js
+              TEST_EXIT_CODE=$?
+            elif [ -f "nightwatch.conf.js" ]; then
+              echo "Using default configuration"
+              npx nightwatch --config nightwatch.conf.js
+              TEST_EXIT_CODE=$?
+            else
+              echo "ERROR: No Nightwatch config found"
+              exit 1
+            fi
+            
+            # Give Nightwatch time to clean up
+            echo "Tests completed with exit code: $TEST_EXIT_CODE"
+            sleep 2
+            
+            # Cleanup
+            cleanup
+            
+            # Exit with the test exit code
+            exit $TEST_EXIT_CODE
+          no_output_timeout: 20m
       
       - run:
           name: Collect artifacts
           command: |
+            # Collect test outputs
+            if [ -d "tests/output" ]; then
+              cp -r tests/output/* $CIRCLE_TEST_REPORTS/ || true
+            fi
             if [ -d "tests_output" ]; then
               cp -r tests_output/* $CIRCLE_TEST_REPORTS/ || true
+            fi
+            
+            # Collect screenshots
+            if [ -d "tests/screenshots" ]; then
+              cp -r tests/screenshots $CIRCLE_ARTIFACTS/ || true
             fi
             if [ -d "screenshots" ]; then
               cp -r screenshots $CIRCLE_ARTIFACTS/ || true
             fi
             find . -name "*.png" -type f -exec cp {} $CIRCLE_ARTIFACTS/ \; || true
+            
+            # Collect logs
+            if [ -d "tests/output/logs" ]; then
+              cp -r tests/output/logs $CIRCLE_ARTIFACTS/ || true
+            fi
+            if [ -f "chromedriver.log" ]; then
+              cp chromedriver.log $CIRCLE_ARTIFACTS/ || true
+            fi
+            
+            # Debug: Show what we collected
+            echo "=== Artifacts collected ==="
+            ls -la $CIRCLE_ARTIFACTS/ || true
+            echo "=== Test reports collected ==="
+            ls -la $CIRCLE_TEST_REPORTS/ || true
           when: always
       
       - store_test_results:

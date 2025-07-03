@@ -12,7 +12,11 @@ We are writing a 12 Factor app, so will wish to specify key configuration params
 
 When possible, files should be written in such a way that they can be refactored into an Atmosphere.js package later.
 
+<<<<<<< HEAD
 On the server, be sure to use Meteor v3 API, including getTextAsync, findAsync, insertAsync, updateAsync, removeAsync, countAsync, etc.
+=======
+IMPORTANT:  On the server, be sure to use Meteor v3 API, including getTextAsync, findAsync, insertAsync, updateAsync, removeAsync, countAsync, etc.
+>>>>>>> main
 
 Development environment is MacOS ARM64.  When multiple clients are run, they will likely be run on the same machine, using ports 3000 and 4000 respectively.  
 
@@ -22,4 +26,14 @@ Use the meteor/fetch package for HTTP calls.
 
 Don't ever suggest webpack, vite, or other bundlers.  
 
+<<<<<<< HEAD
 Avoid directory index.js files.
+=======
+Avoid directory index.js files.
+
+When routing between pages, always use the useNavigate hook; Don't use window.location.href
+
+Stive to always balance conditional if/then statements, and give a console message during the negative case.  Don't silently swallow the conditional.  
+
+Do use the full gamut of console messages:  console.warn, console.error, console.group, etc.
+>>>>>>> main
