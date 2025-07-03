@@ -29,3 +29,5 @@ clinical:fonts
 accounts-base
 service-configuration
 accounts-password
+
+clinical:pacio-core

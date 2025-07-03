@@ -635,6 +635,20 @@ if(get(Meteor, 'settings.public.modules.fhir.ValueSets')){
     element: <ValueSetsPage />
   })
 }
+if(get(Meteor, 'settings.public.modules.fhir.MedicationStatements')){
+  import MedicationStatementsPage from '../ui-fhir/medicationStatements/MedicationStatementsPage.jsx';
+  dynamicRoutes.push({
+    path: "/medication-statements",
+    element: <MedicationStatementsPage />
+  })
+}
+if(get(Meteor, 'settings.public.modules.fhir.NutritionOrders')){
+  import NutritionOrdersPage from '../ui-fhir/nutritionOrders/NutritionOrdersPage.jsx';
+  dynamicRoutes.push({
+    path: "/nutrition-orders",
+    element: <NutritionOrdersPage />
+  })
+}
 
 
 
