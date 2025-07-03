@@ -24,15 +24,15 @@ import LayoutHelpers from '../../lib/LayoutHelpers';
 import { get, cloneDeep } from 'lodash';
 
 
-//---------------------------------------------------------------
+//=============================================================================================================================================
+// DATA CURSORS
 
 Meteor.startup(function(){
-  DynamicSpacer = Meteor.DynamicSpacer
+  Compositions = Meteor.Collections.Compositions;
 })
 
-
-//---------------------------------------------------------------
-// Session Variables
+//=============================================================================================================================================
+// SESSION VARIABLES
 
 Session.setDefault('compositionPageTabIndex', 0);
 Session.setDefault('compositionSearchFilter', '');
@@ -47,14 +47,8 @@ Session.setDefault('CompositionsPage.defaultQuery', {})
 Session.setDefault('CompositionsTable.hideCheckbox', true)
 Session.setDefault('CompositionsTable.devicesIndex', 0)
 
-
-//---------------------------------------------------------------
-// Theming
-
-const muiTheme = Theming.createTheme();
-
-//---------------------------------------------------------------
-// Main Component
+//=============================================================================================================================================
+// MAIN COMPONENT
 
 export function CompositionsPage(props){
 
