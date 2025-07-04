@@ -102,6 +102,13 @@ import ValueSetsPage from '../ui-fhir/valuesets/ValueSetsPage.jsx';
 import ClaimsPage from '../ui-claims/claims/ClaimsPage.jsx';
 
 //===============================================================================================================
+// PACIO Pages
+
+import MedicationListsPage from '../ui-pacio/MedicationListsPage.jsx';
+import TransitionsOfCarePage from '../ui-pacio/TransitionsOfCarePage.jsx';
+import AdvancedDirectivesPage from '../ui-pacio/AdvancedDirectivesPage.jsx';
+
+//===============================================================================================================
 
 
 //===============================================================================================================
@@ -678,6 +685,20 @@ if(get(Meteor, 'settings.public.modules.fhir.Claims')){
     element: <ClaimsPage />
   })
 }
+
+// PACIO Routes - Override package routes with our custom implementations
+dynamicRoutes.push({
+  path: "/medication-lists",
+  element: <MedicationListsPage />
+});
+dynamicRoutes.push({
+  path: "/transition-of-care",
+  element: <TransitionsOfCarePage />
+});
+dynamicRoutes.push({
+  path: "/advance-directives", 
+  element: <AdvancedDirectivesPage />
+});
 
 // ==============================================================================
 // Dynamic Routes
