@@ -156,19 +156,6 @@ export const DynamicRoutes = [
     path: '/pdf/:binaryId',
     element: Meteor.PdfViewer ? <Meteor.PdfViewer /> : <div>PdfViewer not available</div>,
     requireAuth: true
-  },
-  // Standard FHIR Resource routes
-  {
-    name: 'Medications',
-    path: '/medications',
-    element: <MedicationsPage />,
-    requireAuth: true
-  },
-  {
-    name: 'CareTeams',
-    path: '/care-teams',
-    element: <CareTeamsPage />,
-    requireAuth: true
   }
 ];
 
@@ -216,6 +203,18 @@ export const SidebarElements = [
     to: '/medications',
     iconName: 'LocalPharmacy',
     collectionName: 'Medications'
+  },
+  {
+    primaryText: 'Medication Requests',
+    to: '/medication-requests',
+    iconName: 'LocalPharmacy',
+    collectionName: 'MedicationRequests'
+  },
+  {
+    primaryText: 'Medication Administrations',
+    to: '/medication-administrations',
+    iconName: 'LocalPharmacy',
+    collectionName: 'MedicationAdminstrations'
   },
   {
     primaryText: 'Nutrition Orders',

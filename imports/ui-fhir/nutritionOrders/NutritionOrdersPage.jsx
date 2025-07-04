@@ -13,6 +13,7 @@ import {
   Typography,
   Box
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
 import NutritionOrdersTable from './NutritionOrdersTable';
 
@@ -86,34 +87,171 @@ export function NutritionOrdersPage(props){
   let headerHeight = LayoutHelpers.calcHeaderHeight();
   let formFactor = LayoutHelpers.determineFormFactor();
   let paddingWidth = LayoutHelpers.calcCanvasPaddingWidth();
+  let noDataImage = get(Meteor, 'settings.public.defaults.noData.noDataImagePath', "packages/clinical_hl7-fhir-data-infrastructure/assets/NoData.png");  
 
   let [nutritionOrdersPageIndex, setNutritionOrdersPageIndex] = useState(0);
 
-  let layoutContents;
-  if(formFactor === "desktop"){
-    layoutContents = <Grid container spacing={3} style={{marginBottom: '100px'}}>
-      <Grid item md={12} style={{paddingLeft: '20px', paddingRight: '20px'}}>
-        <CardHeader title="Nutrition Orders" />
-        <CardContent>
-          <NutritionOrdersTable 
-            hideCheckbox={true} 
-            hideActionIcons={true}
-            hideIdentifier={true}
-            hideStatus={false}
-            hideName={false}
-            paginationLimit={10}
-          />
+  let data = {
+    nutritionOrders: [],
+    selectedNutritionOrderId: '',
+    selectedNutritionOrder: null
+  };
+
+  data.nutritionOrders = useTracker(function(){
+    if (!NutritionOrders) {
+      return [];
+    }
+    return NutritionOrders.find().fetch();
+  }, []);
+  data.selectedNutritionOrderId = useTracker(function(){
+    return Session.get('selectedNutritionOrderId');
+  }, []);
+  data.selectedNutritionOrder = useTracker(function(){
+    if (!NutritionOrders) {
+      return null;
+    }
+    return NutritionOrders.findOne({_id: Session.get('selectedNutritionOrderId')});
+  }, []);
+
+  function handleAddNutritionOrder(){
+    console.log('Add Nutrition Order button clicked');
+    // Add logic for adding a new nutrition order
+  }
+
+  function renderHeader() {
+    return (
+      <Box mb={2}>
+        <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+          <Grid item xs={12} sm={6}>
+            <Typography variant="h4">
+              Nutrition Orders
+            </Typography>
+            <Typography variant="subtitle2" color="textSecondary">
+              {data.nutritionOrders.length} nutrition orders found
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={handleAddNutritionOrder}
+            >
+              Add Nutrition Order
+            </Button>
+          </Grid>
+        </Grid>
+      </Box>
+    );
+  }
+
+  let layoutContent;
+  if(data.nutritionOrders.length > 0){
+    layoutContent = <Card 
+      sx={{ 
+        width: '100%',
+        borderRadius: 3,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        border: '1px solid',
+        borderColor: 'divider',
+        overflow: 'hidden'
+      }}
+    >
+      <CardContent sx={{ p: 0 }}>
+        <NutritionOrdersTable 
+          nutritionOrders={data.nutritionOrders}
+          hideCheckbox={true} 
+          hideActionIcons={true}
+          hideIdentifier={true}
+          hideStatus={false}
+          hideName={false}
+          paginationLimit={10}
+        />
+      </CardContent>
+    </Card>
+  } else {
+    layoutContent = <Box 
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '50vh',
+        textAlign: 'center'
+      }}
+    >
+      <Card 
+        sx={{ 
+          maxWidth: '600px',
+          width: '100%',
+          borderRadius: 3,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          border: '1px solid',
+          borderColor: 'divider',
+          backgroundColor: 'background.paper'
+        }}
+      >
+        <CardContent sx={{ p: 6 }}>
+          <Box sx={{ mb: 3 }}>
+            <Typography 
+              variant="h5" 
+              sx={{ 
+                fontWeight: 500,
+                color: 'text.primary',
+                mb: 2
+              }}
+            >
+              {get(Meteor, 'settings.public.defaults.noData.defaultTitle', "No Data Available")}
+            </Typography>
+            <Typography 
+              variant="body1" 
+              sx={{ 
+                color: 'text.secondary',
+                lineHeight: 1.7,
+                maxWidth: '480px',
+                mx: 'auto'
+              }}
+            >
+              {get(Meteor, 'settings.public.defaults.noData.defaultMessage', "No records were found in the client data cursor. To debug, check the data cursor in the client console, then check subscriptions and publications, and relevant search queries. If the data is not loaded in, use a tool like Mongo Compass to load the records directly into the Mongo database, or use the FHIR API interfaces.")}
+            </Typography>
+          </Box>
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={handleAddNutritionOrder}
+            sx={{
+              borderRadius: 2,
+              textTransform: 'none',
+              px: 3,
+              py: 1,
+              borderWidth: 2,
+              '&:hover': {
+                borderWidth: 2
+              }
+            }}
+          >
+            Add Your First Nutrition Order
+          </Button>
         </CardContent>
-      </Grid>
-    </Grid>
+      </Card>
+    </Box>
   }
 
   return (
-    <div id="nutritionOrdersPage" style={{paddingTop: headerHeight + 'px', paddingBottom: '100px'}}>
-      <Container maxWidth="xl" style={{paddingBottom: '80px'}}>
-        { layoutContents }
-      </Container>
-    </div>
+    <Box 
+      id="nutritionOrdersPage" 
+      sx={{
+        minHeight: '100vh',
+        backgroundColor: 'background.default',
+        px: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 3, sm: 4, md: 5 }
+      }}
+    >
+      <Box sx={{ maxWidth: '1200px', mx: 'auto' }}>
+        { data.nutritionOrders.length > 0 && renderHeader() }
+        { layoutContent }
+      </Box>
+    </Box>
   );
 }
 
