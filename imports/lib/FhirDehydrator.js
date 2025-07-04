@@ -2970,6 +2970,9 @@ export function flattenMedication(medication, dateFormat){
     identifier: '',
 
     code: '',
+    medicationCodeableConceptText: '',
+    form: '',
+    manufacturer: '',
 
     marketingAuthorizationHolderDisplay: '',
     marketingAuthorizationHolderReference: '',
@@ -2995,18 +2998,23 @@ export function flattenMedication(medication, dateFormat){
   result.identifier = get(medication, 'identifier[0].value', '');
 
   if(get(medication, 'code.text', '')){
-    result.code = get(medication, 'code.text', ''); 
+    result.code = get(medication, 'code.text', '');
+    result.medicationCodeableConceptText = get(medication, 'code.text', ''); 
   } else {
     result.code = get(medication, 'code.coding[0].code', '');
+    result.medicationCodeableConceptText = get(medication, 'code.coding[0].display', '');
   }
 
   result.marketingAuthorizationHolderDisplay = get(medication, 'marketingAuthorizationHolder.display', '');
   result.marketingAuthorizationHolderReference = get(medication, 'marketingAuthorizationHolder.reference', '');
+  result.manufacturer = get(medication, 'marketingAuthorizationHolder.display', '');
 
   if(get(medication, 'doseForm.text', '')){
-    result.doseForm = get(medication, 'doseForm.text', ''); 
+    result.doseForm = get(medication, 'doseForm.text', '');
+    result.form = get(medication, 'doseForm.text', ''); 
   } else {
     result.doseForm = get(medication, 'doseForm.coding[0].code', '');
+    result.form = get(medication, 'doseForm.coding[0].display', '');
   }
 
   result.totalVolume = get(medication, 'totalVolume.value', '') + ' ' + get(medication, 'totalVolume.unit', ''); 
@@ -3082,6 +3090,212 @@ export function flattenMedicationOrder(medicationOrder, dateFormat){
 
   if(get(medicationOrder, "issue[0].details.text")){
     result.operationOutcome = get(medicationOrder, "issue[0].details.text");
+  }
+
+  return result;
+}
+
+export function flattenMedicationAdministration(medicationAdministration, internalDateFormat){
+  let result = {
+    _id: '',
+    id: '',
+    status: '',
+    statusReason: '',
+    category: '',
+    identifier: '',
+    patientDisplay: '',
+    patientReference: '',
+    contextDisplay: '',
+    contextReference: '',
+    supportingInformation: '',
+    effectiveDateTime: '',
+    effectivePeriodStart: '',
+    effectivePeriodEnd: '',
+    performerDisplay: '',
+    performerReference: '',
+    reasonCode: '',
+    reasonDisplay: '',
+    requestDisplay: '',
+    requestReference: '',
+    deviceDisplay: '',
+    deviceReference: '',
+    note: '',
+    medicationDisplay: '',
+    medicationReference: '',
+    medicationCode: '',
+    dosageText: '',
+    dosageRoute: '',
+    dosageDoseValue: '',
+    dosageDoseUnit: '',
+    dosageRateRatio: '',
+    dosageRateQuantity: '',
+    operationOutcome: ''
+  };
+
+  result.resourceType = get(medicationAdministration, 'resourceType', "MedicationAdministration");
+
+  if(!internalDateFormat){
+    internalDateFormat = get(Meteor, "settings.public.defaults.internalDateFormat", "YYYY-MM-DD");
+  }
+
+  result._id = get(medicationAdministration, '_id');
+  result.id = get(medicationAdministration, 'id', '');
+  result.status = get(medicationAdministration, 'status', '');
+  result.statusReason = get(medicationAdministration, 'statusReason[0].coding[0].display', '');
+  result.category = get(medicationAdministration, 'category.coding[0].display', '');
+  result.identifier = get(medicationAdministration, 'identifier[0].value', '');
+
+  result.patientDisplay = get(medicationAdministration, 'subject.display', '');
+  result.patientReference = get(medicationAdministration, 'subject.reference', '');
+  
+  result.contextDisplay = get(medicationAdministration, 'context.display', '');
+  result.contextReference = get(medicationAdministration, 'context.reference', '');
+
+  if(get(medicationAdministration, 'effectiveDateTime')){
+    result.effectiveDateTime = moment(get(medicationAdministration, 'effectiveDateTime')).format(internalDateFormat);
+  }
+  if(get(medicationAdministration, 'effectivePeriod.start')){
+    result.effectivePeriodStart = moment(get(medicationAdministration, 'effectivePeriod.start')).format(internalDateFormat);
+  }
+  if(get(medicationAdministration, 'effectivePeriod.end')){
+    result.effectivePeriodEnd = moment(get(medicationAdministration, 'effectivePeriod.end')).format(internalDateFormat);
+  }
+
+  result.performerDisplay = get(medicationAdministration, 'performer[0].actor.display', '');
+  result.performerReference = get(medicationAdministration, 'performer[0].actor.reference', '');
+
+  result.reasonCode = get(medicationAdministration, 'reasonCode[0].coding[0].code', '');
+  result.reasonDisplay = get(medicationAdministration, 'reasonCode[0].text', '');
+
+  result.requestDisplay = get(medicationAdministration, 'request.display', '');
+  result.requestReference = get(medicationAdministration, 'request.reference', '');
+
+  result.deviceDisplay = get(medicationAdministration, 'device[0].display', '');
+  result.deviceReference = get(medicationAdministration, 'device[0].reference', '');
+
+  result.note = get(medicationAdministration, 'note[0].text', '');
+
+  if(get(medicationAdministration, 'medicationCodeableConcept.text')){
+    result.medicationDisplay = get(medicationAdministration, 'medicationCodeableConcept.text');
+    result.medicationCode = get(medicationAdministration, 'medicationCodeableConcept.coding[0].code', '');
+  } else if(get(medicationAdministration, 'medicationReference')){
+    result.medicationDisplay = get(medicationAdministration, 'medicationReference.display', '');
+    result.medicationReference = get(medicationAdministration, 'medicationReference.reference', '');
+  }
+
+  result.dosageText = get(medicationAdministration, 'dosage.text', '');
+  result.dosageRoute = get(medicationAdministration, 'dosage.route.text', '');
+  result.route = get(medicationAdministration, 'dosage.route.text', ''); // Table expects 'route' field
+  result.dosageDoseValue = get(medicationAdministration, 'dosage.dose.value', '');
+  result.dosageDoseUnit = get(medicationAdministration, 'dosage.dose.unit', '');
+
+  if(get(medicationAdministration, 'dosage.rateRatio')){
+    result.dosageRateRatio = get(medicationAdministration, 'dosage.rateRatio.numerator.value', '') + ' ' + 
+                            get(medicationAdministration, 'dosage.rateRatio.numerator.unit', '') + '/' +
+                            get(medicationAdministration, 'dosage.rateRatio.denominator.value', '') + ' ' +
+                            get(medicationAdministration, 'dosage.rateRatio.denominator.unit', '');
+  } else if(get(medicationAdministration, 'dosage.rateQuantity')){
+    result.dosageRateQuantity = get(medicationAdministration, 'dosage.rateQuantity.value', '') + ' ' +
+                               get(medicationAdministration, 'dosage.rateQuantity.unit', '');
+  }
+
+  if(get(medicationAdministration, "issue[0].details.text")){
+    result.operationOutcome = get(medicationAdministration, "issue[0].details.text");
+  }
+
+  return result;
+}
+
+export function flattenMedicationRequest(medicationRequest, internalDateFormat){
+  let result = {
+    _id: '',
+    id: '',
+    status: '',
+    intent: '',
+    priority: '',
+    identifier: '',
+    subjectDisplay: '',
+    subjectReference: '',
+    patientDisplay: '',
+    patientReference: '',
+    requesterDisplay: '',
+    requesterReference: '',
+    prescriberDisplay: '',
+    prescriberReference: '',
+    encounterDisplay: '',
+    encounterReference: '',
+    authoredOn: '',
+    dateWritten: '',
+    medicationDisplay: '',
+    medicationReference: '',
+    medicationCode: '',
+    dosageInstructionText: '',
+    quantityValue: '',
+    quantityUnit: '',
+    numberOfRepeatsAllowed: '',
+    validityPeriodStart: '',
+    validityPeriodEnd: '',
+    operationOutcome: ''
+  };
+
+  result.resourceType = get(medicationRequest, 'resourceType', "MedicationRequest");
+
+  if(!internalDateFormat){
+    internalDateFormat = get(Meteor, "settings.public.defaults.internalDateFormat", "YYYY-MM-DD");
+  }
+
+  result._id = get(medicationRequest, '_id');
+  result.id = get(medicationRequest, 'id', '');
+  result.status = get(medicationRequest, 'status', '');
+  result.intent = get(medicationRequest, 'intent', '');
+  result.priority = get(medicationRequest, 'priority', '');
+  result.identifier = get(medicationRequest, 'identifier[0].value', '');
+
+  // Handle subject/patient fields
+  result.subjectDisplay = get(medicationRequest, 'subject.display', '');
+  result.subjectReference = get(medicationRequest, 'subject.reference', '');
+  result.patientDisplay = get(medicationRequest, 'patient.display', '');
+  result.patientReference = get(medicationRequest, 'patient.reference', '');
+  
+  // Handle requester/prescriber fields
+  result.requesterDisplay = get(medicationRequest, 'requester.display', '');
+  result.requesterReference = get(medicationRequest, 'requester.reference', '');
+  result.prescriberDisplay = get(medicationRequest, 'prescriber.display', '');
+  result.prescriberReference = get(medicationRequest, 'prescriber.reference', '');
+  
+  result.encounterDisplay = get(medicationRequest, 'encounter.display', '');
+  result.encounterReference = get(medicationRequest, 'encounter.reference', '');
+
+  if(get(medicationRequest, 'authoredOn')){
+    result.authoredOn = moment(get(medicationRequest, 'authoredOn')).format(internalDateFormat);
+  }
+  if(get(medicationRequest, 'dateWritten')){
+    result.dateWritten = moment(get(medicationRequest, 'dateWritten')).format(internalDateFormat);
+  }
+
+  if(get(medicationRequest, 'medicationCodeableConcept.text')){
+    result.medicationDisplay = get(medicationRequest, 'medicationCodeableConcept.text');
+    result.medicationCode = get(medicationRequest, 'medicationCodeableConcept.coding[0].code', '');
+  } else if(get(medicationRequest, 'medicationReference')){
+    result.medicationDisplay = get(medicationRequest, 'medicationReference.display', '');
+    result.medicationReference = get(medicationRequest, 'medicationReference.reference', '');
+  }
+
+  result.dosageInstructionText = get(medicationRequest, 'dosageInstruction[0].text', '');
+
+  result.quantityValue = get(medicationRequest, 'dispenseRequest.quantity.value', '');
+  result.quantityUnit = get(medicationRequest, 'dispenseRequest.quantity.unit', '');
+  result.numberOfRepeatsAllowed = get(medicationRequest, 'dispenseRequest.numberOfRepeatsAllowed', '');
+
+  if(get(medicationRequest, 'dispenseRequest.validityPeriod.start')){
+    result.validityPeriodStart = moment(get(medicationRequest, 'dispenseRequest.validityPeriod.start')).format(internalDateFormat);
+  }
+  if(get(medicationRequest, 'dispenseRequest.validityPeriod.end')){
+    result.validityPeriodEnd = moment(get(medicationRequest, 'dispenseRequest.validityPeriod.end')).format(internalDateFormat);
+  }
+
+  if(get(medicationRequest, "issue[0].details.text")){
+    result.operationOutcome = get(medicationRequest, "issue[0].details.text");
   }
 
   return result;
@@ -4784,7 +4998,9 @@ export function flatten(collectionName, resource){
     case "MedicationStatements":
       return flattenMedicationStatement(resource);
     case "MedicationRequests":
-      return notImplementedMessage;     
+      return flattenMedicationRequest(resource);
+    case "MedicationAdministrations":
+      return flattenMedicationAdministration(resource);     
     case "Observations":
       return flattenObservation(resource);
     case "Organizations":
@@ -4895,6 +5111,8 @@ export const FhirDehydrator = {
   dehydrateMedication: flattenMedication,
   dehydrateMedicationOrder: flattenMedicationOrder,
   dehydrateMedicationStatement: flattenMedicationStatement,
+  dehydrateMedicationRequest: flattenMedicationRequest,
+  dehydrateMedicationAdministration: flattenMedicationAdministration,
   dehydrateNetwork: flattenNetwork,
   dehydrateObservation: flattenObservation,
   dehydrateOrganization: flattenOrganization,
@@ -4982,6 +5200,8 @@ export default {
   flattenMedication,
   flattenMedicationOrder,
   flattenMedicationStatement,
+  flattenMedicationRequest,
+  flattenMedicationAdministration,
   flattenObservation,
   flattenOperationOutcome,
   flattenOrganization,

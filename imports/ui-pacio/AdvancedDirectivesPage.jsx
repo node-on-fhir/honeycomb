@@ -29,6 +29,7 @@ import {
   TextField,
   FormControl,
   FormLabel,
+  FormGroup,
   RadioGroup,
   FormControlLabel,
   Radio,
@@ -77,6 +78,9 @@ function AdvancedDirectivesPage(props) {
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [openPdfViewer, setOpenPdfViewer] = useState(false);
   const [openPreferencesForm, setOpenPreferencesForm] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedDocumentType, setSelectedDocumentType] = useState('42348-3');
+  const [uploading, setUploading] = useState(false);
   const [preferences, setPreferences] = useState({
     codeStatus: 'full',
     comfortCare: false,
@@ -84,6 +88,21 @@ function AdvancedDirectivesPage(props) {
     artificialHydration: true,
     antibiotics: true,
     dialysis: true
+  });
+  
+  const [quickReference, setQuickReference] = useState({
+    primaryCarePhysician: {
+      name: '',
+      phone: ''
+    },
+    healthcareProxy: {
+      name: '',
+      relationship: ''
+    },
+    organDonor: {
+      status: '',
+      registeredWith: ''
+    }
   });
 
   const checkAccess = (resource, action) => {
@@ -138,6 +157,96 @@ function AdvancedDirectivesPage(props) {
     if(checkAccess('DocumentReference', 'share')){
       console.log('Sharing document:', doc);
     }
+  };
+
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      console.log('File selected:', file.name, file.type, file.size);
+    }
+  };
+
+  const handleDocumentTypeChange = (event) => {
+    setSelectedDocumentType(event.target.value);
+  };
+
+  const handleUploadSubmit = async () => {
+    if (!selectedFile) {
+      alert('Please select a file to upload');
+      return;
+    }
+
+    if (!checkAccess('DocumentReference', 'create')) {
+      alert('You do not have permission to upload documents');
+      return;
+    }
+
+    setUploading(true);
+    
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64data = reader.result.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+        
+        // Find the document type details
+        const docType = directiveTypes.find(t => t.code === selectedDocumentType);
+        
+        // Create DocumentReference resource
+        const documentReference = {
+          resourceType: 'DocumentReference',
+          status: 'current',
+          type: {
+            coding: [{
+              system: 'http://loinc.org',
+              code: selectedDocumentType,
+              display: docType?.display || 'Advanced Directive'
+            }],
+            text: docType?.display || 'Advanced Directive'
+          },
+          subject: {
+            reference: data.patientId ? `Patient/${data.patientId}` : undefined
+          },
+          date: new Date().toISOString(),
+          content: [{
+            attachment: {
+              contentType: selectedFile.type,
+              data: base64data,
+              title: selectedFile.name,
+              creation: new Date().toISOString()
+            }
+          }]
+        };
+
+        // Call Meteor method to save the document
+        Meteor.call('documentReferences.insert', documentReference, (error, result) => {
+          setUploading(false);
+          if (error) {
+            console.error('Error uploading document:', error);
+            alert('Error uploading document: ' + error.message);
+          } else {
+            console.log('Document uploaded successfully:', result);
+            setOpenDialog(false);
+            setSelectedFile(null);
+            // Optionally refresh the page or update the document list
+            window.location.reload();
+          }
+        });
+      };
+      
+      reader.readAsDataURL(selectedFile);
+    } catch (error) {
+      setUploading(false);
+      console.error('Error processing file:', error);
+      alert('Error processing file: ' + error.message);
+    }
+  };
+
+  const handleCancelUpload = () => {
+    setOpenDialog(false);
+    setSelectedFile(null);
+    setSelectedDocumentType('42348-3');
   };
 
   const getDocumentIcon = (docType) => {
@@ -199,7 +308,7 @@ function AdvancedDirectivesPage(props) {
       </FormControl>
 
       <Typography variant="subtitle1" sx={{ mt: 3, mb: 1 }}>Treatment Preferences</Typography>
-      <FormGroup>
+      <Box component="fieldset" sx={{ border: 'none', p: 0, m: 0 }}>
         <FormControlLabel
           control={
             <Checkbox 
@@ -245,7 +354,7 @@ function AdvancedDirectivesPage(props) {
           }
           label="Dialysis"
         />
-      </FormGroup>
+      </Box>
 
       <Box sx={{ mt: 3 }}>
         <Button variant="contained" sx={{ mr: 1 }}>
@@ -383,22 +492,32 @@ function AdvancedDirectivesPage(props) {
                   <ListItem>
                     <ListItemText
                       primary="Primary Care Physician"
-                      secondary="Dr. Sarah Johnson • (555) 123-4567"
+                      secondary={
+                        quickReference.primaryCarePhysician.name ? 
+                          `${quickReference.primaryCarePhysician.name}${quickReference.primaryCarePhysician.phone ? ` • ${quickReference.primaryCarePhysician.phone}` : ''}` :
+                          'Not specified'
+                      }
                     />
                   </ListItem>
                   <ListItem>
                     <ListItemText
                       primary="Healthcare Proxy"
-                      secondary={data.relatedPersons.length > 0 ? 
-                        `${get(data.relatedPersons[0], 'name[0].given[0]', '')} ${get(data.relatedPersons[0], 'name[0].family', '')}` :
-                        'Not designated'
+                      secondary={
+                        quickReference.healthcareProxy.name || 
+                        (data.relatedPersons.length > 0 ? 
+                          `${get(data.relatedPersons[0], 'name[0].given[0]', '')} ${get(data.relatedPersons[0], 'name[0].family', '')}` :
+                          'Not designated')
                       }
                     />
                   </ListItem>
                   <ListItem>
                     <ListItemText
                       primary="Organ Donor"
-                      secondary="Yes - Driver's License"
+                      secondary={
+                        quickReference.organDonor.status ? 
+                          `${quickReference.organDonor.status}${quickReference.organDonor.registeredWith ? ` - ${quickReference.organDonor.registeredWith}` : ''}` :
+                          'Not specified'
+                      }
                     />
                   </ListItem>
                 </List>
@@ -455,7 +574,7 @@ function AdvancedDirectivesPage(props) {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+      <Dialog open={openDialog} onClose={handleCancelUpload}>
         <DialogTitle>Upload Advanced Directive Document</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2 }}>
@@ -463,6 +582,8 @@ function AdvancedDirectivesPage(props) {
               <TextField
                 select
                 label="Document Type"
+                value={selectedDocumentType}
+                onChange={handleDocumentTypeChange}
                 SelectProps={{ native: true }}
               >
                 {directiveTypes.map((type) => (
@@ -476,16 +597,38 @@ function AdvancedDirectivesPage(props) {
               variant="outlined"
               component="label"
               fullWidth
-              sx={{ height: 100, borderStyle: 'dashed' }}
+              sx={{ 
+                height: 100, 
+                borderStyle: 'dashed',
+                backgroundColor: selectedFile ? '#e8f5e9' : 'transparent'
+              }}
             >
-              Click to upload PDF or image
-              <input type="file" hidden accept=".pdf,.png,.jpg,.jpeg" />
+              {selectedFile ? selectedFile.name : 'Click to upload PDF or image'}
+              <input 
+                type="file" 
+                hidden 
+                accept=".pdf,.png,.jpg,.jpeg" 
+                onChange={handleFileSelect}
+              />
             </Button>
+            {selectedFile && (
+              <Typography variant="caption" sx={{ mt: 1, display: 'block' }}>
+                File size: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+              </Typography>
+            )}
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button variant="contained">Upload</Button>
+          <Button onClick={handleCancelUpload} disabled={uploading}>
+            Cancel
+          </Button>
+          <Button 
+            variant="contained" 
+            onClick={handleUploadSubmit} 
+            disabled={!selectedFile || uploading}
+          >
+            {uploading ? 'Uploading...' : 'Upload'}
+          </Button>
         </DialogActions>
       </Dialog>
     </Container>

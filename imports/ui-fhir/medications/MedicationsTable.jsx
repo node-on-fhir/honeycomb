@@ -354,6 +354,40 @@ function MedicationsTable(props){
   }
 
   // ------------------------------------------------------------------------
+  // Pagination Setup
+  
+  const [localPage, setLocalPage] = useState(page || 0);
+  const [localRowsPerPage, setLocalRowsPerPage] = useState(rowsPerPage || 5);
+
+  useEffect(() => {
+    if (page !== undefined) {
+      setLocalPage(page);
+    }
+  }, [page]);
+
+  useEffect(() => {
+    if (rowsPerPage !== undefined) {
+      setLocalRowsPerPage(rowsPerPage);
+    }
+  }, [rowsPerPage]);
+
+  const handleChangePage = (event, newPage) => {
+    setLocalPage(newPage);
+    if (onSetPage) {
+      onSetPage(event, newPage);
+    }
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    const newRowsPerPage = parseInt(event.target.value, 10);
+    setLocalRowsPerPage(newRowsPerPage);
+    setLocalPage(0);
+    if (onSetPage) {
+      onSetPage(event, 0);
+    }
+  };
+
+  // ------------------------------------------------------------------------
   // Table Row Rendering
 
   let tableRows = [];
@@ -372,7 +406,7 @@ function MedicationsTable(props){
       let count = 0;    
       
       props.medications.forEach(function(medication){
-        if((count >= (page * rowsPerPage)) && (count < (page + 1) * rowsPerPage)){
+        if((count >= (localPage * localRowsPerPage)) && (count < (localPage + 1) * localRowsPerPage)){
           medicationsToRender.push(FhirDehydrator.dehydrateMedication(medication, internalDateFormat));
         }
         count++;
@@ -450,10 +484,11 @@ function MedicationsTable(props){
           component="div"
           rowsPerPageOptions={[5, 10, 25, 100]}
           colSpan={3}
-          count={count}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={props.onSetPage}
+          count={count || props.medications?.length || 0}
+          rowsPerPage={localRowsPerPage}
+          page={localPage}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
           style={{
             float: 'right',
             border: 'none'
