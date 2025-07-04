@@ -1,134 +1,560 @@
-import React, { useState } from 'react';
-import { useTracker } from 'meteor/react-meteor-data';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 import { 
+  Button,
+  Checkbox,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  TablePagination,
-  Paper,
-  Checkbox
+  TableFooter,
+  TablePagination
 } from '@mui/material';
 
-import { get } from 'lodash';
-import { Meteor } from 'meteor/meteor';
-import { Session } from 'meteor/session';
 
-import FhirUtilities from '../../lib/FhirUtilities';
+import moment from 'moment';
+import { get } from 'lodash';
+
+import { FhirUtilities } from '../../lib/FhirUtilities';
+import { FhirDehydrator } from '../../lib/FhirDehydrator';
+
+//===========================================================================
+// MAIN COMPONENT
 
 function MedicationAdministrationsTable(props){
-  const { 
-    medicationAdministrations = [],
-    hideCheckbox = true,
-    hideActionIcons = true,
-    hideIdentifier = true,
-    hideStatus = false,
-    hideName = false,
-    paginationLimit = 10,
-    rowsPerPage = 10,
-    page = 0,
+  logger.info('Rendering the MedicationAdministrationsTable');
+
+  let { 
+    id,
+    children, 
+
+    data,
+    medicationAdministrations,
+    selectedMedicationAdministrationId,
+
+    query,
+    paginationLimit,
+    disablePagination,
+  
+    hideCheckbox,
+    hideActionIcons,
+    hideIdentifier,
+    hideStatus,
+    hidePatient,
+    hideMedication,
+    hideEffectiveDate,
+    hidePerformer,
+    hideDosage,
+    hideRoute,
+    hideBarcode,
+  
+    onCellClick,
+    onRowClick,
+    onMetaClick,
+    onRemoveRecord,
+    onActionButtonClick,
+    hideActionButton,
+    actionButtonLabel,
+  
+    autoColumns,
+    rowsPerPage,
+    tableRowSize,
+    dateFormat,
+    showMinutes,
+    hideEnteredInError,
+    formFactorLayout,
+    count,
+    labels,
+
+    defaultCheckboxValue,
+
+    page,
     onSetPage,
-    onSetRowsPerPage,
-    ...otherProps
+
+    ...otherProps 
   } = props;
 
-  const [currentPage, setCurrentPage] = useState(0);
-  const [currentRowsPerPage, setCurrentRowsPerPage] = useState(rowsPerPage);
+  // ------------------------------------------------------------------------
+  // Form Factors
 
-  // Data subscription would go here in a real implementation
-  const data = useTracker(() => {
-    // This would normally fetch from the MedicationAdministrations collection
-    return [];
-  }, []);
-
-  const handleChangePage = (event, newPage) => {
-    if(onSetPage){
-      onSetPage(newPage);
-    } else {
-      setCurrentPage(newPage);
+  if(formFactorLayout){
+    logger.verbose('formFactorLayout', formFactorLayout + ' ' + window.innerWidth);
+    switch (formFactorLayout) {
+      case "phone":
+        hideCheckbox = true;
+        hideActionIcons = true;
+        hideIdentifier = true;
+        hideStatus = true;
+        hidePatient = false;
+        hideMedication = false;
+        hideEffectiveDate = true;
+        hidePerformer = true;
+        hideDosage = true;
+        hideRoute = true;
+        hideBarcode = true;  
+        break;
+      case "tablet":
+        hideCheckbox = true;
+        hideActionIcons = true;
+        hideIdentifier = true;
+        hideStatus = false;
+        hidePatient = false;
+        hideMedication = false;
+        hideEffectiveDate = false;
+        hidePerformer = true;
+        hideDosage = true;
+        hideRoute = true;
+        hideBarcode = true;   
+        break;
+      case "web":
+        hideCheckbox = false;
+        hideActionIcons = true;
+        hideIdentifier = false;
+        hideStatus = false;
+        hidePatient = false;
+        hideMedication = false;
+        hideEffectiveDate = false;
+        hidePerformer = false;
+        hideDosage = false;
+        hideRoute = true;
+        hideBarcode = true;
+        break;
+      case "desktop":
+        hideCheckbox = false;
+        hideActionIcons = true;
+        hideIdentifier = false;
+        hideStatus = false;
+        hidePatient = false;
+        hideMedication = false;
+        hideEffectiveDate = false;
+        hidePerformer = false;
+        hideDosage = false;
+        hideRoute = false;
+        hideBarcode = true;
+        break;
+      case "hdmi":
+        hideCheckbox = false;
+        hideActionIcons = true;
+        hideIdentifier = false;
+        hideStatus = false;
+        hidePatient = false;
+        hideMedication = false;
+        hideEffectiveDate = false;
+        hidePerformer = false;
+        hideDosage = false;
+        hideRoute = false;
+        hideBarcode = false;
+        break;            
     }
-  };
+  }
 
-  const handleChangeRowsPerPage = (event) => {
-    const newRowsPerPage = parseInt(event.target.value, 10);
-    if(onSetRowsPerPage){
-      onSetRowsPerPage(newRowsPerPage);
-    } else {
-      setCurrentRowsPerPage(newRowsPerPage);
-      setCurrentPage(0);
+  // ------------------------------------------------------------------------
+  // Helper Functions
+
+  function handleRowClick(medicationAdministrationId){
+    console.log('Clicking row ' + medicationAdministrationId)
+    if(props.onRowClick){
+      props.onRowClick(medicationAdministrationId);
     }
-  };
+  }
 
-  const renderRows = () => {
-    const startIndex = currentPage * currentRowsPerPage;
-    const endIndex = startIndex + currentRowsPerPage;
-    const displayData = medicationAdministrations.slice(startIndex, endIndex);
+  function removeRecord(_id){
+    console.log('Remove medication administration ', _id)
+    if(props.onRemoveRecord){
+      props.onRemoveRecord(_id);
+    }
+  }
+  function handleActionButtonClick(id){
+    if(typeof props.onActionButtonClick === "function"){
+      props.onActionButtonClick(id);
+    }
+  }
+  function cellClick(id){
+    if(typeof props.onCellClick === "function"){
+      props.onCellClick(id);
+    }
+  }
 
-    return displayData.map((medicationAdministration, index) => (
-      <TableRow key={medicationAdministration.id || index}>
-        {!hideCheckbox && (
-          <TableCell padding="checkbox">
-            <Checkbox />
-          </TableCell>
-        )}
-        {!hideIdentifier && (
-          <TableCell>{get(medicationAdministration, 'identifier[0].value', '')}</TableCell>
-        )}
-        {!hideStatus && (
-          <TableCell>{get(medicationAdministration, 'status', '')}</TableCell>
-        )}
-        {!hideName && (
-          <TableCell>{get(medicationAdministration, 'subject.display', '')}</TableCell>
-        )}
-        <TableCell>{get(medicationAdministration, 'medicationCodeableConcept.text', get(medicationAdministration, 'medicationReference.display', ''))}</TableCell>
-        <TableCell>{get(medicationAdministration, 'effectiveDateTime', get(medicationAdministration, 'effectivePeriod.start', ''))}</TableCell>
-        <TableCell>{get(medicationAdministration, 'performer[0].actor.display', '')}</TableCell>
-        <TableCell>{get(medicationAdministration, 'dosage.dose.value', '')} {get(medicationAdministration, 'dosage.dose.unit', '')}</TableCell>
-      </TableRow>
-    ));
-  };
+  function handleMetaClick(patient){
+    let self = this;
+    if(props.onMetaClick){
+      props.onMetaClick(self, patient);
+    }
+  }
 
-  return (
-    <div>
-      <Paper>
-        <Table>
-          <TableHead>
-            <TableRow>
-              {!hideCheckbox && <TableCell padding="checkbox"></TableCell>}
-              {!hideIdentifier && <TableCell>Identifier</TableCell>}
-              {!hideStatus && <TableCell>Status</TableCell>}
-              {!hideName && <TableCell>Patient</TableCell>}
-              <TableCell>Medication</TableCell>
-              <TableCell>Administered</TableCell>
-              <TableCell>Performer</TableCell>
-              <TableCell>Dose</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {medicationAdministrations.length > 0 ? 
-              renderRows() : 
-              <TableRow>
-                <TableCell colSpan={8} align="center">
-                  No medication administrations found
-                </TableCell>
-              </TableRow>
-            }
-          </TableBody>
-        </Table>
+  // ------------------------------------------------------------------------
+  // Column Rendering
+
+  function renderCheckboxHeader(){
+    if (!props.hideCheckbox) {
+      return (
+        <TableCell className="toggle" style={{width: '60px'}} >
+          Toggle
+        </TableCell>
+      );
+    }
+  }
+  function renderCheckbox(){
+    if (!props.hideCheckbox) {
+      return (
+        <TableCell className="toggle" style={{width: '60px'}}>
+          <Checkbox
+            defaultChecked={defaultCheckboxValue}
+          />
+        </TableCell>
+      );
+    }
+  }
+  function renderActionIconsHeader(){
+    if (!props.hideActionIcons) {
+      return (
+        <TableCell className='actionIcons' style={{width: '100px'}}>Actions</TableCell>
+      );
+    }
+  }
+  function renderActionIcons(medicationAdministration ){
+    if (!props.hideActionIcons) {
+      let iconStyle = {
+        marginLeft: '4px', 
+        marginRight: '4px', 
+        marginTop: '4px', 
+        fontSize: '120%'
+      }
+
+      return (
+        <TableCell className='actionIcons' style={{minWidth: '120px'}}>
+          {/* Icon buttons would go here */}
+        </TableCell>
+      );
+    }
+  } 
+
+  function renderIdentifier(identifier){
+    if (!props.hideIdentifier) {
+      return (
+        <TableCell className='identifier'>{ identifier }</TableCell>
+      );
+    }
+  }
+  function renderIdentifierHeader(){
+    if (!props.hideIdentifier) {
+      return (
+        <TableCell className='identifier'>Identifier</TableCell>
+      );
+    }
+  }
+
+  function renderStatus(status){
+    if (!props.hideStatus) {
+      return (
+        <TableCell className='status'>{ status }</TableCell>
+      );
+    }
+  }
+  function renderStatusHeader(){
+    if (!props.hideStatus) {
+      return (
+        <TableCell className='status'>Status</TableCell>
+      );
+    }
+  }
+
+  function renderPatient(patient){
+    if (!props.hidePatient) {
+      return (
+        <TableCell className='patient'>{ patient }</TableCell>
+      );
+    }
+  }
+  function renderPatientHeader(){
+    if (!props.hidePatient) {
+      return (
+        <TableCell className='patient'>Patient</TableCell>
+      );
+    }
+  }
+
+  function renderMedication(medication){
+    if (!props.hideMedication) {
+      return (
+        <TableCell className='medication'>{ medication }</TableCell>
+      );
+    }
+  }
+  function renderMedicationHeader(){
+    if (!props.hideMedication) {
+      return (
+        <TableCell className='medication'>Medication</TableCell>
+      );
+    }
+  }
+
+  function renderEffectiveDate(effectiveDate){
+    if (!props.hideEffectiveDate) {
+      return (
+        <TableCell className='effectiveDate'>{ effectiveDate }</TableCell>
+      );
+    }
+  }
+  function renderEffectiveDateHeader(){
+    if (!props.hideEffectiveDate) {
+      return (
+        <TableCell className='effectiveDate'>Administered</TableCell>
+      );
+    }
+  }
+
+  function renderPerformer(performer){
+    if (!props.hidePerformer) {
+      return (
+        <TableCell className='performer'>{ performer }</TableCell>
+      );
+    }
+  }
+  function renderPerformerHeader(){
+    if (!props.hidePerformer) {
+      return (
+        <TableCell className='performer'>Performer</TableCell>
+      );
+    }
+  }
+
+  function renderDosage(dosage){
+    if (!props.hideDosage) {
+      return (
+        <TableCell className='dosage'>{ dosage }</TableCell>
+      );
+    }
+  }
+  function renderDosageHeader(){
+    if (!props.hideDosage) {
+      return (
+        <TableCell className='dosage'>Dose</TableCell>
+      );
+    }
+  }
+
+  function renderRoute(route){
+    if (!props.hideRoute) {
+      return (
+        <TableCell className='route'>{ route }</TableCell>
+      );
+    }
+  }
+  function renderRouteHeader(){
+    if (!props.hideRoute) {
+      return (
+        <TableCell className='route'>Route</TableCell>
+      );
+    }
+  }
+
+  function renderBarcode(id){
+    if (!props.hideBarcode) {
+      return (
+        <TableCell><span className="barcode helvetica">{id}</span></TableCell>
+      );  
+    }
+  }
+  function renderBarcodeHeader(){
+    if (!props.hideBarcode) {
+      return (
+        <TableCell>System ID</TableCell>
+      );
+    }
+  }
+
+  function renderActionButtonHeader(){
+    if (!props.hideActionButton) {
+      return (
+        <TableCell className='ActionButton' >Action</TableCell>
+      );
+    }
+  }
+  function renderActionButton(medicationAdministration){
+    if (!props.hideActionButton) {
+      return (
+        <TableCell className='ActionButton' >
+          <Button onClick={ handleActionButtonClick.bind(this, get(medicationAdministration, "_id"))}>{get(props, "actionButtonLabel", "Action")}</Button>
+        </TableCell>
+      );
+    }
+  }
+
+  // ------------------------------------------------------------------------
+  // Table Row Rendering
+
+  let tableRows = [];
+  let medicationAdministrationsToRender = [];
+  let internalDateFormat = "YYYY-MM-DD";
+
+  if(props.showMinutes){
+    internalDateFormat = "YYYY-MM-DD hh:mm";
+  }
+  if(props.dateFormat){
+    internalDateFormat = props.dateFormat;
+  }
+
+  if(props.medicationAdministrations){
+    if(props.medicationAdministrations.length > 0){ 
+      let count = 0;    
+      
+      props.medicationAdministrations.forEach(function(medicationAdministration){
+        if((count >= (page * rowsPerPage)) && (count < (page + 1) * rowsPerPage)){
+          medicationAdministrationsToRender.push(FhirDehydrator.dehydrateMedicationAdministration(medicationAdministration, internalDateFormat));
+        }
+        count++;
+      });  
+    }
+  }
+
+  let rowStyle = {
+    cursor: 'pointer', 
+    height: '52px'
+  }
+  if(medicationAdministrationsToRender.length === 0){
+    logger.trace('MedicationAdministrationsTable: No medication administrations to render.');
+  } else {
+    for (var i = 0; i < medicationAdministrationsToRender.length; i++) {
+
+      let selected = false;
+      if(medicationAdministrationsToRender[i]._id === selectedMedicationAdministrationId){
+        selected = true;
+      }
+      if(get(medicationAdministrationsToRender[i], 'modifierExtension[0]')){
+        rowStyle.color = "orange"
+      }
+      if(tableRowSize === "small"){
+        rowStyle.height = '32px';
+      }
+
+      tableRows.push(
+        <TableRow 
+          className="medicationAdministrationRow" 
+          key={i} 
+          onClick={ handleRowClick.bind(this, medicationAdministrationsToRender[i]._id)} 
+          hover={true} 
+          style={rowStyle} 
+          selected={selected}
+        >
+          { renderCheckbox(medicationAdministrationsToRender[i]) }
+          { renderActionIcons(medicationAdministrationsToRender[i]) }
+          { renderIdentifier(medicationAdministrationsToRender[i].identifier ) }
+          { renderStatus(medicationAdministrationsToRender[i].status) }
+          { renderPatient(medicationAdministrationsToRender[i].subjectDisplay) }
+          { renderMedication(medicationAdministrationsToRender[i].medicationDisplay) }
+          { renderEffectiveDate(medicationAdministrationsToRender[i].effectiveDateTime) }  
+          { renderPerformer(medicationAdministrationsToRender[i].performerDisplay) }
+          { renderDosage(medicationAdministrationsToRender[i].dosageText) }
+          { renderRoute(medicationAdministrationsToRender[i].route) }
+          { renderBarcode(medicationAdministrationsToRender[i]._id) }
+          { renderActionButton(medicationAdministrationsToRender[i]) }
+        </TableRow>
+      )
+    }
+  }
+
+  return(
+    <div id={id} className="medicationAdministrationsTable">
+      <Table size={tableRowSize} aria-label="a dense table">
+        <TableHead>
+          <TableRow>
+            { renderCheckboxHeader() }
+            { renderActionIconsHeader() }
+            { renderIdentifierHeader() }
+            { renderStatusHeader() }
+            { renderPatientHeader() }
+            { renderMedicationHeader() }
+            { renderEffectiveDateHeader() }            
+            { renderPerformerHeader() }
+            { renderDosageHeader() }
+            { renderRouteHeader() }
+            { renderBarcodeHeader() }
+            { renderActionButtonHeader() }
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          { tableRows }
+        </TableBody>
+      </Table>
+      { props.disablePagination ? <div></div> : (
         <TablePagination
           component="div"
-          count={medicationAdministrations.length}
-          page={currentPage}
-          onPageChange={handleChangePage}
-          rowsPerPage={currentRowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          rowsPerPageOptions={[5, 10, 25, 50, 100]}
+          rowsPerPageOptions={[5, 10, 25, 100]}
+          colSpan={3}
+          count={count}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={props.onSetPage}
+          style={{
+            float: 'right',
+            border: 'none'
+          }}
         />
-      </Paper>
+      )}
     </div>
   );
+}
+
+MedicationAdministrationsTable.propTypes = {
+  data: PropTypes.array,
+  medicationAdministrations: PropTypes.array,
+  query: PropTypes.object,
+  paginationLimit: PropTypes.number,
+  hideCheckbox: PropTypes.bool,
+  hideActionIcons: PropTypes.bool,
+  hideIdentifier: PropTypes.bool,
+  hideStatus: PropTypes.bool,
+  hidePatient: PropTypes.bool,
+  hideMedication: PropTypes.bool,
+  hideEffectiveDate: PropTypes.bool,
+  hidePerformer: PropTypes.bool,
+  hideDosage: PropTypes.bool,
+  hideRoute: PropTypes.bool,
+  hideBarcode: PropTypes.bool,
+
+  onCellClick: PropTypes.func,
+  onRowClick: PropTypes.func,
+  onMetaClick: PropTypes.func,
+  onRemoveRecord: PropTypes.func,
+  onActionButtonClick: PropTypes.func,
+  actionButtonLabel: PropTypes.string,
+  hideActionButton: PropTypes.bool,
+
+  rowsPerPage: PropTypes.number,
+  tableRowSize: PropTypes.string,
+  dateFormat: PropTypes.string,
+  showMinutes: PropTypes.bool,
+
+  formFactorLayout: PropTypes.string,
+  count: PropTypes.number,
+  labels: PropTypes.object,
+
+  page: PropTypes.number,
+  onSetPage: PropTypes.func
+};
+
+MedicationAdministrationsTable.defaultProps = {
+  hideCheckbox: true,
+  hideActionIcons: true,
+  hideActionButton: true,
+  hideIdentifier: true,
+  hideStatus: true,
+  hidePatient: false,
+  hideMedication: false,
+  hideEffectiveDate: false,
+  hidePerformer: false,
+  hideDosage: false,
+  hideRoute: true,
+  hideBarcode: true,
+  tableRowSize: 'medium',
+  rowsPerPage: 5,
+  dateFormat: "YYYY-MM-DD",
+  medicationAdministrations: [],
+  count: 0,
+  page: 0
 }
 
 export default MedicationAdministrationsTable;
