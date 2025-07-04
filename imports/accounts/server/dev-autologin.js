@@ -24,7 +24,7 @@ export const DevAutoLogin = {
     
     try {
       // Check if user exists
-      let user = Accounts.findUserByUsername(devUsername);
+      let user = await Accounts.findUserByUsername(devUsername);
       
       if (!user) {
         // Create the dev user
@@ -38,16 +38,38 @@ export const DevAutoLogin = {
           }
         });
         
-        user = Meteor.users.findOne(userId);
+        user = await Meteor.users.findOneAsync(userId);
         console.log(`[DevAutoLogin] Created dev user: ${devUsername}`);
       } else {
         // Update password in case it changed
-        Accounts.setPassword(user._id, devPassword);
-        console.log(`[DevAutoLogin] Updated dev user: ${devUsername}`);
+        try {
+          // Check if setPassword is available (it should be with accounts-password)
+          if (typeof Accounts.setPassword === 'function') {
+            Accounts.setPassword(user._id, devPassword);
+            console.log(`[DevAutoLogin] Updated dev user password: ${devUsername}`);
+          } else {
+            // Fallback: remove and recreate user
+            console.log(`[DevAutoLogin] setPassword not available, recreating user: ${devUsername}`);
+            await Meteor.users.removeAsync(user._id);
+            const userId = Accounts.createUser({
+              username: devUsername,
+              email: `${devUsername}@dev.local`,
+              password: devPassword,
+              profile: {
+                name: 'Development User',
+                isDevelopmentAccount: true
+              }
+            });
+            user = await Meteor.users.findOneAsync(userId);
+          }
+        } catch (setPasswordError) {
+          console.error(`[DevAutoLogin] Error updating password:`, setPasswordError);
+          // Fallback: just use existing user
+        }
       }
       
       // Mark as development account
-      Meteor.users.update(user._id, {
+      await Meteor.users.updateAsync(user._id, {
         $set: {
           'profile.isDevelopmentAccount': true,
           'profile.autoLoginEnabled': true
@@ -68,7 +90,7 @@ export const DevAutoLogin = {
     }
     
     // Check if user is a dev account
-    const user = Meteor.users.findOne(userId);
+    const user = await Meteor.users.findOneAsync(userId);
     if (!user?.profile?.isDevelopmentAccount) {
       throw new Meteor.Error('not-allowed', 'User is not a development account');
     }
@@ -101,17 +123,20 @@ export const DevAutoLogin = {
 // Initialize on startup
 Meteor.startup(async () => {
   if (Meteor.isDevelopment && process.env.DEV_AUTO_LOGIN === 'true') {
-    const userId = await DevAutoLogin.setupDevUser();
-    if (userId) {
-      console.log('[DevAutoLogin] Development auto-login user ready');
-      
-      // Add visual warning to console
-      console.warn('┌─────────────────────────────────────────────────┐');
-      console.warn('│ ⚠️  DEVELOPMENT AUTO-LOGIN ENABLED              │');
-      console.warn('│ Username:', process.env.DEV_AUTO_USERNAME.padEnd(27), '│');
-      console.warn('│ This should NEVER be enabled in production!    │');
-      console.warn('└─────────────────────────────────────────────────┘');
-    }
+    // Give accounts-password package time to initialize
+    Meteor.setTimeout(async () => {
+      const userId = await DevAutoLogin.setupDevUser();
+      if (userId) {
+        console.log('[DevAutoLogin] Development auto-login user ready');
+        
+        // Add visual warning to console
+        console.warn('┌─────────────────────────────────────────────────┐');
+        console.warn('│ ⚠️  DEVELOPMENT AUTO-LOGIN ENABLED              │');
+        console.warn('│ Username:', process.env.DEV_AUTO_USERNAME.padEnd(27), '│');
+        console.warn('│ This should NEVER be enabled in production!    │');
+        console.warn('└─────────────────────────────────────────────────┘');
+      }
+    }, 1000); // 1 second delay
   }
 });
 
@@ -133,7 +158,7 @@ Meteor.methods({
     }
     
     // Find the dev user
-    const user = Accounts.findUserByUsername(devUsername);
+    const user = await Accounts.findUserByUsername(devUsername);
     if (!user) {
       throw new Meteor.Error('user-not-found', 'Dev user not found');
     }
