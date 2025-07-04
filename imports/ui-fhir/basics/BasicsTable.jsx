@@ -61,8 +61,6 @@ function BasicsTable(props){
     checklist,
     count,
     tableRowSize,
-
-    page,
     onSetPage,
 
     ...otherProps 
@@ -216,7 +214,7 @@ function BasicsTable(props){
   // Pagination
 
   let rows = [];
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(props.page);
   const [rowsPerPageToRender, setRowsPerPage] = useState(rowsPerPage);
 
 

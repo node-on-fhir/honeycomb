@@ -14,7 +14,7 @@ import {
   Box
 } from '@mui/material';
 
-import MedicationsTable from './MedicationsTable.jsx';
+import MedicationRequestsTable from './MedicationRequestsTable.jsx';
 
 import LayoutHelpers from '../../lib/LayoutHelpers';
 
@@ -28,7 +28,7 @@ import { get, set } from 'lodash';
 // DATA CURSORS
 
 Meteor.startup(function(){
-  Medications = Meteor.Collections.Medications;
+  MedicationRequests = Meteor.Collections.MedicationRequests;
 })
 
 //=============================================================================================================================================
@@ -69,33 +69,33 @@ if(get(Meteor, 'settings.public.theme.palette')){
 // Session Variables
 
 Session.setDefault('fhirVersion', 'v1.0.2');
-Session.setDefault('selectedMedicationId', false);
-Session.setDefault('selectedMedication', false);
-Session.setDefault('medicationPageTabIndex', 1); 
-Session.setDefault('medicationSearchFilter', ''); 
-Session.setDefault('MedicationsPage.onePageLayout', true)
-Session.setDefault('MedicationsPage.defaultQuery', {})
-Session.setDefault('MedicationsTable.hideCheckbox', true)
-Session.setDefault('DevicesTable.medicationsIndex', 0)
+Session.setDefault('selectedMedicationRequestId', false);
+Session.setDefault('selectedMedicationRequest', false);
+Session.setDefault('medicationRequestPageTabIndex', 1); 
+Session.setDefault('medicationRequestSearchFilter', ''); 
+Session.setDefault('MedicationRequestsPage.onePageLayout', true)
+Session.setDefault('MedicationRequestsPage.defaultQuery', {})
+Session.setDefault('MedicationRequestsTable.hideCheckbox', true)
+Session.setDefault('DevicesTable.medicationRequestsIndex', 0)
 
 //=============================================================================================================================================
 // MAIN COMPONENT
 
-export function MedicationsPage(props){
+export function MedicationRequestsPage(props){
 
   let headerHeight = LayoutHelpers.calcHeaderHeight();
   let formFactor = LayoutHelpers.determineFormFactor();
   let paddingWidth = LayoutHelpers.calcCanvasPaddingWidth();
 
-  let [medicationsPageIndex, setMedicationsPageIndex] = useState(0);
+  let [medicationRequestsPageIndex, setMedicationRequestsPageIndex] = useState(0);
 
   let layoutContents;
   if(formFactor === "desktop"){
     layoutContents = <Grid container spacing={3} style={{marginBottom: '100px'}}>
       <Grid item md={12} style={{paddingLeft: '20px', paddingRight: '20px'}}>
-        <CardHeader title="Medications" />
+        <CardHeader title="Medication Requests" />
         <CardContent>
-          <MedicationsTable 
+          <MedicationRequestsTable 
             hideCheckbox={true} 
             hideActionIcons={true}
             hideIdentifier={true}
@@ -109,7 +109,7 @@ export function MedicationsPage(props){
   }
 
   return (
-    <div id="medicationsPage" style={{paddingTop: headerHeight + 'px', paddingBottom: '100px'}}>
+    <div id="medicationRequestsPage" style={{paddingTop: headerHeight + 'px', paddingBottom: '100px'}}>
       <Container maxWidth="xl" style={{paddingBottom: '80px'}}>
         { layoutContents }
       </Container>
@@ -117,4 +117,4 @@ export function MedicationsPage(props){
   );
 }
 
-export default MedicationsPage;
+export default MedicationRequestsPage;

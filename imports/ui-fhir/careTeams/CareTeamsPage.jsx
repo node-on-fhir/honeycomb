@@ -6,8 +6,12 @@ import {
   Card,
   CardHeader,
   CardContent,
-  Container
+  Container,
+  Box,
+  Typography,
+  Button
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
@@ -21,6 +25,7 @@ import FhirDehydrator from '../../lib/FhirDehydrator';
 import LayoutHelpers from '../../lib/LayoutHelpers';
 
 import { get, cloneDeep } from 'lodash';
+import { CareTeams } from '../../lib/schemas/SimpleSchemas/CareTeams';
 
 
 //=============================================================================================================================================
@@ -135,6 +140,18 @@ function CareTeamsPage(props){
     }
   }
 
+  function handleAddCareTeam(){
+    console.log('CareTeamsPage.handleAddCareTeam');
+    Session.set('selectedCareTeam', false);
+    Session.set('selectedCareTeamId', '');
+    Session.set('CareTeam.Current', false);
+    
+    Session.set('mainAppDialogOpen', true);
+    Session.set('mainAppDialogComponent', "CareTeamDetail");
+    Session.set('mainAppDialogMaxWidth', "sm");
+    Session.set('mainAppDialogTitle', "Add Care Team");
+  }
+
   function renderHeader() {
     return (
       <Box mb={2}>
@@ -152,7 +169,7 @@ function CareTeamsPage(props){
               variant="contained"
               color="primary"
               startIcon={<AddIcon />}
-              onClick={handleAddCondition}
+              onClick={handleAddCareTeam}
             >
               Add Care Team
             </Button>
@@ -162,10 +179,10 @@ function CareTeamsPage(props){
     );
   }
 
-  let layoutContents;
+  let layoutContent;
   if(data.careTeams.length > 0){
     if(data.onePageLayout){
-      layoutContents = <Card height='auto' width={cardWidth + 'px'} margin={20} >
+      layoutContent = <Card height='auto' width={cardWidth + 'px'} margin={20} >
         <CardHeader title={ data.careTeams.length + ' Care Teams'} />
         <CardContent>
           <CareTeamsTable 
@@ -263,7 +280,7 @@ function CareTeamsPage(props){
           <Button
             variant="outlined"
             startIcon={<AddIcon />}
-            onClick={handleAddCondition}
+            onClick={handleAddCareTeam}
             sx={{
               borderRadius: 2,
               textTransform: 'none',
@@ -275,7 +292,7 @@ function CareTeamsPage(props){
               }
             }}
           >
-            Add Your First Condition
+            Add Your First Care Team
           </Button>
         </CardContent>
       </Card>

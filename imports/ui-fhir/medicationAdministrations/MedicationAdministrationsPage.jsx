@@ -14,7 +14,7 @@ import {
   Box
 } from '@mui/material';
 
-import MedicationsTable from './MedicationsTable.jsx';
+import MedicationAdministrationsTable from './MedicationAdministrationsTable.jsx';
 
 import LayoutHelpers from '../../lib/LayoutHelpers';
 
@@ -23,23 +23,20 @@ import { Session } from 'meteor/session';
 import FhirDehydrator from '../../lib/FhirDehydrator';
 
 import { get, set } from 'lodash';
+import { MedicationAdministrations } from '../../lib/schemas/SimpleSchemas/MedicationAdministrations';
 
 //=============================================================================================================================================
 // DATA CURSORS
-
-Meteor.startup(function(){
-  Medications = Meteor.Collections.Medications;
-})
 
 //=============================================================================================================================================
 // GLOBAL THEMING
 
 // This is necessary for the Material UI component render layer
 let theme = {
-  primaryColor: "rgb(1177, 128, 13)",
+  primaryColor: "rgb(177, 128, 13)",
   primaryText: "rgba(255, 255, 255, 1) !important",
 
-  secondaryColor: "rgb(1177, 128, 13)",
+  secondaryColor: "rgb(177, 128, 13)",
   secondaryText: "rgba(255, 255, 255, 1) !important",
 
   cardColor: "rgba(255, 255, 255, 1) !important",
@@ -55,7 +52,7 @@ let theme = {
   paperTextColor: "rgba(0, 0, 0, 1) !important",
 
   backgroundCanvas: "rgba(255, 255, 255, 1) !important",
-  background: "linear-gradient(45deg, rgb(1177, 128, 13) 30%, rgb(150, 202, 144) 90%)",
+  background: "linear-gradient(45deg, rgb(177, 128, 13) 30%, rgb(150, 202, 144) 90%)",
 
   nivoTheme: "greens"
 }
@@ -69,39 +66,60 @@ if(get(Meteor, 'settings.public.theme.palette')){
 // Session Variables
 
 Session.setDefault('fhirVersion', 'v1.0.2');
-Session.setDefault('selectedMedicationId', false);
-Session.setDefault('selectedMedication', false);
-Session.setDefault('medicationPageTabIndex', 1); 
-Session.setDefault('medicationSearchFilter', ''); 
-Session.setDefault('MedicationsPage.onePageLayout', true)
-Session.setDefault('MedicationsPage.defaultQuery', {})
-Session.setDefault('MedicationsTable.hideCheckbox', true)
-Session.setDefault('DevicesTable.medicationsIndex', 0)
+Session.setDefault('selectedMedicationAdministrationId', false);
+Session.setDefault('selectedMedicationAdministration', false);
+Session.setDefault('medicationAdministrationPageTabIndex', 1); 
+Session.setDefault('medicationAdministrationSearchFilter', ''); 
+Session.setDefault('MedicationAdministrationsPage.onePageLayout', true)
+Session.setDefault('MedicationAdministrationsPage.defaultQuery', {})
+Session.setDefault('MedicationAdministrationsTable.hideCheckbox', true)
+Session.setDefault('DevicesTable.medicationAdministrationsIndex', 0)
 
 //=============================================================================================================================================
 // MAIN COMPONENT
 
-export function MedicationsPage(props){
+function MedicationAdministrationsPage(props){
 
   let headerHeight = LayoutHelpers.calcHeaderHeight();
   let formFactor = LayoutHelpers.determineFormFactor();
   let paddingWidth = LayoutHelpers.calcCanvasPaddingWidth();
 
-  let [medicationsPageIndex, setMedicationsPageIndex] = useState(0);
+  let [medicationAdministrationsPageIndex, setMedicationAdministrationsPageIndex] = useState(0);
+
+  // Data fetching
+  let data = {
+    selectedMedicationAdministrationId: '',
+    selectedMedicationAdministration: null,
+    medicationAdministrations: []
+  };
+
+  data.selectedMedicationAdministrationId = useTracker(function(){
+    return Session.get('selectedMedicationAdministrationId');
+  }, []);
+  
+  data.selectedMedicationAdministration = useTracker(function(){
+    return MedicationAdministrations.findOne({id: Session.get('selectedMedicationAdministrationId')});
+  }, []);
+  
+  data.medicationAdministrations = useTracker(function(){
+    return MedicationAdministrations.find().fetch();
+  }, []);
 
   let layoutContents;
   if(formFactor === "desktop"){
     layoutContents = <Grid container spacing={3} style={{marginBottom: '100px'}}>
       <Grid item md={12} style={{paddingLeft: '20px', paddingRight: '20px'}}>
-        <CardHeader title="Medications" />
+        <CardHeader title="Medication Administrations" />
         <CardContent>
-          <MedicationsTable 
+          <MedicationAdministrationsTable 
+            medicationAdministrations={data.medicationAdministrations}
             hideCheckbox={true} 
             hideActionIcons={true}
             hideIdentifier={true}
             hideStatus={false}
             hideName={false}
             paginationLimit={10}
+            count={data.medicationAdministrations.length}
           />
         </CardContent>
       </Grid>
@@ -109,7 +127,7 @@ export function MedicationsPage(props){
   }
 
   return (
-    <div id="medicationsPage" style={{paddingTop: headerHeight + 'px', paddingBottom: '100px'}}>
+    <div id="medicationAdministrationsPage" style={{paddingTop: headerHeight + 'px', paddingBottom: '100px'}}>
       <Container maxWidth="xl" style={{paddingBottom: '80px'}}>
         { layoutContents }
       </Container>
@@ -117,4 +135,4 @@ export function MedicationsPage(props){
   );
 }
 
-export default MedicationsPage;
+export default MedicationAdministrationsPage;

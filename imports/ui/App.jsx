@@ -65,6 +65,43 @@ import PatientChart from '../patient/PatientChart.jsx';
 import PatientsDirectory from '../ui-modules/PatientsDirectory.jsx';
 
 //===============================================================================================================
+// FHIR Page Components
+
+import ActivityDefinitionsPage from '../ui-fhir/activityDefinitions/ActivityDefinitionsPage.jsx';
+import AllergyIntolerancesPage from '../ui-fhir/allergyIntolerances/AllergyIntolerancesPage.jsx';
+import ArtifactAssessmentsPage from '../ui-fhir/artifactAssessments/ArtifactAssessmentsPage.jsx';
+import BundlesPage from '../ui-fhir/bundles/BundlesPage.jsx';
+import CareTeamsPage from '../ui-fhir/careTeams/CareTeamsPage.jsx';
+import CarePlansPage from '../ui-fhir/carePlans/CarePlansPage.jsx';
+import CodeSystemsPage from '../ui-fhir/codeSystems/CodeSystemsPage.jsx';
+import CompositionsPage from '../ui-fhir/compositions/CompositionsPage.jsx';
+import ConditionsPage from '../ui-fhir/conditions/ConditionsPage.jsx';
+import DevicesPage from '../ui-fhir/devices/DevicesPage.jsx';
+import EncountersPage from '../ui-fhir/encounters/EncountersPage.jsx';
+import EvidencesPage from '../ui-fhir/evidences/EvidencesPage.jsx';
+import GoalsPage from '../ui-fhir/goals/GoalsPage.jsx';
+import GuidanceResponsesPage from '../ui-fhir/guidanceResponses/GuidanceResponsesPage.jsx';
+import ImmunizationsPage from '../ui-fhir/immunizations/ImmunizationsPage.jsx';
+import LibrariesPage from '../ui-fhir/libraries/LibrariesPage.jsx';
+import MedicationsPage from '../ui-fhir/medications/MedicationsPage.jsx';
+import MedicationRequestsPage from '../ui-fhir/medicationRequests/MedicationRequestsPage.jsx';
+import MedicationAdministrationsPage from '../ui-fhir/medicationAdministrations/MedicationAdministrationsPage.jsx';
+import MedicationStatementsPage from '../ui-fhir/medicationStatements/MedicationStatementsPage.jsx';
+import NutritionOrdersPage from '../ui-fhir/nutritionOrders/NutritionOrdersPage.jsx';
+import ObservationsPage from '../ui-fhir/observations/ObservationsPage.jsx';
+import OperationOutcomesPage from '../ui-fhir/operationOutcomes/OperationOutcomesPage.jsx';
+import PlanDefinitionsPage from '../ui-fhir/planDefinitions/PlanDefinitionsPage.jsx';
+import ProceduresPage from '../ui-fhir/procedures/ProceduresPage.jsx';
+import QuestionnairesPage from '../ui-fhir/questionnaires/QuestionnairesPage.jsx';
+import QuestionnaireResponsesPage from '../ui-fhir/questionnaireResponses/QuestionnaireResponsesPage.jsx';
+import ResearchStudiesPage from '../ui-fhir/researchStudies/ResearchStudiesPage.jsx';
+import ResearchSubjectsPage from '../ui-fhir/researchSubjects/ResearchSubjectsPage.jsx';
+import ServiceRequestsPage from '../ui-fhir/serviceRequests/ServiceRequestsPage.jsx';
+import TasksPage from '../ui-fhir/tasks/TasksPage.jsx';
+import ValueSetsPage from '../ui-fhir/valuesets/ValueSetsPage.jsx';
+import ClaimsPage from '../ui-claims/claims/ClaimsPage.jsx';
+
+//===============================================================================================================
 
 
 //===============================================================================================================
@@ -440,210 +477,192 @@ if(get(Meteor, 'settings.public.modules.Theming')){
 
 
 if(get(Meteor, 'settings.public.modules.fhir.AllergyIntolerances')){
-  import AllergyIntolerancesPage from '../ui-fhir/allergyIntolerances/AllergyIntolerancesPage.jsx';
   dynamicRoutes.push({
     path: "/allergy-intolerances",
     element: <AllergyIntolerancesPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.ArtifactAssessments')){
-  import ArtifactAssessmentsPage from '../ui-fhir/artifactAssessments/ArtifactAssessmentsPage.jsx';
   dynamicRoutes.push({
     path: "/artifact-assessments",
     element: <ArtifactAssessmentsPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.ActivityDefinitions')){
-  import ActivityDefinitionsPage from '../ui-fhir/activityDefinitions/ActivityDefinitionsPage.jsx';
   dynamicRoutes.push({
     path: "/activity-definitions",
     element: <ActivityDefinitionsPage />
   })
 }
-if(get(Meteor, 'settings.public.modules.fhir.Basics')){
-  import BasicsPage from '../ui-fhir/basics/BasicsPage.jsx';
-  dynamicRoutes.push({
-    path: "/basics",
-    element: <BasicsPage />
-  })
-}
 if(get(Meteor, 'settings.public.modules.fhir.Bundles')){
-  import BundlesPage from '../ui-fhir/bundles/BundlesPage.jsx';
   dynamicRoutes.push({
     path: "/bundles",
     element: <BundlesPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.CareTeams')){
-  import CareTeamsPage from '../ui-fhir/careTeams/CareTeamsPage.jsx';
   dynamicRoutes.push({
     path: "/care-teams",
     element: <CareTeamsPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.CarePlans')){
-  import CarePlansPage from '../ui-fhir/carePlans/CarePlansPage.jsx';
   dynamicRoutes.push({
     path: "/care-plans",
     element: <CarePlansPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.CodeSystems')){
-  import CodeSystemsPage from '../ui-fhir/codeSystems/CodeSystemsPage.jsx';
   dynamicRoutes.push({
     path: "/code-systems",
     element: <CodeSystemsPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.Compositions')){
-  import CompositionsPage from '../ui-fhir/compositions/CompositionsPage.jsx';
   dynamicRoutes.push({
     path: "/compositions",
     element: <CompositionsPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.Conditions')){
-  import ConditionsPage from '../ui-fhir/conditions/ConditionsPage.jsx';
   dynamicRoutes.push({
     path: "/conditions",
     element: <ConditionsPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.Devices')){
-  import DevicesPage from '../ui-fhir/devices/DevicesPage.jsx';
   dynamicRoutes.push({
     path: "/devices",
     element: <DevicesPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.Encounters')){
-  import EncountersPage from '../ui-fhir/encounters/EncountersPage.jsx';
   dynamicRoutes.push({
     path: "/encounters",
     element: <EncountersPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.Evidences')){
-  import EvidencesPage from '../ui-fhir/evidences/EvidencesPage.jsx';
   dynamicRoutes.push({
     path: "/evidences",
     element: <EvidencesPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.Goals')){
-  import GoalsPage from '../ui-fhir/goals/GoalsPage.jsx';
   dynamicRoutes.push({
     path: "/goals",
     element: <GoalsPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.GuidanceResponses')){
-  import GuidanceResponsesPage from '../ui-fhir/guidanceResponses/GuidanceResponsesPage.jsx';
   dynamicRoutes.push({
     path: "/guidance-responses",
     element: <GuidanceResponsesPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.Immunizations')){
-  import ImmunizationsPage from '../ui-fhir/immunizations/ImmunizationsPage.jsx';
   dynamicRoutes.push({
     path: "/immunizations",
     element: <ImmunizationsPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.Libraries')){
-  import LibrariesPage from '../ui-fhir/libraries/LibrariesPage.jsx';
   dynamicRoutes.push({
     path: "/libraries",
     element: <LibrariesPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.Observations')){
-  import ObservationsPage from '../ui-fhir/observations/ObservationsPage.jsx';
   dynamicRoutes.push({
     path: "/observations",
     element: <ObservationsPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.OperationOutcomes')){
-  import OperationOutcomesPage from '../ui-fhir/operationOutcomes/OperationOutcomesPage.jsx';
   dynamicRoutes.push({
     path: "/operation-outcomes",
     element: <OperationOutcomesPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.PlanDefinitions')){
-  import PlanDefinitionsPage from '../ui-fhir/planDefinitions/PlanDefinitionsPage.jsx';
   dynamicRoutes.push({
     path: "/plan-definitions",
     element: <PlanDefinitionsPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.Procedures')){
-  import ProceduresPage from '../ui-fhir/procedures/ProceduresPage.jsx';
   dynamicRoutes.push({
     path: "/procedures",
     element: <ProceduresPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.Questionnaires')){
-  import QuestionnairesPage from '../ui-fhir/questionnaires/QuestionnairesPage.jsx';
   dynamicRoutes.push({
     path: "/questionnaires",
     element: <QuestionnairesPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.QuestionnaireResponses')){
-  import QuestionnaireResponsesPage from '../ui-fhir/questionnaireResponses/QuestionnaireResponsesPage.jsx';
   dynamicRoutes.push({
     path: "/questionnaire-responses",
     element: <QuestionnaireResponsesPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.ResearchSubjects')){
-  import ResearchSubjectsPage from '../ui-fhir/researchSubjects/ResearchSubjectsPage.jsx';
   dynamicRoutes.push({
     path: "/research-subjects",
     element: <ResearchSubjectsPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.ResearchStudies')){
-  import ResearchStudiesPage from '../ui-fhir/researchStudies/ResearchStudiesPage.jsx';
   dynamicRoutes.push({
     path: "/research-studies",
     element: <ResearchStudiesPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.ServiceRequests')){
-  import ServiceRequestsPage from '../ui-fhir/serviceRequests/ServiceRequestsPage.jsx';
   dynamicRoutes.push({
     path: "/service-requests",
     element: <ServiceRequestsPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.Tasks')){
-  import TasksPage from '../ui-fhir/tasks/TasksPage.jsx';
   dynamicRoutes.push({
     path: "/tasks",
     element: <TasksPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.ValueSets')){
-  import ValueSetsPage from '../ui-fhir/valueSets/ValueSetsPage.jsx';
   dynamicRoutes.push({
     path: "/value-sets",
     element: <ValueSetsPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.MedicationStatements')){
-  import MedicationStatementsPage from '../ui-fhir/medicationStatements/MedicationStatementsPage.jsx';
   dynamicRoutes.push({
     path: "/medication-statements",
     element: <MedicationStatementsPage />
   })
 }
+if(get(Meteor, 'settings.public.modules.fhir.Medications')){
+  dynamicRoutes.push({
+    path: "/medications",
+    element: <MedicationsPage />
+  })
+}
+if(get(Meteor, 'settings.public.modules.fhir.MedicationRequests')){
+  dynamicRoutes.push({
+    path: "/medication-requests",
+    element: <MedicationRequestsPage />
+  })
+}
+if(get(Meteor, 'settings.public.modules.fhir.MedicationAdministrations')){
+  dynamicRoutes.push({
+    path: "/medication-administrations",
+    element: <MedicationAdministrationsPage />
+  })
+}
 if(get(Meteor, 'settings.public.modules.fhir.NutritionOrders')){
-  import NutritionOrdersPage from '../ui-fhir/nutritionOrders/NutritionOrdersPage.jsx';
   dynamicRoutes.push({
     path: "/nutrition-orders",
     element: <NutritionOrdersPage />
@@ -654,7 +673,6 @@ if(get(Meteor, 'settings.public.modules.fhir.NutritionOrders')){
 
 
 if(get(Meteor, 'settings.public.modules.fhir.Claims')){
-  import ClaimsPage from '../ui-claims/claims/ClaimsPage.jsx';
   dynamicRoutes.push({
     path: "/claims",
     element: <ClaimsPage />
