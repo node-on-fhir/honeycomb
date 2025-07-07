@@ -169,6 +169,29 @@ Meteor.publish('pacio.serviceRequests', function(patientId) {
   });
 });
 
+// Publish document references
+Meteor.publish('pacio.documentReferences', function(patientId) {
+  check(patientId, Match.Maybe(String));
+  
+  if (!this.userId) {
+    return this.ready();
+  }
+  
+  const query = {};
+  if (patientId) {
+    query['subject.reference'] = `Patient/${patientId}`;
+  }
+  
+  const DocumentReferences = Meteor.Collections && Meteor.Collections.DocumentReferences;
+  if (!DocumentReferences) {
+    return this.ready();
+  }
+  
+  return DocumentReferences.find(query, {
+    sort: { date: -1 }
+  });
+});
+
 // Publish patient sync status
 Meteor.publish('pacio.patientSyncStatus', function(patientId) {
   check(patientId, String);
@@ -206,6 +229,7 @@ Meteor.publish('pacio.patientResources', function(patientId) {
   const Goals = Meteor.Collections && Meteor.Collections.Goals;
   const NutritionOrders = Meteor.Collections && Meteor.Collections.NutritionOrders;
   const ServiceRequests = Meteor.Collections && Meteor.Collections.ServiceRequests;
+  const DocumentReferences = Meteor.Collections && Meteor.Collections.DocumentReferences;
   
   const publications = [];
   
@@ -258,6 +282,13 @@ Meteor.publish('pacio.patientResources', function(patientId) {
   // Service Requests
   if (ServiceRequests) {
     publications.push(ServiceRequests.find({
+      'subject.reference': patientRef
+    }));
+  }
+  
+  // Document References
+  if (DocumentReferences) {
+    publications.push(DocumentReferences.find({
       'subject.reference': patientRef
     }));
   }

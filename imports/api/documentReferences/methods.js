@@ -4,7 +4,7 @@ import { Random } from 'meteor/random';
 import { DocumentReferences } from '../../lib/schemas/SimpleSchemas/DocumentReferences';
 
 Meteor.methods({
-  'documentReferences.insert': function(documentReference) {
+  'documentReferences.insert': async function(documentReference) {
     check(documentReference, Object);
     
     // Security check
@@ -42,7 +42,7 @@ Meteor.methods({
     }
 
     try {
-      const result = DocumentReferences.insert(documentReference);
+      const result = await DocumentReferences.insertAsync(documentReference);
       console.log('DocumentReference created:', result);
       return result;
     } catch (error) {
@@ -51,14 +51,14 @@ Meteor.methods({
     }
   },
 
-  'documentReferences.remove': function(documentReferenceId) {
+  'documentReferences.remove': async function(documentReferenceId) {
     check(documentReferenceId, String);
     
     if (!this.userId) {
       throw new Meteor.Error('not-authorized', 'You must be logged in to delete documents');
     }
 
-    const documentReference = DocumentReferences.findOne(documentReferenceId);
+    const documentReference = await DocumentReferences.findOneAsync(documentReferenceId);
     
     if (!documentReference) {
       throw new Meteor.Error('not-found', 'Document not found');
@@ -68,14 +68,14 @@ Meteor.methods({
     // For example, check if user is the author
 
     try {
-      return DocumentReferences.remove(documentReferenceId);
+      return await DocumentReferences.removeAsync(documentReferenceId);
     } catch (error) {
       console.error('Error removing DocumentReference:', error);
       throw new Meteor.Error('remove-failed', 'Failed to delete document: ' + error.message);
     }
   },
 
-  'documentReferences.updateStatus': function(documentReferenceId, newStatus) {
+  'documentReferences.updateStatus': async function(documentReferenceId, newStatus) {
     check(documentReferenceId, String);
     check(newStatus, String);
     
@@ -89,7 +89,7 @@ Meteor.methods({
     }
 
     try {
-      return DocumentReferences.update(documentReferenceId, {
+      return await DocumentReferences.updateAsync(documentReferenceId, {
         $set: {
           status: newStatus,
           'meta.lastUpdated': new Date()

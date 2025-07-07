@@ -193,6 +193,12 @@ export const SidebarElements = [
     collectionName: 'Conditions'
   },
   {
+    primaryText: 'Document References',
+    to: '/document-references',
+    iconName: 'document',
+    collectionName: 'DocumentReferences'
+  },
+  {
     primaryText: 'Goals',
     to: '/goals',
     iconName: 'Flag',

@@ -64,8 +64,15 @@ export const DevAutoLogin = {
           }
         } catch (setPasswordError) {
           console.error(`[DevAutoLogin] Error updating password:`, setPasswordError);
-          // Fallback: just use existing user
+          // Fallback: just use existing user - re-fetch to ensure we have valid user object
+          user = await Accounts.findUserByUsername(devUsername);
         }
+      }
+      
+      // Ensure we have a valid user before proceeding
+      if (!user || !user._id) {
+        console.error('[DevAutoLogin] No valid user found');
+        return null;
       }
       
       // Mark as development account

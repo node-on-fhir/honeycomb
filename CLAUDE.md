@@ -29,3 +29,5 @@ When routing between pages, always use the useNavigate hook; Don't use window.lo
 Stive to always balance conditional if/then statements, and give a console message during the negative case.  Don't silently swallow the conditional.  
 
 Do use the full gamut of console messages:  console.warn, console.error, console.group, etc.
+
+Always use IDE diagnostics to validate code after implementation

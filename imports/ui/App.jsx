@@ -77,6 +77,7 @@ import CodeSystemsPage from '../ui-fhir/codeSystems/CodeSystemsPage.jsx';
 import CompositionsPage from '../ui-fhir/compositions/CompositionsPage.jsx';
 import ConditionsPage from '../ui-fhir/conditions/ConditionsPage.jsx';
 import DevicesPage from '../ui-fhir/devices/DevicesPage.jsx';
+import DocumentReferencesPage from '../ui-fhir/documentReferences/DocumentReferencesPage.jsx';
 import EncountersPage from '../ui-fhir/encounters/EncountersPage.jsx';
 import EvidencesPage from '../ui-fhir/evidences/EvidencesPage.jsx';
 import GoalsPage from '../ui-fhir/goals/GoalsPage.jsx';
@@ -202,6 +203,7 @@ import { Compositions } from '../lib/schemas/SimpleSchemas/Compositions';
 import { ConceptMaps } from '../lib/schemas/SimpleSchemas/ConceptMaps';
 import { Devices } from '../lib/schemas/SimpleSchemas/Devices';
 import { DiagnosticReports } from '../lib/schemas/SimpleSchemas/DiagnosticReports';
+import { DocumentReferences } from '../lib/schemas/SimpleSchemas/DocumentReferences';
 import { Encounters } from '../lib/schemas/SimpleSchemas/Encounters';
 import { Evidences } from '../lib/schemas/SimpleSchemas/Evidences';
 import { Endpoints } from '../lib/schemas/SimpleSchemas/Endpoints';
@@ -261,6 +263,7 @@ Meteor.Collections = {
   Compositions,
   Devices,
   DiagnosticReports,
+  DocumentReferences,
   Encounters,
   Evidences,
   Endpoints,
@@ -541,6 +544,12 @@ if(get(Meteor, 'settings.public.modules.fhir.Devices')){
   dynamicRoutes.push({
     path: "/devices",
     element: <DevicesPage />
+  })
+}
+if(get(Meteor, 'settings.public.modules.fhir.DocumentReferences')){
+  dynamicRoutes.push({
+    path: "/document-references",
+    element: <DocumentReferencesPage />
   })
 }
 if(get(Meteor, 'settings.public.modules.fhir.Encounters')){
