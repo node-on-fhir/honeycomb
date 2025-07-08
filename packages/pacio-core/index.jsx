@@ -187,6 +187,12 @@ export const SidebarElements = [
     collectionName: 'CareTeams'
   },
   {
+    primaryText: 'Compositions',
+    to: '/compositions',
+    iconName: 'document',
+    collectionName: 'Compositions'
+  },
+  {
     primaryText: 'Conditions',
     to: '/conditions',
     iconName: 'LocalHospital',

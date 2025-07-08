@@ -36,6 +36,29 @@ Meteor.publish('pacio.advanceDirectives', function(patientId, directiveId) {
   });
 });
 
+// Publish all compositions
+Meteor.publish('pacio.compositions', function(patientId) {
+  check(patientId, Match.Maybe(String));
+  
+  if (!this.userId) {
+    return this.ready();
+  }
+  
+  const query = {};
+  if (patientId) {
+    query['subject.reference'] = `Patient/${patientId}`;
+  }
+  
+  const Compositions = Meteor.Collections && Meteor.Collections.Compositions;
+  if (!Compositions) {
+    return this.ready();
+  }
+  
+  return Compositions.find(query, {
+    sort: { date: -1 }
+  });
+});
+
 // Publish transition of care documents
 Meteor.publish('pacio.transitionOfCare', function(patientId, compositionId) {
   check(patientId, Match.Maybe(String));
