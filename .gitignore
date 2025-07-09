@@ -13,6 +13,7 @@ tests/screenshots
 
 packages
 packages/*
+
 .DS_Store
 
 # Environment files (contain secrets)

@@ -1,0 +1,42 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "verificationresult-status-date",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: verificationresult-status-date</p><p><b>url</b>: <a href=\"http://hl7.org/fhir/uv/vhdir/SearchParameter/verificationresult-status-date\">http://hl7.org/fhir/uv/vhdir/SearchParameter/verificationresult-status-date</a></p><p><b>version</b>: 0.2.0</p><p><b>name</b>: VhDir_sp_verificationresult_status_date</p><p><b>status</b>: draft</p><p><b>date</b>: May 23, 2018, 12:00:00 AM</p><p><b>publisher</b>: HL7 Patient Administration Committee</p><p><b>contact</b>: </p><p><b>description</b>: Select validation information with a validation status that occurred at the specified date/time</p><p><b>code</b>: status-date</p><p><b>base</b>: VerificationResult</p><p><b>type</b>: date</p><p><b>expression</b>: VerificationResult.statusDate</p><p><b>multipleOr</b>: true</p><p><b>multipleAnd</b>: true</p><p><b>comparator</b>: eq, gt, lt, ge, le, sa, eb</p></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/SearchParameter/verificationresult-status-date",
+    "version": "0.2.0",
+    "name": "VhDir_sp_verificationresult_status_date",
+    "status": "draft",
+    "date": "2018-05-23T00:00:00+00:00",
+    "publisher": "HL7 Patient Administration Committee",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "http://www.hl7.org/Special/committees/pafm/index.cfm"
+                }
+            ]
+        }
+    ],
+    "description": "Select validation information with a validation status that occurred at the specified date/time",
+    "code": "status-date",
+    "base": [
+        "VerificationResult"
+    ],
+    "type": "date",
+    "expression": "VerificationResult.statusDate",
+    "multipleOr": true,
+    "multipleAnd": true,
+    "comparator": [
+        "eq",
+        "gt",
+        "lt",
+        "ge",
+        "le",
+        "sa",
+        "eb"
+    ]
+}
