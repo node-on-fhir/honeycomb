@@ -1,0 +1,35 @@
+{
+    "resourceType": "CodeSystem",
+    "id": "consent",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><h2>VhDir Consent Code System</h2><div><p>Codes for use in defining access levels for sharing subsets of constrained content (as an example)</p>\n</div><p>This code system http://hl7.org/fhir/uv/vhdir/CodeSystem/consent defines the following codes:</p><table class=\"codes\"><tr><td style=\"white-space:nowrap\"><b>Code</b></td><td><b>Display</b></td><td><b>Definition</b></td></tr><tr><td style=\"white-space:nowrap\">protect<a name=\"consent-protect\"> </a></td><td>Protect</td><td>The data (or subset of data) provided should be only made available to the people, or types of people explicitly declared in the consent</td></tr></table></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/CodeSystem/consent",
+    "version": "0.2.0",
+    "name": "VhDirConsent",
+    "title": "VhDir Consent Code System",
+    "status": "active",
+    "date": "2018-02-21T00:00:00+00:00",
+    "publisher": "HL7 International",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "other",
+                    "value": "http://hl7.org/fhir"
+                }
+            ]
+        }
+    ],
+    "description": "Codes for use in defining access levels for sharing subsets of constrained content (as an example)",
+    "caseSensitive": true,
+    "content": "complete",
+    "concept": [
+        {
+            "code": "protect",
+            "display": "Protect",
+            "definition": "The data (or subset of data) provided should be only made available to the people, or types of people explicitly declared in the consent"
+        }
+    ]
+}

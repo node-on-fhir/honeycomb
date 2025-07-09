@@ -1,0 +1,34 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "practitioner-phonetic",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: practitioner-phonetic</p><p><b>url</b>: <a href=\"http://hl7.org/fhir/uv/vhdir/SearchParameter/practitioner-phonetic\">http://hl7.org/fhir/uv/vhdir/SearchParameter/practitioner-phonetic</a></p><p><b>version</b>: 0.2.0</p><p><b>name</b>: VhDir_sp_practitioner_phonetic</p><p><b>derivedFrom</b>: <a href=\"http://hl7.org/fhir/SearchParameter/individual-phonetic\">http://hl7.org/fhir/SearchParameter/individual-phonetic</a></p><p><b>status</b>: draft</p><p><b>date</b>: May 23, 2018, 12:00:00 AM</p><p><b>publisher</b>: HL7 Patient Administration Committee</p><p><b>contact</b>: </p><p><b>description</b>: Select Practitioners with the specified name (A portion of name using some kind of phonetic matching algorithm)</p><p><b>code</b>: phonetic</p><p><b>base</b>: Practitioner</p><p><b>type</b>: string</p><p><b>expression</b>: Practitioner.name</p><p><b>multipleOr</b>: true</p><p><b>multipleAnd</b>: true</p></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/SearchParameter/practitioner-phonetic",
+    "version": "0.2.0",
+    "name": "VhDir_sp_practitioner_phonetic",
+    "derivedFrom": "http://hl7.org/fhir/SearchParameter/individual-phonetic",
+    "status": "draft",
+    "date": "2018-05-23T00:00:00+00:00",
+    "publisher": "HL7 Patient Administration Committee",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "http://www.hl7.org/Special/committees/pafm/index.cfm"
+                }
+            ]
+        }
+    ],
+    "description": "Select Practitioners with the specified name (A portion of name using some kind of phonetic matching algorithm)",
+    "code": "phonetic",
+    "base": [
+        "Practitioner"
+    ],
+    "type": "string",
+    "expression": "Practitioner.name",
+    "multipleOr": true,
+    "multipleAnd": true
+}

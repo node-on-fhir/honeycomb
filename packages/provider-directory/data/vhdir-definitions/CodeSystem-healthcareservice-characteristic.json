@@ -1,0 +1,35 @@
+{
+    "resourceType": "CodeSystem",
+    "id": "healthcareservice-characteristic",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><h2>VhDir Healthcare Service Characteristic</h2><div><p>This code system contains codes for documenting the attributes of a health care services.</p>\n</div><p>This code system http://hl7.org/fhir/uv/vhdir/CodeSystem/healthcareservice-characteristic defines the following codes:</p><table class=\"codes\"><tr><td style=\"white-space:nowrap\"><b>Code</b></td><td><b>Display</b></td><td><b>Definition</b></td></tr><tr><td style=\"white-space:nowrap\">limitedhrs<a name=\"healthcareservice-characteristic-limitedhrs\"> </a></td><td>Limited Hours</td><td>The hours of this service may be limited and subject to frequent variation. Please be sure to contact this location for current information.</td></tr></table></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/CodeSystem/healthcareservice-characteristic",
+    "version": "0.2.0",
+    "name": "VhDir_cs_healthcareservice_characteristic",
+    "title": "VhDir Healthcare Service Characteristic",
+    "status": "active",
+    "date": "2018-02-21T00:00:00+00:00",
+    "publisher": "HL7 International",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "other",
+                    "value": "http://hl7.org/fhir"
+                }
+            ]
+        }
+    ],
+    "description": "This code system contains codes for documenting the attributes of a health care services.",
+    "caseSensitive": true,
+    "content": "complete",
+    "concept": [
+        {
+            "code": "limitedhrs",
+            "display": "Limited Hours",
+            "definition": "The hours of this service may be limited and subject to frequent variation. Please be sure to contact this location for current information."
+        }
+    ]
+}

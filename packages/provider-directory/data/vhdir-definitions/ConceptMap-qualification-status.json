@@ -1,0 +1,81 @@
+{
+    "resourceType": "ConceptMap",
+    "id": "qualification-status",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><h2>QualificationStatusToResourceStatusCodeMapping (http://hl7.org/fhir/uv/vhdir/ConceptMap/qualification-status)</h2><p>Mapping from <a href=\"ValueSet-qualificationstatus.html\">http://hl7.org/fhir/uv/vhdir/ValueSet/qualificationstatus</a> to <a href=\"http://hl7.org/fhir/R4/valueset-resource-status.html\">http://hl7.org/fhir/ValueSet/resource-status</a></p><p>ACTIVE. Published on Jan 4, 2020, 11:53:43 AM by VhDir. </p><div><p>Canonical Mapping for &quot;Codes for documenting the status of a qualification.&quot;</p>\n</div><br/><table class=\"grid\"><tr><td><b>Source Code</b></td><td><b>Relationship</b></td><td><b>Destination Code</b></td></tr><tr><td>active</td><td>equivalent</td><td>active</td></tr><tr><td>inactive</td><td>equivalent</td><td>inactive</td></tr><tr><td>issued-in-error</td><td>equivalent</td><td>error</td></tr><tr><td>revoked</td><td>equivalent</td><td>suspended</td></tr><tr><td>pending</td><td>equivalent</td><td>draft</td></tr></table></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/ConceptMap/qualification-status",
+    "version": "0.2.0",
+    "name": "QualificationStatusToResourceStatusCodeMapping",
+    "title": "VhDir Qualification Status Value Set – Status Code Mapping",
+    "status": "active",
+    "date": "2020-01-04T11:53:43+00:00",
+    "publisher": "VhDir",
+    "description": "Canonical Mapping for \"Codes for documenting the status of a qualification.\"",
+    "sourceCanonical": "http://hl7.org/fhir/uv/vhdir/ValueSet/qualificationstatus",
+    "targetCanonical": "http://hl7.org/fhir/ValueSet/resource-status",
+    "group": [
+        {
+            "source": "http://hl7.org/fhir/uv/vhdir/CodeSystem/credentialstatus",
+            "target": "http://hl7.org/fhir/ValueSet/resource-status",
+            "element": [
+                {
+                    "code": "active",
+                    "display": "active",
+                    "target": [
+                        {
+                            "code": "active",
+                            "display": "active",
+                            "equivalence": "equivalent"
+                        }
+                    ]
+                },
+                {
+                    "code": "inactive",
+                    "display": "inactive",
+                    "target": [
+                        {
+                            "code": "inactive",
+                            "display": "inactive",
+                            "equivalence": "equivalent"
+                        }
+                    ]
+                },
+                {
+                    "code": "issued-in-error",
+                    "display": "issued-in-error",
+                    "target": [
+                        {
+                            "code": "error",
+                            "display": "error",
+                            "equivalence": "equivalent"
+                        }
+                    ]
+                },
+                {
+                    "code": "revoked",
+                    "display": "revoked",
+                    "target": [
+                        {
+                            "code": "suspended",
+                            "display": "suspended",
+                            "equivalence": "equivalent"
+                        }
+                    ]
+                },
+                {
+                    "code": "pending",
+                    "display": "pending",
+                    "target": [
+                        {
+                            "code": "draft",
+                            "display": "draft",
+                            "equivalence": "equivalent"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

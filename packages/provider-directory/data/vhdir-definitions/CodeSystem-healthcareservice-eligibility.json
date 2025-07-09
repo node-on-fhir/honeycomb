@@ -1,0 +1,35 @@
+{
+    "resourceType": "CodeSystem",
+    "id": "healthcareservice-eligibility",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><h2>VhDir Healthcare Service Eligibility</h2><div><p>This code system contains codes for documenting the attributes of eligibility for health care services.</p>\n</div><p>This code system http://hl7.org/fhir/uv/vhdir/CodeSystem/healthcareservice-eligibility defines the following codes:</p><table class=\"codes\"><tr><td style=\"white-space:nowrap\"><b>Code</b></td><td><b>Display</b></td><td><b>Definition</b></td></tr><tr><td style=\"white-space:nowrap\">adult<a name=\"healthcareservice-eligibility-adult\"> </a></td><td>Adult</td><td>Eligibility for this service requires the patient to be of legal age.</td></tr></table></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/CodeSystem/healthcareservice-eligibility",
+    "version": "0.2.0",
+    "name": "VhDir_cs_healthcareservice_eligibility",
+    "title": "VhDir Healthcare Service Eligibility",
+    "status": "active",
+    "date": "2018-02-21T00:00:00+00:00",
+    "publisher": "HL7 International",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "other",
+                    "value": "http://hl7.org/fhir"
+                }
+            ]
+        }
+    ],
+    "description": "This code system contains codes for documenting the attributes of eligibility for health care services.",
+    "caseSensitive": true,
+    "content": "complete",
+    "concept": [
+        {
+            "code": "adult",
+            "display": "Adult",
+            "definition": "Eligibility for this service requires the patient to be of legal age."
+        }
+    ]
+}

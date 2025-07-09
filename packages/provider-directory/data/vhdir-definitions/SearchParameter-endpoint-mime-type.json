@@ -1,0 +1,33 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "endpoint-mime-type",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: endpoint-mime-type</p><p><b>url</b>: <a href=\"http://hl7.org/fhir/uv/vhdir/SearchParameter/endpoint-mime-type\">http://hl7.org/fhir/uv/vhdir/SearchParameter/endpoint-mime-type</a></p><p><b>version</b>: 0.2.0</p><p><b>name</b>: VhDir_sp_endpoint_mime_type</p><p><b>status</b>: draft</p><p><b>date</b>: May 23, 2018, 12:00:00 AM</p><p><b>publisher</b>: HL7 Patient Administration Committee</p><p><b>contact</b>: </p><p><b>description</b>: Select endpoints that support the specified media type</p><p><b>code</b>: mime-type</p><p><b>base</b>: Endpoint</p><p><b>type</b>: token</p><p><b>expression</b>: Endpoint.payloadMimeType</p><p><b>multipleOr</b>: true</p><p><b>multipleAnd</b>: true</p></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/SearchParameter/endpoint-mime-type",
+    "version": "0.2.0",
+    "name": "VhDir_sp_endpoint_mime_type",
+    "status": "draft",
+    "date": "2018-05-23T00:00:00+00:00",
+    "publisher": "HL7 Patient Administration Committee",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "http://www.hl7.org/Special/committees/pafm/index.cfm"
+                }
+            ]
+        }
+    ],
+    "description": "Select endpoints that support the specified media type",
+    "code": "mime-type",
+    "base": [
+        "Endpoint"
+    ],
+    "type": "token",
+    "expression": "Endpoint.payloadMimeType",
+    "multipleOr": true,
+    "multipleAnd": true
+}

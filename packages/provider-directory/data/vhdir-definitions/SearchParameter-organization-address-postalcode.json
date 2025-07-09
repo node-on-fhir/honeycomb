@@ -1,0 +1,37 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "organization-address-postalcode",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: organization-address-postalcode</p><p><b>url</b>: <a href=\"http://hl7.org/fhir/uv/vhdir/SearchParameter/organization-address-postalcode\">http://hl7.org/fhir/uv/vhdir/SearchParameter/organization-address-postalcode</a></p><p><b>version</b>: 0.2.0</p><p><b>name</b>: VhDir_sp_organization_address_postalcode</p><p><b>derivedFrom</b>: <a href=\"http://hl7.org/fhir/SearchParameter/Organization-address-postalcode\">http://hl7.org/fhir/SearchParameter/Organization-address-postalcode</a></p><p><b>status</b>: draft</p><p><b>date</b>: May 23, 2018, 12:00:00 AM</p><p><b>publisher</b>: HL7 Patient Administration Committee</p><p><b>contact</b>: </p><p><b>description</b>: Select organizations with an address with the specified postal code</p><p><b>code</b>: address-postalcode</p><p><b>base</b>: Organization</p><p><b>type</b>: string</p><p><b>expression</b>: Organization.address.postalCode</p><p><b>multipleOr</b>: true</p><p><b>multipleAnd</b>: true</p><p><b>modifier</b>: exact</p></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/SearchParameter/organization-address-postalcode",
+    "version": "0.2.0",
+    "name": "VhDir_sp_organization_address_postalcode",
+    "derivedFrom": "http://hl7.org/fhir/SearchParameter/Organization-address-postalcode",
+    "status": "draft",
+    "date": "2018-05-23T00:00:00+00:00",
+    "publisher": "HL7 Patient Administration Committee",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "http://www.hl7.org/Special/committees/pafm/index.cfm"
+                }
+            ]
+        }
+    ],
+    "description": "Select organizations with an address with the specified postal code",
+    "code": "address-postalcode",
+    "base": [
+        "Organization"
+    ],
+    "type": "string",
+    "expression": "Organization.address.postalCode",
+    "multipleOr": true,
+    "multipleAnd": true,
+    "modifier": [
+        "exact"
+    ]
+}

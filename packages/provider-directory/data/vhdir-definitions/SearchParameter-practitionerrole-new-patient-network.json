@@ -1,0 +1,41 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "practitionerrole-new-patient-network",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: practitionerrole-new-patient-network</p><p><b>url</b>: <a href=\"http://hl7.org/fhir/uv/vhdir/SearchParameter/practitionerrole-new-patient-network\">http://hl7.org/fhir/uv/vhdir/SearchParameter/practitionerrole-new-patient-network</a></p><p><b>version</b>: 0.2.0</p><p><b>name</b>: VhDir_sp_practitionerrole_new_patient_network</p><p><b>status</b>: draft</p><p><b>date</b>: May 23, 2018, 12:00:00 AM</p><p><b>publisher</b>: HL7 Patient Administration Committee</p><p><b>contact</b>: </p><p><b>description</b>: Select PractitionerRoles that are part of the specified network and are/are not accepting new patients</p><p><b>code</b>: new-patient-network</p><p><b>base</b>: PractitionerRole</p><p><b>type</b>: reference</p><p><b>expression</b>: PractitionerRole.extension('http://hl7.org/fhir/uv/vhdir/StructureDefinition/newpatients').extension('network')</p><p><b>target</b>: Organization</p><p><b>multipleOr</b>: true</p><p><b>multipleAnd</b>: true</p><p><b>chain</b>: identifier, name, partof</p></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/SearchParameter/practitionerrole-new-patient-network",
+    "version": "0.2.0",
+    "name": "VhDir_sp_practitionerrole_new_patient_network",
+    "status": "draft",
+    "date": "2018-05-23T00:00:00+00:00",
+    "publisher": "HL7 Patient Administration Committee",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "http://www.hl7.org/Special/committees/pafm/index.cfm"
+                }
+            ]
+        }
+    ],
+    "description": "Select PractitionerRoles that are part of the specified network and are/are not accepting new patients",
+    "code": "new-patient-network",
+    "base": [
+        "PractitionerRole"
+    ],
+    "type": "reference",
+    "expression": "PractitionerRole.extension('http://hl7.org/fhir/uv/vhdir/StructureDefinition/newpatients').extension('network')",
+    "target": [
+        "Organization"
+    ],
+    "multipleOr": true,
+    "multipleAnd": true,
+    "chain": [
+        "identifier",
+        "name",
+        "partof"
+    ]
+}
