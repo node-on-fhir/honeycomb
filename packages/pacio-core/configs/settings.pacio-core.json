@@ -57,6 +57,7 @@
         "Condition",
         "Composition",
         "Consent",
+        "Communication",
         "DocumentReference",
         "Encounter",
         "Goal",
@@ -148,7 +149,9 @@
         "CarePlans": true,
         "CareTeams": true,
         "Compositions": true,
+        "Communications": true,
         "Conditions": true,
+        "Consents": true,
         "DocumentReferences": true,
         "Encounters": true,
         "Goals": true,
@@ -251,6 +254,11 @@
           "publication": true
         },
         "CarePlan": {
+          "interactions": ["read", "create", "update", "delete", "search"],
+          "search": true,
+          "publication": true
+        },
+        "Communication": {
           "interactions": ["read", "create", "update", "delete", "search"],
           "search": true,
           "publication": true

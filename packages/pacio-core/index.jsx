@@ -90,8 +90,20 @@ const CareTeamsPageLazy = React.lazy(() =>
 );
 const CareTeamsPage = withSuspense(CareTeamsPageLazy);
 
+const MainPageLazy = React.lazy(() => 
+  import('./client/pages/MainPage').then(module => ({ default: module.MainPage }))
+);
+const MainPage = withSuspense(MainPageLazy);
+
 // Dynamic Routes
 export const DynamicRoutes = [
+  // Main dashboard
+  {
+    name: 'PacioDashboard',
+    path: '/pacio-dashboard',
+    element: <MainPage />,
+    requireAuth: true
+  },
   // List routes (no patient ID)
   {
     name: 'AdvanceDirectivesList',
@@ -161,6 +173,11 @@ export const DynamicRoutes = [
 
 // SidebarWorkflows - PACIO workflow items
 export const SidebarWorkflows = [
+  {
+    primaryText: 'Facility Dashboard',
+    to: '/pacio-dashboard',
+    iconName: 'Dashboard'
+  },
   {
     primaryText: 'Advance Directives',
     to: '/advance-directives',
@@ -336,5 +353,6 @@ export {
   FooterElements,
   ModuleConfig,
   AdvanceDirectiveUtils,
-  PdfUtils
+  PdfUtils,
+  MainPage
 };

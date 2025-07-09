@@ -34,3 +34,4 @@ clinical:pacio-core
 clinical:data-importer
 clinical:data-exporter
 symptomatic:timelines
+mitre:sphr-analyzer

@@ -48,6 +48,7 @@ meteor-base@1.5.2
 minifier-css@2.0.1
 minifier-js@3.0.2
 minimongo@2.0.2
+mitre:sphr-analyzer@0.5.1
 mobile-experience@1.1.2
 mobile-status-bar@1.1.1
 modern-browsers@0.2.2
