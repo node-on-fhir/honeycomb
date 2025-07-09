@@ -594,6 +594,12 @@ if(get(Meteor, 'settings.public.modules.fhir.Observations')){
     element: <ObservationsPage />
   })
 }
+if(get(Meteor, 'settings.public.modules.fhir.Patients')){
+  dynamicRoutes.push({
+    path: "/patients",
+    element: <PatientsDirectory />
+  })
+}
 if(get(Meteor, 'settings.public.modules.fhir.OperationOutcomes')){
   dynamicRoutes.push({
     path: "/operation-outcomes",

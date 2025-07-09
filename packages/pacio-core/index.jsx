@@ -181,6 +181,12 @@ export const SidebarWorkflows = [
 // Additional FHIR Resources for sidebar
 export const SidebarElements = [
   {
+    primaryText: 'Patients',
+    to: '/patients',
+    iconName: 'user',
+    collectionName: 'Patients'
+  },
+  {
     primaryText: 'Care Teams',
     to: '/care-teams',
     iconName: 'Groups',
