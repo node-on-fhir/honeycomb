@@ -20,4 +20,4 @@ packages/*
 .env.*
 !.env.*.example
 
-# .meteor/packages
+.meteor/packages
