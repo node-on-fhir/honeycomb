@@ -15,6 +15,11 @@ if (get(Meteor, 'settings.public.environment') !== 'production') {
   import('./test-methods');
 }
 
+// Import dev auto-login in development
+if (Meteor.isDevelopment) {
+  import('./dev-autologin');
+}
+
 Meteor.startup(async () => {
   // Check if accounts module is enabled
   const accountsEnabled = get(Meteor, 'settings.public.modules.accounts.enabled', true);

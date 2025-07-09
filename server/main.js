@@ -27,6 +27,10 @@ import '../imports/lib/UdapMethods.js';
 // Import accounts startup if enabled
 import '../imports/startup/server/index.js';
 
+// Import API methods
+import '../imports/api/documentReferences/methods.js';
+import '../imports/api/compositions/methods.js';
+
 
 
 
@@ -57,6 +61,7 @@ import { Communications } from '../imports/lib/schemas/SimpleSchemas/Communicati
 import { CommunicationRequests } from '../imports/lib/schemas/SimpleSchemas/CommunicationRequests';
 import { Compositions } from '../imports/lib/schemas/SimpleSchemas/Compositions';
 import { Devices } from '../imports/lib/schemas/SimpleSchemas/Devices';
+import { DocumentReferences } from '../imports/lib/schemas/SimpleSchemas/DocumentReferences';
 import { Encounters } from '../imports/lib/schemas/SimpleSchemas/Encounters';
 import { Endpoints } from '../imports/lib/schemas/SimpleSchemas/Endpoints';
 import { ExplanationOfBenefits } from '../imports/lib/schemas/SimpleSchemas/ExplanationOfBenefits';
@@ -76,6 +81,7 @@ import { Procedures } from '../imports/lib/schemas/SimpleSchemas/Procedures';
 import { Questionnaires } from '../imports/lib/schemas/SimpleSchemas/Questionnaires';
 import { QuestionnaireResponses } from '../imports/lib/schemas/SimpleSchemas/QuestionnaireResponses';
 import { Tasks } from '../imports/lib/schemas/SimpleSchemas/Tasks';
+import { NutritionOrders } from '../imports/lib/schemas/SimpleSchemas/NutritionOrders';
 
 import { FhirUtilities } from '../imports/lib/FhirUtilities.js'
 import { FhirDehydrator } from '../imports/lib/FhirDehydrator.js'
@@ -94,6 +100,7 @@ Meteor.Collections = {
   CommunicationRequests,
   Compositions,
   Devices,
+  DocumentReferences,
   Encounters,
   Endpoints,
   ExplanationOfBenefits,
@@ -106,6 +113,7 @@ Meteor.Collections = {
   MessageHeaders,
   Measures,
   MeasureReports,
+  NutritionOrders,
   Organizations,
   Observations,
   Patients,
@@ -129,6 +137,7 @@ global.Collections = {
   CommunicationRequests,
   Compositions,
   Devices,
+  DocumentReferences,
   Encounters,
   Endpoints,
   ExplanationOfBenefits,
@@ -141,6 +150,7 @@ global.Collections = {
   MessageHeaders,
   Measures,
   MeasureReports,
+  NutritionOrders,
   Organizations,
   Observations,
   Patients,

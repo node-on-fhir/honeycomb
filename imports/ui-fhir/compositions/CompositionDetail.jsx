@@ -33,6 +33,10 @@ import {users} from 'react-icons-kit/fa/users'
 //===========================================================================
 // THEMING
 
+let Theming;
+Meteor.startup(function(){
+  Theming = Meteor.Theming;
+})
 
 //===========================================================================
 // MAIN COMPONENT
