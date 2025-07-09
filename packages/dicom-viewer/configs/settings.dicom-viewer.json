@@ -1,0 +1,60 @@
+{
+  "public": {
+    "title": "Honeycomb with DICOM Viewer",
+    "defaults": {
+      "route": "/dicom-viewer",
+      "landingPage": false
+    },
+    "dicomViewer": {
+      "cacheSizeLimit": 500,
+      "prefetchEnabled": true,
+      "prefetchLimit": 5,
+      "compressionEnabled": true,
+      "compressionQuality": 0.8,
+      "performanceMonitoring": true,
+      "memoryCheckInterval": 60000,
+      "memoryWarningThreshold": 0.8,
+      "memoryCriticalThreshold": 0.9,
+      "allowUploads": true,
+      "uploadSizeLimit": 104857600,
+      "supportedFormats": ["dcm", "dicom", "jpg", "jpeg", "png"],
+      "convertJpgToDicom": true,
+      "defaultWindowLevel": {
+        "windowWidth": 400,
+        "windowCenter": 40
+      },
+      "tools": {
+        "enabledTools": [
+          "Pan",
+          "Zoom",
+          "WindowLevel",
+          "Length",
+          "Angle",
+          "EllipticalRoi",
+          "RectangleRoi",
+          "FreehandRoi",
+          "Magnify",
+          "Rotate",
+          "StackScroll"
+        ],
+        "defaultTool": "WindowLevel"
+      }
+    }
+  },
+  "private": {
+    "dicomViewer": {
+      "fileRetentionDays": 7,
+      "cleanupInterval": 86400000,
+      "corsOrigins": ["*"],
+      "workerPoolSize": 2,
+      "streamingBufferSize": 65536,
+      "enableServiceWorker": true,
+      "serviceWorkerCacheVersion": "v1",
+      "serviceWorkerCacheAssets": [
+        "/dicom-viewer",
+        "/api/dicom/stream",
+        "/api/dicom/metadata"
+      ]
+    }
+  }
+}
