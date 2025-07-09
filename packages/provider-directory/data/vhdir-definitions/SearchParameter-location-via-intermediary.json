@@ -1,0 +1,39 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "location-via-intermediary",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: location-via-intermediary</p><p><b>url</b>: <a href=\"http://hl7.org/fhir/uv/vhdir/SearchParameter/location-via-intermediary\">http://hl7.org/fhir/uv/vhdir/SearchParameter/location-via-intermediary</a></p><p><b>version</b>: 0.2.0</p><p><b>name</b>: VhDir_sp_location_via_intermediary</p><p><b>status</b>: draft</p><p><b>date</b>: May 23, 2018, 12:00:00 AM</p><p><b>publisher</b>: HL7 Patient Administration Committee</p><p><b>contact</b>: </p><p><b>description</b>: Select Locations with contact information available through the specified intermediary</p><p><b>code</b>: via-intermediary</p><p><b>base</b>: Location</p><p><b>type</b>: reference</p><p><b>expression</b>: Location.telecom.extension('http://hl7.org/fhir/uv/vhdir/StructureDefinition/contactpoint-viaintermediary')</p><p><b>target</b>: PractitionerRole, Organization, OrganizationAffiliation, Location</p><p><b>multipleOr</b>: true</p><p><b>multipleAnd</b>: true</p></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/SearchParameter/location-via-intermediary",
+    "version": "0.2.0",
+    "name": "VhDir_sp_location_via_intermediary",
+    "status": "draft",
+    "date": "2018-05-23T00:00:00+00:00",
+    "publisher": "HL7 Patient Administration Committee",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "http://www.hl7.org/Special/committees/pafm/index.cfm"
+                }
+            ]
+        }
+    ],
+    "description": "Select Locations with contact information available through the specified intermediary",
+    "code": "via-intermediary",
+    "base": [
+        "Location"
+    ],
+    "type": "reference",
+    "expression": "Location.telecom.extension('http://hl7.org/fhir/uv/vhdir/StructureDefinition/contactpoint-viaintermediary')",
+    "target": [
+        "PractitionerRole",
+        "Organization",
+        "OrganizationAffiliation",
+        "Location"
+    ],
+    "multipleOr": true,
+    "multipleAnd": true
+}

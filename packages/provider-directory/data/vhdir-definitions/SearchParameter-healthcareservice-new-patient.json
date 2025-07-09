@@ -1,0 +1,32 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "healthcareservice-new-patient",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: healthcareservice-new-patient</p><p><b>url</b>: <a href=\"http://hl7.org/fhir/uv/vhdir/SearchParameter/healthcareservice-new-patient\">http://hl7.org/fhir/uv/vhdir/SearchParameter/healthcareservice-new-patient</a></p><p><b>version</b>: 0.2.0</p><p><b>name</b>: VhDir_sp_healthcareservice_new_patient</p><p><b>status</b>: draft</p><p><b>date</b>: May 23, 2018, 12:00:00 AM</p><p><b>publisher</b>: HL7 Patient Administration Committee</p><p><b>contact</b>: </p><p><b>description</b>: Select HealthcareServices that are/are not accepting new patients</p><p><b>code</b>: new-patient</p><p><b>base</b>: HealthcareService</p><p><b>type</b>: token</p><p><b>expression</b>: HealthcareService.extension('http://hl7.org/fhir/uv/vhdir/StructureDefinition/newpatients').extension('acceptingPatients')</p><p><b>multipleAnd</b>: true</p></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/SearchParameter/healthcareservice-new-patient",
+    "version": "0.2.0",
+    "name": "VhDir_sp_healthcareservice_new_patient",
+    "status": "draft",
+    "date": "2018-05-23T00:00:00+00:00",
+    "publisher": "HL7 Patient Administration Committee",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "http://www.hl7.org/Special/committees/pafm/index.cfm"
+                }
+            ]
+        }
+    ],
+    "description": "Select HealthcareServices that are/are not accepting new patients",
+    "code": "new-patient",
+    "base": [
+        "HealthcareService"
+    ],
+    "type": "token",
+    "expression": "HealthcareService.extension('http://hl7.org/fhir/uv/vhdir/StructureDefinition/newpatients').extension('acceptingPatients')",
+    "multipleAnd": true
+}

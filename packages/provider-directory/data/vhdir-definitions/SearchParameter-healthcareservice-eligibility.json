@@ -1,0 +1,36 @@
+{
+    "resourceType": "SearchParameter",
+    "id": "healthcareservice-eligibility",
+    "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Generated Narrative with Details</b></p><p><b>id</b>: healthcareservice-eligibility</p><p><b>url</b>: <a href=\"http://hl7.org/fhir/uv/vhdir/SearchParameter/healthcareservice-eligibility\">http://hl7.org/fhir/uv/vhdir/SearchParameter/healthcareservice-eligibility</a></p><p><b>version</b>: 0.2.0</p><p><b>name</b>: VhDir_sp_healthcareservice_eligibility</p><p><b>status</b>: draft</p><p><b>date</b>: May 23, 2018, 12:00:00 AM</p><p><b>publisher</b>: HL7 Patient Administration Committee</p><p><b>contact</b>: </p><p><b>description</b>: Select services with the specified eligibility requirements</p><p><b>code</b>: eligibility</p><p><b>base</b>: HealthcareService</p><p><b>type</b>: token</p><p><b>expression</b>: HealthcareService.eligibility.code</p><p><b>multipleOr</b>: true</p><p><b>multipleAnd</b>: true</p><p><b>modifier</b>: text</p></div>"
+    },
+    "url": "http://hl7.org/fhir/uv/vhdir/SearchParameter/healthcareservice-eligibility",
+    "version": "0.2.0",
+    "name": "VhDir_sp_healthcareservice_eligibility",
+    "status": "draft",
+    "date": "2018-05-23T00:00:00+00:00",
+    "publisher": "HL7 Patient Administration Committee",
+    "contact": [
+        {
+            "telecom": [
+                {
+                    "system": "url",
+                    "value": "http://www.hl7.org/Special/committees/pafm/index.cfm"
+                }
+            ]
+        }
+    ],
+    "description": "Select services with the specified eligibility requirements",
+    "code": "eligibility",
+    "base": [
+        "HealthcareService"
+    ],
+    "type": "token",
+    "expression": "HealthcareService.eligibility.code",
+    "multipleOr": true,
+    "multipleAnd": true,
+    "modifier": [
+        "text"
+    ]
+}
