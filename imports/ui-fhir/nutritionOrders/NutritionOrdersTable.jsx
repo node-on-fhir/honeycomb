@@ -8,8 +8,10 @@ import {
   TableHead,
   TableRow,
   TablePagination,
-  Paper,
-  Checkbox
+  Checkbox,
+  Chip,
+  Box,
+  Typography
 } from '@mui/material';
 
 import { get } from 'lodash';
@@ -67,31 +69,71 @@ function NutritionOrdersTable(props){
     const displayData = nutritionOrders.slice(startIndex, endIndex);
 
     return displayData.map((nutritionOrder, index) => (
-      <TableRow key={nutritionOrder.id || index}>
+      <TableRow 
+        key={nutritionOrder.id || nutritionOrder._id || index}
+        hover
+        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+      >
         {!hideCheckbox && (
           <TableCell padding="checkbox">
             <Checkbox />
           </TableCell>
         )}
         {!hideIdentifier && (
-          <TableCell>{get(nutritionOrder, 'identifier[0].value', '')}</TableCell>
+          <TableCell>{get(nutritionOrder, 'identifier[0].value', get(nutritionOrder, 'id', ''))}</TableCell>
         )}
         {!hideStatus && (
-          <TableCell>{get(nutritionOrder, 'status', '')}</TableCell>
+          <TableCell>
+            <Chip 
+              label={get(nutritionOrder, 'status', '')}
+              size="small"
+              color={get(nutritionOrder, 'status') === 'active' ? 'success' : 'default'}
+              variant={get(nutritionOrder, 'status') === 'active' ? 'filled' : 'outlined'}
+            />
+          </TableCell>
         )}
         {!hideName && (
-          <TableCell>{get(nutritionOrder, 'patient.display', '')}</TableCell>
+          <TableCell>{get(nutritionOrder, 'patient.display', get(nutritionOrder, 'patient.reference', ''))}</TableCell>
         )}
         <TableCell>{get(nutritionOrder, 'dateTime', '')}</TableCell>
-        <TableCell>{get(nutritionOrder, 'orderer.display', '')}</TableCell>
+        <TableCell>{get(nutritionOrder, 'orderer.display', get(nutritionOrder, 'orderer.reference', ''))}</TableCell>
+        <TableCell>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            {get(nutritionOrder, 'oralDiet.type', []).map((type, idx) => (
+              type.coding?.map((coding, cidx) => (
+                <Chip 
+                  key={`${idx}-${cidx}`}
+                  label={coding.display || type.text || 'N/A'}
+                  size="small"
+                  sx={{ mb: 0.5 }}
+                />
+              ))
+            ))}
+          </Box>
+        </TableCell>
+        <TableCell>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            {get(nutritionOrder, 'supplement', []).map((supp, idx) => (
+              <Chip 
+                key={idx}
+                label={get(supp, 'type.coding[0].display', get(supp, 'type.text', 'N/A'))}
+                size="small"
+                color="secondary"
+                sx={{ mb: 0.5 }}
+              />
+            ))}
+          </Box>
+        </TableCell>
+        <TableCell sx={{ maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {get(nutritionOrder, 'oralDiet.instruction', '')}
+        </TableCell>
       </TableRow>
     ));
   };
 
   return (
-    <div>
-      <Paper>
-        <Table>
+    <div id="nutritionOrdersTable" className="tableWithPagination">
+      <Table className='nutritionOrdersTable' size="small" aria-label="a dense table">
           <TableHead>
             <TableRow>
               {!hideCheckbox && <TableCell padding="checkbox"></TableCell>}
@@ -100,13 +142,16 @@ function NutritionOrdersTable(props){
               {!hideName && <TableCell>Patient</TableCell>}
               <TableCell>Date/Time</TableCell>
               <TableCell>Orderer</TableCell>
+              <TableCell>Diet Type</TableCell>
+              <TableCell>Supplement</TableCell>
+              <TableCell>Instructions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {nutritionOrders.length > 0 ? 
               renderRows() : 
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={9} align="center">
                   No nutrition orders found
                 </TableCell>
               </TableRow>
@@ -115,14 +160,15 @@ function NutritionOrdersTable(props){
         </Table>
         <TablePagination
           component="div"
+          rowsPerPageOptions={[5, 10, 25, 100]}
+          colSpan={3}
           count={nutritionOrders.length}
+          rowsPerPage={currentRowsPerPage}
           page={currentPage}
           onPageChange={handleChangePage}
-          rowsPerPage={currentRowsPerPage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          rowsPerPageOptions={[5, 10, 25, 50, 100]}
+          style={{float: 'right', border: 'none'}}
         />
-      </Paper>
     </div>
   );
 }

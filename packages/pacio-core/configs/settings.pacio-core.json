@@ -52,13 +52,17 @@
     "capabilityStatement": {
       "resourceTypes": [
         "AllergyIntolerance",
+        "CareTeam",
+        "CarePlan",
         "Condition",
         "Composition",
+        "Consent",
         "DocumentReference",
         "Encounter",
         "Goal",
         "Immunization",
         "List",
+        "Location",
         "Medication",
         "MedicationRequest",
         "MedicationStatement",
@@ -87,11 +91,11 @@
         "menuItems": {
           "HomePage": true,
           "PatientSummary": true,
+          "PatientDirectory": true,
           "FhirResources": true,
           "FhirModules": true,
           "DynamicModules": true,
           "SidebarWorkflows": true,
-          "PacioWorkflows": true,
           "Theme": false,
           "About": true,
           "Privacy": true,
@@ -236,7 +240,17 @@
       "fhirPath": "baseR4",
       "autopublishSubscriptions": true,
       "rest": {
-        "DocumentReference": {
+        "Binary": {
+          "interactions": ["read", "create", "update", "delete"],
+          "search": false,
+          "publication": true
+        },
+        "CareTeam": {
+          "interactions": ["read", "create", "update", "delete", "search"],
+          "search": true,
+          "publication": true
+        },
+        "CarePlan": {
           "interactions": ["read", "create", "update", "delete", "search"],
           "search": true,
           "publication": true
@@ -246,17 +260,22 @@
           "search": true,
           "publication": true
         },
+        "Condition": {
+          "interactions": ["read", "create", "update", "delete", "search"],
+          "search": true,
+          "publication": true
+        },
+        "Consent": {
+          "interactions": ["read", "create", "update", "delete", "search"],
+          "search": true,
+          "publication": true
+        },
+        "DocumentReference": {
+          "interactions": ["read", "create", "update", "delete", "search"],
+          "search": true,
+          "publication": true
+        },
         "Goal": {
-          "interactions": ["read", "create", "update", "delete", "search"],
-          "search": true,
-          "publication": true
-        },
-        "NutritionOrder": {
-          "interactions": ["read", "create", "update", "delete", "search"],
-          "search": true,
-          "publication": true
-        },
-        "ServiceRequest": {
           "interactions": ["read", "create", "update", "delete", "search"],
           "search": true,
           "publication": true
@@ -266,9 +285,14 @@
           "search": true,
           "publication": true
         },
-        "Binary": {
-          "interactions": ["read", "create", "update", "delete"],
-          "search": false,
+        "Location": {
+          "interactions": ["read", "create", "update", "delete", "search"],
+          "search": true,
+          "publication": true
+        },
+        "NutritionOrder": {
+          "interactions": ["read", "create", "update", "delete", "search"],
+          "search": true,
           "publication": true
         },
         "Observation": {
@@ -278,6 +302,16 @@
         },
         "Patient": {
           "interactions": ["read", "search"],
+          "search": true,
+          "publication": true
+        },
+        "Practitioner": {
+          "interactions": ["read", "search"],
+          "search": true,
+          "publication": true
+        },
+        "ServiceRequest": {
+          "interactions": ["read", "create", "update", "delete", "search"],
           "search": true,
           "publication": true
         }

@@ -240,10 +240,8 @@ export function DocumentReferencesPage(props){
         py: { xs: 3, sm: 4, md: 5 }
       }}
     >
-      <Box sx={{ maxWidth: '1200px', mx: 'auto' }}>
-        { data.documentReferences.length > 0 && renderHeader() }
-        { layoutContent }
-      </Box>
+      { data.documentReferences.length > 0 && renderHeader() }
+      { layoutContent }
     </Box>
   );
 }

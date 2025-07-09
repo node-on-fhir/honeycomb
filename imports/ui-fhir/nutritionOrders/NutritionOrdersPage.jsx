@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { useTracker } from 'meteor/react-meteor-data';
+import { useTracker, useSubscribe } from 'meteor/react-meteor-data';
 
 import { 
   Grid, 
   Card,
-  Container,
   CardHeader,
   CardContent,
   Button,
@@ -96,6 +95,10 @@ export function NutritionOrdersPage(props){
     selectedNutritionOrderId: '',
     selectedNutritionOrder: null
   };
+
+  // Subscribe to patient resources which includes NutritionOrders
+  const patientId = Session.get('selectedPatientId');
+  const isLoading = useSubscribe('pacio.patientResources', patientId);
 
   data.nutritionOrders = useTracker(function(){
     if (!NutritionOrders) {
@@ -247,10 +250,8 @@ export function NutritionOrdersPage(props){
         py: { xs: 3, sm: 4, md: 5 }
       }}
     >
-      <Box sx={{ maxWidth: '1200px', mx: 'auto' }}>
-        { data.nutritionOrders.length > 0 && renderHeader() }
-        { layoutContent }
-      </Box>
+      { data.nutritionOrders.length > 0 && renderHeader() }
+      { layoutContent }
     </Box>
   );
 }

@@ -235,10 +235,8 @@ export function MedicationRequestsPage(props){
         py: { xs: 3, sm: 4, md: 5 }
       }}
     >
-      <Box sx={{ maxWidth: '1200px', mx: 'auto' }}>
-        { data.medicationRequests.length > 0 && renderHeader() }
-        { layoutContent }
-      </Box>
+      { data.medicationRequests.length > 0 && renderHeader() }
+      { layoutContent }
     </Box>
   );
 }

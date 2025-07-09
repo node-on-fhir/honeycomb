@@ -81,6 +81,7 @@ import { Procedures } from '../imports/lib/schemas/SimpleSchemas/Procedures';
 import { Questionnaires } from '../imports/lib/schemas/SimpleSchemas/Questionnaires';
 import { QuestionnaireResponses } from '../imports/lib/schemas/SimpleSchemas/QuestionnaireResponses';
 import { Tasks } from '../imports/lib/schemas/SimpleSchemas/Tasks';
+import { NutritionOrders } from '../imports/lib/schemas/SimpleSchemas/NutritionOrders';
 
 import { FhirUtilities } from '../imports/lib/FhirUtilities.js'
 import { FhirDehydrator } from '../imports/lib/FhirDehydrator.js'
@@ -112,6 +113,7 @@ Meteor.Collections = {
   MessageHeaders,
   Measures,
   MeasureReports,
+  NutritionOrders,
   Organizations,
   Observations,
   Patients,
@@ -148,6 +150,7 @@ global.Collections = {
   MessageHeaders,
   Measures,
   MeasureReports,
+  NutritionOrders,
   Organizations,
   Observations,
   Patients,

@@ -231,6 +231,7 @@ import { PlanDefinitions } from '../lib/schemas/SimpleSchemas/PlanDefinitions';
 import { Procedures } from '../lib/schemas/SimpleSchemas/Procedures';
 import { Questionnaires } from '../lib/schemas/SimpleSchemas/Questionnaires';
 import { QuestionnaireResponses } from '../lib/schemas/SimpleSchemas/QuestionnaireResponses';
+import { NutritionOrders } from '../lib/schemas/SimpleSchemas/NutritionOrders';
 import { ResearchStudies } from '../lib/schemas/SimpleSchemas/ResearchStudies';
 import { ResearchSubjects } from '../lib/schemas/SimpleSchemas/ResearchSubjects';
 import { ServiceRequests } from '../lib/schemas/SimpleSchemas/ServiceRequests';
@@ -283,6 +284,7 @@ Meteor.Collections = {
   MessageHeaders,
   Measures,
   MeasureReports,
+  NutritionOrders,
   Organizations,
   Observations,
   OperationOutcomes,
@@ -344,6 +346,7 @@ window.Collections = {
   MessageHeaders,
   Measures,
   MeasureReports,
+  NutritionOrders,
   Organizations,
   Observations,
   OperationOutcomes,
