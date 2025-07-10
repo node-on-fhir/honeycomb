@@ -84,6 +84,7 @@ import GoalsPage from '../ui-fhir/goals/GoalsPage.jsx';
 import GuidanceResponsesPage from '../ui-fhir/guidanceResponses/GuidanceResponsesPage.jsx';
 import ImmunizationsPage from '../ui-fhir/immunizations/ImmunizationsPage.jsx';
 import LibrariesPage from '../ui-fhir/libraries/LibrariesPage.jsx';
+import LocationsPage from '../ui-fhir/locations/LocationsPage.jsx';
 import MedicationsPage from '../ui-fhir/medications/MedicationsPage.jsx';
 import MedicationRequestsPage from '../ui-fhir/medicationRequests/MedicationRequestsPage.jsx';
 import MedicationAdministrationsPage from '../ui-fhir/medicationAdministrations/MedicationAdministrationsPage.jsx';
@@ -101,6 +102,9 @@ import ServiceRequestsPage from '../ui-fhir/serviceRequests/ServiceRequestsPage.
 import TasksPage from '../ui-fhir/tasks/TasksPage.jsx';
 import ValueSetsPage from '../ui-fhir/valuesets/ValueSetsPage.jsx';
 import ClaimsPage from '../ui-claims/claims/ClaimsPage.jsx';
+import PractitionersPage from '../ui-fhir/practitioners/PractitionersPage.jsx';
+import ListsPage from '../ui-fhir/lists/ListsPage.jsx';
+import CommunicationsPage from '../ui-fhir/communications/CommunicationsPage.jsx';
 
 //===============================================================================================================
 // PACIO Pages
@@ -139,14 +143,12 @@ import { BundlesTable } from '../ui-tables/BundlesTable';
 import { CarePlansTable } from '../ui-tables/CarePlansTable';
 import { CareTeamsTable } from '../ui-tables/CareTeamsTable';
 import { ConditionsTable } from '../ui-tables/ConditionsTable';
-// import { CommunicationsTable } from '../ui-tables/CommunicationsTable';
 // import { CommunicationRequestsTable } from '../ui-tables/CommunicationRequestsTable';
 // import { CompositionsTable } from '../ui-tables/CompositionsTable';
 // import { DevicesTable } from '../ui-tables/DevicesTable';
 import { EncountersTable } from '../ui-tables/EncountersTable';
 import EndpointsTable from '../ui-tables/EndpointsTable';
 import { ImmunizationsTable } from '../ui-tables/ImmunizationsTable';
-// import { ListsTable } from '../ui-tables/ListsTable';
 import { LocationsTable } from '../ui-tables/LocationsTable';
 // import { MedicationsTable } from '../ui-tables/MedicationsTable';
 // import { MedicationRequestsTable } from '../ui-tables/MedicationRequestsTable';
@@ -164,20 +166,28 @@ import { QuestionnaireResponsesTable } from '../ui-tables/QuestionnaireResponses
 import { ResearchSubjectsTable } from '../ui-tables/ResearchSubjectsTable';
 // import { TasksTable } from '../ui-tables/TasksTable';
 
+// Import tables from ui-fhir directory since they don't exist in ui-tables
+import PractitionersTable from '../ui-fhir/practitioners/PractitionersTable';
+import ListsTable from '../ui-fhir/lists/ListsTable';
+import CommunicationsTable from '../ui-fhir/communications/CommunicationsTable';
+
 Meteor.Tables = {
   AllergyIntolerancesTable,
   BundlesTable,
   CarePlansTable,
   CareTeamsTable,
+  CommunicationsTable,
   ConditionsTable,
   // DevicesTable,
   EncountersTable,
   EndpointsTable,
   ImmunizationsTable,
+  ListsTable,
   LocationsTable,
   ObservationsTable,
   PatientsTable,
   PersonsTable,
+  PractitionersTable,
   ProceduresTable,
   QuestionnairesTable,
   QuestionnaireResponsesTable,
@@ -591,6 +601,12 @@ if(get(Meteor, 'settings.public.modules.fhir.Libraries')){
     element: <LibrariesPage />
   })
 }
+if(get(Meteor, 'settings.public.modules.fhir.Locations')){
+  dynamicRoutes.push({
+    path: "/locations",
+    element: <LocationsPage />
+  })
+}
 if(get(Meteor, 'settings.public.modules.fhir.Observations')){
   dynamicRoutes.push({
     path: "/observations",
@@ -651,12 +667,11 @@ if(get(Meteor, 'settings.public.modules.fhir.ServiceRequests')){
     element: <ServiceRequestsPage />
   })
 }
-if(get(Meteor, 'settings.public.modules.fhir.Tasks')){
-  dynamicRoutes.push({
-    path: "/tasks",
-    element: <TasksPage />
-  })
-}
+// Always include Tasks route since it's in the pacio-core sidebar
+dynamicRoutes.push({
+  path: "/tasks",
+  element: <TasksPage />
+})
 if(get(Meteor, 'settings.public.modules.fhir.ValueSets')){
   dynamicRoutes.push({
     path: "/value-sets",
@@ -693,6 +708,19 @@ if(get(Meteor, 'settings.public.modules.fhir.NutritionOrders')){
     element: <NutritionOrdersPage />
   })
 }
+// Always include these routes since they're in the pacio-core sidebar
+dynamicRoutes.push({
+  path: "/practitioners",
+  element: <PractitionersPage />
+})
+dynamicRoutes.push({
+  path: "/lists",
+  element: <ListsPage />
+})
+dynamicRoutes.push({
+  path: "/communications",
+  element: <CommunicationsPage />
+})
 
 
 

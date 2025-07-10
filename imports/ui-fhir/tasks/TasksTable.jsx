@@ -479,8 +479,9 @@ function TasksTable(props){
   }
 
   function rowClick(id){
-    // Session.set('selectedTaskId', id);
-    // Session.set('taskPageTabIndex', 2);
+    if(onRowClick){
+      onRowClick(id);
+    }
   };
 
 
@@ -583,7 +584,7 @@ function TasksTable(props){
         ); 
       } else {
         tableRows.push(
-          <TableRow className="taskRow" key={i} style={rowStyle} onClick={ handleRowClick.bind(this, tasksToRender[i]._id)} style={rowStyle} hover={true} selected={selected} >            
+          <TableRow className="taskRow" key={i} style={rowStyle} onClick={ handleRowClick.bind(this, tasksToRender[i]._id)} hover={true} selected={selected} >            
             { renderCheckbox(i) }
             { renderActionIcons(tasksToRender[i]) }
             { renderTextIcon(get(tasksToRender[i], "text.div", "")) }

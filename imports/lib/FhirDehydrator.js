@@ -2692,13 +2692,28 @@ export function flattenLocation(location, simplifiedAddress, preferredExtensionU
     identifier: '',
     name: '',
     address: '',
+    addressLine: '',
     city: '',
     state: '',
     postalCode: '',
     country: '',
     type: '',
+    typeCode: '',
+    typeDisplay: '',
+    status: '',
+    mode: '',
+    telecom: '',
+    managingOrganizationDisplay: '',
+    managingOrganizationReference: '',
+    physicalTypeCode: '',
+    physicalTypeDisplay: '',
+    operationalStatusCode: '',
+    operationalStatusDisplay: '',
+    partOfDisplay: '',
+    partOfReference: '',
     latitude: '',
     longitude: '',
+    altitude: '',
     selectedExtension: '',
     operationOutcome: ''
   };
@@ -2713,24 +2728,35 @@ export function flattenLocation(location, simplifiedAddress, preferredExtensionU
   if (get(location, '_id')){
     result._id = get(location, '_id');
   }
+  if (get(location, 'identifier[0].value')) {
+    result.identifier = get(location, 'identifier[0].value');
+  }
   if (get(location, 'name')) {
     result.name = get(location, 'name');
   }
+  if (get(location, 'status')) {
+    result.status = get(location, 'status');
+  }
+  if (get(location, 'mode')) {
+    result.mode = get(location, 'mode');
+  }
+  
+  // Handle address
   if (get(location, 'address')) {
     if(simplifiedAddress){
       result.address = FhirUtilities.stringifyAddress(get(location, 'address'), {noPrefix: true});
     } else {
       result.address = get(location, 'address');
     }
+    result.addressLine = get(location, 'address.line[0]', '');
   } else if (get(location, 'address[0]')) {
     if(simplifiedAddress){
       result.address = FhirUtilities.stringifyAddress(get(location, 'address[0]'), {noPrefix: true});
     } else {
       result.address = get(location, 'address[0]');
     }
+    result.addressLine = get(location, 'address[0].line[0]', '');
   }
-
-
 
   if (get(location, 'address.city')) {
     result.city = get(location, 'address.city');
@@ -2753,14 +2779,56 @@ export function flattenLocation(location, simplifiedAddress, preferredExtensionU
     result.country = get(location, 'address[0].country');
   }
 
+  // Handle type
   if (get(location, 'type[0].text')) {
     result.type = get(location, 'type[0].text');
+    result.typeDisplay = get(location, 'type[0].text');
   }
+  if (get(location, 'type[0].coding[0].code')) {
+    result.typeCode = get(location, 'type[0].coding[0].code');
+  }
+  if (get(location, 'type[0].coding[0].display')) {
+    result.typeDisplay = get(location, 'type[0].coding[0].display');
+  }
+
+  // Handle telecom
+  if (get(location, 'telecom[0].value')) {
+    result.telecom = get(location, 'telecom[0].value');
+  }
+
+  // Handle managing organization
+  if (get(location, 'managingOrganization')) {
+    result.managingOrganizationDisplay = get(location, 'managingOrganization.display', '');
+    result.managingOrganizationReference = get(location, 'managingOrganization.reference', '');
+  }
+
+  // Handle physical type
+  if (get(location, 'physicalType')) {
+    result.physicalTypeCode = get(location, 'physicalType.coding[0].code', '');
+    result.physicalTypeDisplay = get(location, 'physicalType.coding[0].display', '');
+  }
+
+  // Handle operational status
+  if (get(location, 'operationalStatus')) {
+    result.operationalStatusCode = get(location, 'operationalStatus.code', '');
+    result.operationalStatusDisplay = get(location, 'operationalStatus.display', '');
+  }
+
+  // Handle part of
+  if (get(location, 'partOf')) {
+    result.partOfDisplay = get(location, 'partOf.display', '');
+    result.partOfReference = get(location, 'partOf.reference', '');
+  }
+
+  // Handle position
   if (get(location, 'position.latitude')) {
     result.latitude = get(location, 'position.latitude', null);
   }
   if (get(location, 'position.longitude')) {
     result.longitude = get(location, 'position.longitude', null);
+  }
+  if (get(location, 'position.altitude')) {
+    result.altitude = get(location, 'position.altitude', null);
   }
 
   if (Array.isArray(get(location, 'extension'))) {

@@ -77,6 +77,7 @@ import { MessageHeaders } from '../imports/lib/schemas/SimpleSchemas/MessageHead
 import { Organizations } from '../imports/lib/schemas/SimpleSchemas/Organizations';
 import { Observations } from '../imports/lib/schemas/SimpleSchemas/Observations';
 import { Patients } from '../imports/lib/schemas/SimpleSchemas/Patients';
+import { Practitioners } from '../imports/lib/schemas/SimpleSchemas/Practitioners';
 import { Procedures } from '../imports/lib/schemas/SimpleSchemas/Procedures';
 import { Questionnaires } from '../imports/lib/schemas/SimpleSchemas/Questionnaires';
 import { QuestionnaireResponses } from '../imports/lib/schemas/SimpleSchemas/QuestionnaireResponses';
@@ -95,7 +96,6 @@ Meteor.Collections = {
   CarePlans,
   Claims,
   Conditions,
-  Claims,
   Communications,
   CommunicationRequests,
   Compositions,
@@ -117,6 +117,7 @@ Meteor.Collections = {
   Organizations,
   Observations,
   Patients,
+  Practitioners,
   Procedures,
   Questionnaires,
   QuestionnaireResponses,
@@ -154,6 +155,7 @@ global.Collections = {
   Organizations,
   Observations,
   Patients,
+  Practitioners,
   Procedures,
   Questionnaires,
   QuestionnaireResponses,
@@ -169,6 +171,7 @@ global.Endpoints = Endpoints;
 global.ExplanationOfBenefits = ExplanationOfBenefits;
 global.Immunizations = Immunizations;
 global.Observations = Observations;
+global.Practitioners = Practitioners;
 global.Procedures = Procedures;
 global.MedicationRequests = MedicationRequests;
 global.MeasureReports = MeasureReports;

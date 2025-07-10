@@ -95,6 +95,40 @@ const MainPageLazy = React.lazy(() =>
 );
 const MainPage = withSuspense(MainPageLazy);
 
+// Lazy load FHIR resource pages
+const TasksPageLazy = React.lazy(() => 
+  import('/imports/ui-fhir/tasks/TasksPage').then(module => ({ default: module.TasksPage }))
+);
+const TasksPage = withSuspense(TasksPageLazy);
+
+// Placeholder components for missing pages
+const PractitionersPage = () => (
+  <Box p={3}>
+    <Typography variant="h4">Practitioners</Typography>
+    <Typography variant="body1" sx={{ mt: 2 }}>
+      Practitioners page is under development.
+    </Typography>
+  </Box>
+);
+
+const ListsPage = () => (
+  <Box p={3}>
+    <Typography variant="h4">Lists</Typography>
+    <Typography variant="body1" sx={{ mt: 2 }}>
+      Lists page is under development.
+    </Typography>
+  </Box>
+);
+
+const CommunicationsPage = () => (
+  <Box p={3}>
+    <Typography variant="h4">Communications</Typography>
+    <Typography variant="body1" sx={{ mt: 2 }}>
+      Communications page is under development.
+    </Typography>
+  </Box>
+);
+
 // Dynamic Routes
 export const DynamicRoutes = [
   // Main dashboard
@@ -195,19 +229,19 @@ export const SidebarWorkflows = [
   }
 ];
 
-// Additional FHIR Resources for sidebar
+// Additional FHIR Resources for sidebar (alphabetically ordered)
 export const SidebarElements = [
-  {
-    primaryText: 'Patients',
-    to: '/patients',
-    iconName: 'user',
-    collectionName: 'Patients'
-  },
   {
     primaryText: 'Care Teams',
     to: '/care-teams',
     iconName: 'Groups',
     collectionName: 'CareTeams'
+  },
+  {
+    primaryText: 'Communications',
+    to: '/communications',
+    iconName: 'envelopeO',
+    collectionName: 'Communications'
   },
   {
     primaryText: 'Compositions',
@@ -234,10 +268,22 @@ export const SidebarElements = [
     collectionName: 'Goals'
   },
   {
-    primaryText: 'Medications',
-    to: '/medications',
+    primaryText: 'Lists',
+    to: '/lists',
+    iconName: 'list',
+    collectionName: 'Lists'
+  },
+  {
+    primaryText: 'Locations',
+    to: '/locations',
+    iconName: 'location',
+    collectionName: 'Locations'
+  },
+  {
+    primaryText: 'Medication Administrations',
+    to: '/medication-administrations',
     iconName: 'LocalPharmacy',
-    collectionName: 'Medications'
+    collectionName: 'MedicationAdminstrations'
   },
   {
     primaryText: 'Medication Requests',
@@ -246,10 +292,10 @@ export const SidebarElements = [
     collectionName: 'MedicationRequests'
   },
   {
-    primaryText: 'Medication Administrations',
-    to: '/medication-administrations',
+    primaryText: 'Medications',
+    to: '/medications',
     iconName: 'LocalPharmacy',
-    collectionName: 'MedicationAdminstrations'
+    collectionName: 'Medications'
   },
   {
     primaryText: 'Nutrition Orders',
@@ -264,6 +310,18 @@ export const SidebarElements = [
     collectionName: 'Observations'
   },
   {
+    primaryText: 'Patients',
+    to: '/patients',
+    iconName: 'user',
+    collectionName: 'Patients'
+  },
+  {
+    primaryText: 'Practitioners',
+    to: '/practitioners',
+    iconName: 'userMd',
+    collectionName: 'Practitioners'
+  },
+  {
     primaryText: 'Questionnaire Responses',
     to: '/questionnaire-responses',
     iconName: 'Assignment',
@@ -274,6 +332,12 @@ export const SidebarElements = [
     to: '/service-requests',
     iconName: 'Build',
     collectionName: 'ServiceRequests'
+  },
+  {
+    primaryText: 'Tasks',
+    to: '/tasks',
+    iconName: 'ic_playlist_add_check',
+    collectionName: 'Tasks'
   }
 ];
 

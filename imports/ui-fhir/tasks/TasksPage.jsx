@@ -17,7 +17,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 
-// import TaskDetail from './TaskDetail';
+import TaskDetail from './TaskDetail';
 import TasksTable from './TasksTable';
 import LayoutHelpers from '../../lib/LayoutHelpers';
 
@@ -27,8 +27,11 @@ import { get } from 'lodash';
 //=============================================================================================================================================
 // DATA CURSORS
 
-Meteor.startup(function(){
-  Tasks = Meteor.Collections.Tasks;
+let Tasks;
+Meteor.startup(async function(){
+  if(Meteor.isClient){
+    Tasks = await global.Collections.Tasks;
+  }
 })
 
 //=============================================================================================================================================
@@ -72,10 +75,16 @@ export function TasksPage(props){
     return Session.get('selectedTaskId');
   }, [])
   data.selectedTask = useTracker(function(){
-    return Tasks.findOne({_id: Session.get('selectedTaskId')});
+    if(Tasks){
+      return Tasks.findOne({_id: Session.get('selectedTaskId')});
+    }
+    return null;
   }, [])
   data.tasks = useTracker(function(){
-    return Tasks.find().fetch();
+    if(Tasks){
+      return Tasks.find().fetch();
+    }
+    return [];
   }, [])
   data.tasksIndex = useTracker(function(){
     return Session.get('TasksTable.tasksIndex')
@@ -97,7 +106,37 @@ export function TasksPage(props){
 
   function handleAddTask(){
     console.log('Add Task button clicked');
-    // Add logic for adding a new task
+    Session.set('selectedTaskId', false);
+    Session.set('selectedTask', false);
+    Session.set('TasksPage.onePageLayout', false);
+  }
+
+  function handleRowClick(taskId){
+    console.log('TasksPage.handleRowClick', taskId);
+    Session.set('selectedTaskId', taskId);
+    Session.set('selectedTask', Tasks.findOne({_id: taskId}));
+    Session.set('TasksPage.onePageLayout', false);
+  }
+
+  function handleTaskInsert(taskId){
+    console.log('TasksPage.handleTaskInsert', taskId);
+    Session.set('selectedTaskId', false);
+    Session.set('selectedTask', false);
+    Session.set('TasksPage.onePageLayout', true);
+  }
+
+  function handleTaskUpdate(taskId){
+    console.log('TasksPage.handleTaskUpdate', taskId);
+    Session.set('selectedTaskId', false);
+    Session.set('selectedTask', false);
+    Session.set('TasksPage.onePageLayout', true);
+  }
+
+  function handleTaskRemove(taskId){
+    console.log('TasksPage.handleTaskRemove', taskId);
+    Session.set('selectedTaskId', false);
+    Session.set('selectedTask', false);
+    Session.set('TasksPage.onePageLayout', true);
   }
 
   function renderHeader() {
@@ -128,104 +167,174 @@ export function TasksPage(props){
   }
 
   let layoutContent;
-  if(data.tasks.length > 0){
-    layoutContent = <Card 
-      sx={{ 
-        width: '100%',
-        borderRadius: 3,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-        border: '1px solid',
-        borderColor: 'divider',
-        overflow: 'hidden'
-      }}
-    >
-      <CardContent sx={{ p: 0 }}>
-        <TasksTable 
-          id='tasksTable'
-          tasks={data.tasks}
-          count={data.tasks.length}  
-          formFactorLayout={formFactor}
-          rowsPerPage={LayoutHelpers.calcTableRows()} 
-          actionButtonLabel="Remove"
-          hideStatus={true}
-          hideOwner={true}
-          hideActionButton={get(Meteor, 'settings.public.modules.fhir.Tasks.hideRemoveButtonOnTable', true)}
-          onActionButtonClick={function(selectedId){
-            Tasks._collection.remove({_id: selectedId})
-          }}
-          onSetPage={function(index){
-            setTasksPageIndex(index)
-          }}        
-          page={data.tasksIndex}
-        />
-      </CardContent>
-    </Card>
-  } else {
-    layoutContent = <Box 
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '50vh',
-        textAlign: 'center'
-      }}
-    >
-      <Card 
+  if(data.onePageLayout){
+    if(data.tasks.length > 0){
+      layoutContent = <Card 
         sx={{ 
-          maxWidth: '600px',
           width: '100%',
           borderRadius: 3,
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
           border: '1px solid',
           borderColor: 'divider',
-          backgroundColor: 'background.paper'
+          overflow: 'hidden'
         }}
       >
-        <CardContent sx={{ p: 6 }}>
-          <Box sx={{ mb: 3 }}>
-            <Typography 
-              variant="h5" 
-              sx={{ 
-                fontWeight: 500,
-                color: 'text.primary',
-                mb: 2
-              }}
-            >
-              {get(Meteor, 'settings.public.defaults.noData.defaultTitle', "No Data Available")}
-            </Typography>
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                color: 'text.secondary',
-                lineHeight: 1.7,
-                maxWidth: '480px',
-                mx: 'auto'
-              }}
-            >
-              {get(Meteor, 'settings.public.defaults.noData.defaultMessage', "No records were found in the client data cursor. To debug, check the data cursor in the client console, then check subscriptions and publications, and relevant search queries. If the data is not loaded in, use a tool like Mongo Compass to load the records directly into the Mongo database, or use the FHIR API interfaces.")}
-            </Typography>
-          </Box>
-          <Button
-            variant="outlined"
-            startIcon={<AddIcon />}
-            onClick={handleAddTask}
-            sx={{
-              borderRadius: 2,
-              textTransform: 'none',
-              px: 3,
-              py: 1,
-              borderWidth: 2,
-              '&:hover': {
-                borderWidth: 2
-              }
+        <CardContent sx={{ p: 0 }}>
+          <TasksTable 
+            id='tasksTable'
+            tasks={data.tasks}
+            count={data.tasks.length}  
+            formFactorLayout={formFactor}
+            rowsPerPage={LayoutHelpers.calcTableRows()} 
+            actionButtonLabel="Remove"
+            hideStatus={true}
+            hideOwner={true}
+            hideActionButton={get(Meteor, 'settings.public.modules.fhir.Tasks.hideRemoveButtonOnTable', true)}
+            onRowClick={handleRowClick}
+            onActionButtonClick={function(selectedId){
+              Tasks._collection.remove({_id: selectedId})
             }}
-          >
-            Add Your First Task
-          </Button>
+            onSetPage={function(index){
+              Session.set('TasksTable.tasksIndex', index);
+            }}        
+            page={data.tasksIndex}
+          />
         </CardContent>
       </Card>
-    </Box>
+    } else {
+      layoutContent = <Box 
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '50vh',
+          textAlign: 'center'
+        }}
+      >
+        <Card 
+          sx={{ 
+            maxWidth: '600px',
+            width: '100%',
+            borderRadius: 3,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            border: '1px solid',
+            borderColor: 'divider',
+            backgroundColor: 'background.paper'
+          }}
+        >
+          <CardContent sx={{ p: 6 }}>
+            <Box sx={{ mb: 3 }}>
+              <Typography 
+                variant="h5" 
+                sx={{ 
+                  fontWeight: 500,
+                  color: 'text.primary',
+                  mb: 2
+                }}
+              >
+                {get(Meteor, 'settings.public.defaults.noData.defaultTitle', "No Data Available")}
+              </Typography>
+              <Typography 
+                variant="body1" 
+                sx={{ 
+                  color: 'text.secondary',
+                  lineHeight: 1.7,
+                  maxWidth: '480px',
+                  mx: 'auto'
+                }}
+              >
+                {get(Meteor, 'settings.public.defaults.noData.defaultMessage', "No records were found in the client data cursor. To debug, check the data cursor in the client console, then check subscriptions and publications, and relevant search queries. If the data is not loaded in, use a tool like Mongo Compass to load the records directly into the Mongo database, or use the FHIR API interfaces.")}
+              </Typography>
+            </Box>
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+              onClick={handleAddTask}
+              sx={{
+                borderRadius: 2,
+                textTransform: 'none',
+                px: 3,
+                py: 1,
+                borderWidth: 2,
+                '&:hover': {
+                  borderWidth: 2
+                }
+              }}
+            >
+              Add Your First Task
+            </Button>
+          </CardContent>
+        </Card>
+      </Box>
+    }
+  } else {
+    // Two column layout
+    layoutContent = <Grid container spacing={3}>
+      <Grid item xs={12} md={6}>
+        <Card 
+          sx={{ 
+            width: '100%',
+            borderRadius: 3,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            border: '1px solid',
+            borderColor: 'divider',
+            overflow: 'hidden'
+          }}
+        >
+          <CardContent sx={{ p: 0 }}>
+            <TasksTable 
+              id='tasksTable'
+              tasks={data.tasks}
+              count={data.tasks.length}  
+              formFactorLayout={formFactor}
+              rowsPerPage={LayoutHelpers.calcTableRows()} 
+              actionButtonLabel="Remove"
+              hideStatus={true}
+              hideOwner={true}
+              hideActionButton={get(Meteor, 'settings.public.modules.fhir.Tasks.hideRemoveButtonOnTable', true)}
+              selectedTaskId={data.selectedTaskId}
+              onRowClick={handleRowClick}
+              onActionButtonClick={function(selectedId){
+                Tasks._collection.remove({_id: selectedId})
+              }}
+              onSetPage={function(index){
+                Session.set('TasksTable.tasksIndex', index);
+              }}        
+              page={data.tasksIndex}
+            />
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={12} md={6}>
+        <Card 
+          sx={{ 
+            width: '100%',
+            borderRadius: 3,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            border: '1px solid',
+            borderColor: 'divider'
+          }}
+        >
+          <CardHeader 
+            title={data.selectedTaskId ? "Edit Task" : "New Task"}
+            sx={{ 
+              borderBottom: '1px solid',
+              borderColor: 'divider'
+            }}
+          />
+          <TaskDetail 
+            id='taskDetail'
+            taskId={data.selectedTaskId}
+            task={data.selectedTask}
+            onInsert={handleTaskInsert}
+            onUpdate={handleTaskUpdate}
+            onRemove={handleTaskRemove}
+            onCancel={() => Session.set('TasksPage.onePageLayout', true)}
+          />
+        </Card>
+      </Grid>
+    </Grid>
   }
   
   return (
@@ -238,10 +347,8 @@ export function TasksPage(props){
         py: { xs: 3, sm: 4, md: 5 }
       }}
     >
-      <Box sx={{ maxWidth: '1200px', mx: 'auto' }}>
-        { data.tasks.length > 0 && renderHeader() }
-        { layoutContent }
-      </Box>
+      { (data.tasks.length > 0 || !data.onePageLayout) && renderHeader() }
+      { layoutContent }
     </Box>
   );
 }
