@@ -631,7 +631,7 @@ export function ServiceRequestsTable(props){
       let count = 0;    
 
       serviceRequests.forEach(function(serviceRequest){
-        if((count >= (page * rowsPerPageToRender)) && (count < (page + 1) * rowsPerPageToRender)){
+        if((count >= (page * rowsPerPage)) && (count < (page + 1) * rowsPerPage)){
           serviceRequestsToRender.push(FhirDehydrator.dehydrateServiceRequest(serviceRequest, internalDateFormat));
           // serviceRequestsToRender.push(dehydrateServiceRequest(serviceRequest, internalDateFormat));
         }

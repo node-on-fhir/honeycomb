@@ -254,8 +254,21 @@ export function flattenAllergyIntolerance(allergy){
   result.resourceType = get(allergy, 'resourceType', "Unknown");
 
   result.identifier = get(allergy, 'identifier[0].value');
-  result.clinicalStatus = get(allergy, 'clinicalStatus');
-  result.verificationStatus = get(allergy, 'verificationStatus');
+  
+  // Handle clinicalStatus - can be string (STU3) or CodeableConcept (R4)
+  if(typeof get(allergy, 'clinicalStatus') === 'string'){
+    result.clinicalStatus = get(allergy, 'clinicalStatus');
+  } else if(get(allergy, 'clinicalStatus.coding[0].code')){
+    result.clinicalStatus = get(allergy, 'clinicalStatus.coding[0].code');
+  }
+  
+  // Handle verificationStatus - can be string (STU3) or CodeableConcept (R4)
+  if(typeof get(allergy, 'verificationStatus') === 'string'){
+    result.verificationStatus = get(allergy, 'verificationStatus');
+  } else if(get(allergy, 'verificationStatus.coding[0].code')){
+    result.verificationStatus = get(allergy, 'verificationStatus.coding[0].code');
+  }
+  
   result.type = get(allergy, 'type');
   result.category = get(allergy, 'category[0]');
 

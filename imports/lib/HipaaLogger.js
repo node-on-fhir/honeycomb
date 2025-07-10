@@ -70,7 +70,7 @@ HipaaLogger = {
   logEvent: function(hipaaEvent){
     check(hipaaEvent, Object);
 
-    return Meteor.call("logEvent", hipaaEvent, function (error, result){
+    return Meteor.call("hipaa.logEvent", hipaaEvent, function (error, result){
       if (error){
         console.log("error", error);
       }

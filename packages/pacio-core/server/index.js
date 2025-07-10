@@ -4,6 +4,7 @@
 import './methods/syncPatientRecord';
 import './methods/revokeAdvanceDirective';
 import './methods/generateWatermarkedPdf';
+import './methods/fetchPatientEverything';
 
 // Import publications
 import './publications/pacioPublications';

@@ -255,6 +255,7 @@ import { FhirUtilities } from '../lib/FhirUtilities.js'
 import { FhirDehydrator } from '../lib/FhirDehydrator.js'
 import { LayoutHelpers } from '../lib/LayoutHelpers.js'
 import { DynamicSpacer } from './DynamicSpacer'
+import MedicalRecordImporter from '../lib/MedicalRecordImporter.js'
 
 
 Meteor.Collections = {
@@ -317,6 +318,7 @@ Meteor.LayoutHelpers = LayoutHelpers;
 Meteor.DynamicSpacer = DynamicSpacer;
 Meteor.NoDataWrapper = NoDataWrapper;
 Meteor.NotSignedInWrapper = NotSignedInWrapper;
+Meteor.MedicalRecordImporter = MedicalRecordImporter;
 Meteor.PatientCard = PatientCard;
 
 
@@ -1183,9 +1185,9 @@ export function App(props){
   // }
 
 
-  let renderContents = <div { ...otherProps }>
+  let renderContents = <div { ...otherProps } style={{height: '100vh', display: 'flex', flexDirection: 'column'}}>
     {/* { helmet } */}
-    <div id='primaryFlexPanel'>
+    <div id='primaryFlexPanel' style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
       <CustomThemeProvider>
         <Router>
           <Header 
@@ -1226,7 +1228,12 @@ function StyledMainRouter(props){
   let backgroundCanvas = get(Meteor, 'settings.public.theme.palette.backgroundCanvas', "#ffffff");
   let backgroundCanvasDark = get(Meteor, 'settings.public.theme.palette.backgroundCanvasDark', "#ffffff");
 
-  let mainAppStyle = {height: window.innerHeight}
+  let mainAppStyle = {
+    position: 'relative',
+    height: '100%',
+    overflowY: 'auto',
+    overflowX: 'hidden'
+  }
 
   if(theme === "light"){
     mainAppStyle.background = backgroundCanvas;

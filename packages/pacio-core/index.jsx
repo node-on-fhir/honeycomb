@@ -93,7 +93,18 @@ const CareTeamsPage = withSuspense(CareTeamsPageLazy);
 const MainPageLazy = React.lazy(() => 
   import('./client/pages/MainPage').then(module => ({ default: module.MainPage }))
 );
-const MainPage = withSuspense(MainPageLazy);
+
+const MainPage = {
+  'name': 'PACIO Dashboard',
+  'path': '/',
+  'element': <MainPageLazy />
+};
+
+// Patient Fetch Page - Lazy loaded
+const PatientFetchPageLazy = React.lazy(() => 
+  import('./client/pages/PatientFetchPage').then(module => ({ default: module.PatientFetchPage }))
+);
+const PatientFetchPage = withSuspense(PatientFetchPageLazy);
 
 // Lazy load FHIR resource pages
 const TasksPageLazy = React.lazy(() => 
@@ -155,6 +166,12 @@ export const DynamicRoutes = [
     name: 'MedicationListsList',
     path: '/medication-lists',
     element: <MedicationListsPage />,
+    requireAuth: true
+  },
+  {
+    name: 'PatientFetch',
+    path: '/patient-fetch',
+    element: <PatientFetchPage />,
     requireAuth: true
   },
   // Patient-specific routes
@@ -226,6 +243,11 @@ export const SidebarWorkflows = [
     primaryText: 'Medication Lists',
     to: '/medication-lists',
     iconName: 'LocalPharmacy'
+  },
+  {
+    primaryText: 'Patient Fetch',
+    to: '/patient-fetch',
+    iconName: 'CloudDownload'
   }
 ];
 

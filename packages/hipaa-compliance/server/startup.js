@@ -2,7 +2,7 @@
 
 import { Meteor } from 'meteor/meteor';
 import { get, set } from 'lodash';
-import { HipaaAuditLog, HipaaAuditLogSchema } from '../lib/Collections';
+import { HipaaAuditLog } from '../lib/Collections';
 import { HipaaLogger } from '../lib/HipaaLogger';
 import { EncryptionManager } from '../lib/EncryptionManager';
 import { setupAuditHooks, setupUserActivityHooks } from './hooks';
@@ -19,8 +19,12 @@ Meteor.startup(async function() {
   // Add validation to HipaaAuditLog inserts
   if (HipaaAuditLog.before) {
     HipaaAuditLog.before.insert(function(userId, doc) {
+      // Create a copy without _id for validation
+      const docToValidate = { ...doc };
+      delete docToValidate._id;
+      
       // Validate against schema
-      HipaaAuditLogSchema.validate(doc);
+      HipaaAuditLog.schema.validate(docToValidate);
     });
   }
 

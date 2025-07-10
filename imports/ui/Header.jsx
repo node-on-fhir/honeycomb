@@ -342,7 +342,7 @@ function Header({ drawerIsOpen, handleDrawerOpen, lastUpdated }) {
   // }
 
   return (
-    <Box id="header" sx={{ flexGrow: 1, zIndex: 1000, position: 'relative' }}>
+    <Box id="header" sx={{ flexGrow: 1, zIndex: 1000 }}>
       <AppBar id="headerContent" position="static" >
         <Toolbar>
           <IconButton

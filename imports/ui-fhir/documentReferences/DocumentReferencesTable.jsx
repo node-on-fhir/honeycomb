@@ -93,6 +93,8 @@ function DocumentReferencesTable(props){
     ...otherProps 
   } = props;
 
+  // Initialize multiline variable
+  let multiline = false;
 
     // ------------------------------------------------------------------------
   // Form Factors
