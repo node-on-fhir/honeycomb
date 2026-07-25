@@ -15,8 +15,13 @@
 // confusion attempt (HMAC-signing with the public key as the secret) can never
 // verify.
 
-import jwt from 'jsonwebtoken';
-import { createPublicKey } from 'crypto';
+// CommonJS module (require + module.exports), NOT ESM export. Consumed both by
+// the Meteor server bundle and by `node --test` on CI's node 20, where a .js
+// under a type:commonjs package loads as CommonJS. Genuine CJS + default-import
+// is the repo's proven dual-context pattern (see imports/lib/loggerRedact.js,
+// Logger.js); ESM `export` + named import throws on node 20.
+const jwt = require('jsonwebtoken');
+const { createPublicKey } = require('crypto');
 
 // Asymmetric signature algorithms only. Deliberately excludes 'none' and the
 // HS* family — a client_assertion is proof-of-possession of a PRIVATE key, so
@@ -56,7 +61,7 @@ async function resolveJwks(client, fetchImpl) {
 //
 // Returns { verified: boolean, reason?: string, payload?: object }. NEVER
 // throws — the caller treats any non-verified result as invalid_client.
-export async function verifyClientAssertionSignature({ client, clientAssertion, fetchImpl } = {}) {
+async function verifyClientAssertionSignature({ client, clientAssertion, fetchImpl } = {}) {
   if (!clientAssertion) {
     return { verified: false, reason: 'no client_assertion provided' };
   }
@@ -113,4 +118,4 @@ export async function verifyClientAssertionSignature({ client, clientAssertion, 
   }
 }
 
-export default { verifyClientAssertionSignature };
+module.exports = { verifyClientAssertionSignature };

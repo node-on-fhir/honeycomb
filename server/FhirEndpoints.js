@@ -9,7 +9,10 @@ import querystring from 'querystring';
 
 import RestHelpers from './RestHelpers.js';
 import { SearchParametersEngine } from './SearchParametersEngine.js';
-import { isCompartmentExempt, recordMatchesCompartment, buildPatientCompartmentQuery } from './lib/patientCompartment.js';
+// Default-import + destructure (CJS module.exports, not ESM named exports —
+// matches imports/lib/loggerRedact.js usage).
+import patientCompartmentModule from './lib/patientCompartment.js';
+const { isCompartmentExempt, recordMatchesCompartment, buildPatientCompartmentQuery } = patientCompartmentModule;
 
 import { get, has, set, unset, cloneDeep, capitalize, findIndex, countBy } from 'lodash';
 import moment from 'moment';

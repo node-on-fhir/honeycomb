@@ -19,7 +19,10 @@ import fs from 'fs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import forge from 'node-forge';
-import { verifyClientAssertionSignature } from '/server/lib/verifyClientAssertion.js';
+// Default-import + destructure (the CJS module is module.exports, not ESM named
+// exports — matches imports/lib/loggerRedact.js usage).
+import verifyClientAssertionModule from '/server/lib/verifyClientAssertion.js';
+const { verifyClientAssertionSignature } = verifyClientAssertionModule;
 import express from 'express';
 
 import bodyParser from 'body-parser';

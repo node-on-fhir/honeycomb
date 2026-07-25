@@ -18,7 +18,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { isCompartmentExempt, recordMatchesCompartment, buildPatientCompartmentQuery } from '../../../../server/lib/patientCompartment.js';
+// Default-import + destructure (see verifyClientAssertion.test.mjs): named ESM
+// imports of a type:commonjs .js throw on CI's node 20; the default export works.
+import patientCompartmentModule from '../../../../server/lib/patientCompartment.js';
+const { isCompartmentExempt, recordMatchesCompartment, buildPatientCompartmentQuery } = patientCompartmentModule;
 
 // --- the vulnerability: a patient must not match another patient's record -----
 

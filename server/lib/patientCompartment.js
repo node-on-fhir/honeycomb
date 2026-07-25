@@ -13,12 +13,11 @@
 // search path onto this module is a follow-up (kept out of this security commit
 // to avoid touching the passing (g)(10) search path).
 
-// lodash is CommonJS; default-import + destructure so this resolves under BOTH
-// plain `node --test` (the unit tests) and the Meteor server bundle. A named
-// ESM import (`import { get } from 'lodash'`) works only under Meteor's
-// transpiler and throws in node.
-import lodash from 'lodash';
-const { get } = lodash;
+// CommonJS module (require + module.exports), NOT ESM export — consumed both by
+// the Meteor server bundle and by `node --test` on CI's node 20, where a .js
+// under a type:commonjs package loads as CommonJS. Genuine CJS + default-import
+// is the repo's proven dual-context pattern (see imports/lib/loggerRedact.js).
+const { get } = require('lodash');
 
 // Resource types OUTSIDE the patient compartment per FHIR R4 — organizational /
 // directory resources reachable by scope alone. Mirrors FhirEndpoints.js:1264.
@@ -29,7 +28,7 @@ const REFERENCE_RESOURCES = ['Location', 'Practitioner', 'PractitionerRole', 'Or
 // KNOWN-exempt roles bypass; any other role (patient, the 'PAT' default,
 // anything unrecognized) gets filtered. Mirrors the search handler's gate
 // (practitioner-full-access / reference-resource / noauth / SYSTEM).
-export function isCompartmentExempt({ role, resourceType, practitionerFullAccess = true } = {}) {
+function isCompartmentExempt({ role, resourceType, practitionerFullAccess = true } = {}) {
   if (role === 'SYSTEM' || role === 'noauth') {
     return true;
   }
@@ -55,7 +54,7 @@ function patientRefVariants(patientId) {
 // place so the search filter and the instance-handler checks can never diverge.
 // Callers gate on isCompartmentExempt() first; this builds the filter for
 // non-exempt requests. Mirrors the (now-removed) inline authQuery.
-export function buildPatientCompartmentQuery(authorizationContext, resourceType) {
+function buildPatientCompartmentQuery(authorizationContext, resourceType) {
   const orClauses = [{ 'meta.security.display': { $eq: 'unrestricted' } }];
   const patientId = get(authorizationContext, 'patientId');
 
@@ -87,7 +86,7 @@ export function buildPatientCompartmentQuery(authorizationContext, resourceType)
 //     patient (in any of the three ref formats)
 // Callers must first check isCompartmentExempt() (and the disableAccessControl
 // setting); this predicate is the per-record membership test only.
-export function recordMatchesCompartment(record, authorizationContext, resourceType) {
+function recordMatchesCompartment(record, authorizationContext, resourceType) {
   if (!record) {
     return false;
   }
@@ -128,4 +127,4 @@ export function recordMatchesCompartment(record, authorizationContext, resourceT
   return false;
 }
 
-export default { isCompartmentExempt, recordMatchesCompartment, buildPatientCompartmentQuery };
+module.exports = { isCompartmentExempt, recordMatchesCompartment, buildPatientCompartmentQuery };

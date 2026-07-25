@@ -23,7 +23,11 @@ import assert from 'node:assert/strict';
 import { generateKeyPairSync, createPublicKey, randomUUID } from 'node:crypto';
 import jwt from 'jsonwebtoken';
 
-import { verifyClientAssertionSignature } from '../../../../server/lib/verifyClientAssertion.js';
+// Default-import + destructure (not named import): the helper is a .js under a
+// type:commonjs package, so node loads it as CommonJS on CI (node 20). A named
+// ESM import throws there; the default export object works on every node.
+import verifyClientAssertionModule from '../../../../server/lib/verifyClientAssertion.js';
+const { verifyClientAssertionSignature } = verifyClientAssertionModule;
 
 // --- helpers ---------------------------------------------------------------
 
