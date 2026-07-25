@@ -752,6 +752,9 @@ jobs:
           name: Patient-compartment authorization (CR-3)
           command: npm run test:patient-compartment
       - run:
+          name: Write-sanitization / meta.security governance (CR-4)
+          command: npm run test:write-sanitization
+      - run:
           name: RPC method tests (conformance sweep FULL + method suites)
           command: RPC_SWEEP=all npm run test:rpc-methods
 

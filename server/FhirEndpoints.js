@@ -13,6 +13,8 @@ import { SearchParametersEngine } from './SearchParametersEngine.js';
 // matches imports/lib/loggerRedact.js usage).
 import patientCompartmentModule from './lib/patientCompartment.js';
 const { isCompartmentExempt, recordMatchesCompartment, buildPatientCompartmentQuery } = patientCompartmentModule;
+import writeSanitizationModule from './lib/writeSanitization.js';
+const { governSecurityLabels } = writeSanitizationModule;
 
 import { get, has, set, unset, cloneDeep, capitalize, findIndex, countBy } from 'lodash';
 import moment from 'moment';
@@ -1744,7 +1746,19 @@ if(typeof serverRouteManifest === "object"){
               if (get(req, 'body')) {
                 let newRecord = req.body;
                 log.trace('req.body', req.body);
-                
+
+                // CR-4 (security audit 2026-07-01): the client cannot set its own
+                // meta.security access labels on create — labeling a resource
+                // 'unrestricted' would make PHI world-readable (the compartment
+                // filter treats 'unrestricted' as public). Privileged (system /
+                // clinician) writers may label legitimately.
+                {
+                  const writeRole = get(authorizationContext, 'role', 'PAT');
+                  const practitionerFullAccess = get(Meteor, 'settings.private.accessControl.practitionerFullAccess', true);
+                  const callerMaySetSecurity = isCompartmentExempt({ role: writeRole, resourceType: routeResourceType, practitionerFullAccess: practitionerFullAccess });
+                  newRecord = governSecurityLabels(newRecord, { existingRecord: null, callerMaySetSecurity: callerMaySetSecurity });
+                }
+
   
                 let newlyAssignedId = Random.id();
   
@@ -1892,9 +1906,21 @@ if(typeof serverRouteManifest === "object"){
         
               if (req.body) {
                 let newRecord = cloneDeep(req.body);
-        
+
                 log.trace('req.body', req.body);
-        
+
+                // CR-4 (security audit 2026-07-01): govern client-supplied
+                // meta.security on write. On update the existing record's server
+                // labels are preserved; on create any client label is dropped —
+                // unless the caller is a privileged (system / clinician) writer.
+                {
+                  const writeRole = get(authorizationContext, 'role', 'PAT');
+                  const practitionerFullAccess = get(Meteor, 'settings.private.accessControl.practitionerFullAccess', true);
+                  const callerMaySetSecurity = isCompartmentExempt({ role: writeRole, resourceType: routeResourceType, practitionerFullAccess: practitionerFullAccess });
+                  const existingRecord = await Collections[collectionName].findOneAsync({ id: req.params.id });
+                  newRecord = governSecurityLabels(newRecord, { existingRecord: existingRecord, callerMaySetSecurity: callerMaySetSecurity });
+                }
+
                 newRecord.resourceType = routeResourceType;
                 newRecord = RestHelpers.toMongo(newRecord);
         
@@ -2128,23 +2154,43 @@ if(typeof serverRouteManifest === "object"){
                   }
 
                   let newlyAssignedId;
-          
+
+                  // CR-4 (security audit 2026-07-01): a non-privileged writer
+                  // cannot patch server-owned meta.security access labels. Strip
+                  // any meta.security-targeting patch key (and the security
+                  // sub-field of a wholesale meta patch) unless the caller is a
+                  // privileged (system / clinician) writer.
+                  const patchWriteRole = get(authorizationContext, 'role', 'PAT');
+                  const patchPractitionerFullAccess = get(Meteor, 'settings.private.accessControl.practitionerFullAccess', true);
+                  const patchMaySetSecurity = isCompartmentExempt({ role: patchWriteRole, resourceType: routeResourceType, practitionerFullAccess: patchPractitionerFullAccess });
+                  function stripClientSecurityPatchKeys(patchObj){
+                    if (patchMaySetSecurity) { return patchObj; }
+                    Object.keys(patchObj).forEach(function(k){
+                      if (k === 'meta.security' || k.indexOf('meta.security') === 0) {
+                        delete patchObj[k];
+                      } else if (k === 'meta' && patchObj[k] && typeof patchObj[k] === 'object') {
+                        delete patchObj[k].security;
+                      }
+                    });
+                    return patchObj;
+                  }
+
                   if(numRecordsToUpdate > 1){
                     log.debug('Found existing records; this is an update interaction, not a create interaction');
                     log.debug(numRecordsToUpdate + ' records found...');
-  
+
                     if(process.env.DEBUG){
                       log.debug('req.query', req.query);
                       log.debug('req.params', req.params);
-                      log.debug('req.body', req.body);  
+                      log.debug('req.body', req.body);
                     }
-                    
+
                     let setObjectPatch = {};
                     Object.keys(req.query).forEach(function(key){
                       setObjectPatch[key] = get(req.body, key);
                     })
-  
-                    
+                    stripClientSecurityPatchKeys(setObjectPatch);
+
                     log.debug('setObjectPatch', setObjectPatch);
                     let result = await Collections[collectionName].updateAsync({id: req.params.id}, {$set: setObjectPatch}, {multi: true});
   
@@ -2164,9 +2210,10 @@ if(typeof serverRouteManifest === "object"){
                     Object.keys(req.query).forEach(function(key){
                       setObjectPatch[key] = get(req.body, key);
                     })
+                    stripClientSecurityPatchKeys(setObjectPatch);
                     log.debug('setObjectPatch', setObjectPatch);
-  
-                    
+
+
                     await Collections[collectionName].updateAsync({_id: setObjectPatch._id}, {$set: setObjectPatch});
   
                     delete setObjectPatch._document;
