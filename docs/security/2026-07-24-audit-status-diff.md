@@ -6,6 +6,33 @@
 > Every status below was verified by direct grep/read this session. The
 > original audit is preserved unmodified as the analysis record.
 
+## Campaign progress (branch `fix/security-audit-2026-07`, updated 2026-07-24)
+
+**Every CRITICAL in the core repo is now fixed.** Landed this session:
+CR-1 (JWT verify), CR-2 (secure-config boot assertion), CR-3 (compartment on
+read/DELETE/PATCH/PUT + search unification), CR-4 (meta.security governance),
+CR-5/CR-6 (secrets untracked + gitleaks guards), CR-10 (UDAP SSRF guard). CR-9
+was already resolved pre-campaign. Each fix follows the same shape: a pure,
+unit-tested `server/lib/*.js` helper (genuine CommonJS — see the node-20 lesson)
+wired into the endpoint, reproduce-before-fix, one finding per commit, CI-gated
+in the `rpc-method-tests` job. CR-1/CR-3/CR-4 have node-20 CI green; CR-2/CR-10
+pending at time of writing.
+
+**Remaining:**
+- **CR-7/CR-8 residuals** — merkalis warehouse-relay allowlist + ipfs-swarm
+  multiaddr SSRF. These live in the `extensions/*` **nested repos** and commit
+  there, not this branch. The `outboundUrlGuard` from CR-10 is the reusable
+  pattern. (The method-auth holes were already closed via `requireAuth: true`.)
+- **Human-only** — secret rotation (CR-5/HI-9/HI-10) per `remediation-actions.md`.
+- **High/Medium tier** — HI-1-followup (expired-resume-token on FHIR REST),
+  HI-7 (regex escaping), HI-8 (TLS verify), HI-12 (BulkData CORS), HI-13 (cookie
+  flags), HI-14/15 (egress/bulk-store), etc.
+- **New follow-ups surfaced this session**: PUT ownership-ref validation
+  (subject.reference spoofing on create); DNS-rebinding hardening for the SSRF
+  guard; unifying the two remaining inline compartment blocks (public-read,
+  POST-search/$everything); the deferred live two-patient token-scoped
+  integration tests (post-OpenID).
+
 ## What changed structurally since 2026-07-01 (affects the remediation plan)
 
 1. **The ServerMethods pipeline landed** (the audit's "synergy note"
@@ -42,16 +69,16 @@
 
 | ID | Status 2026-07-24 | Evidence / updated anchors |
 |----|-------------------|----------------------------|
-| CR-1 | **OPEN** | `OAuthEndpoints.js:918` TODO still present; `jwt.decode(client_assertion)` at `:884` |
-| CR-2 | **OPEN** | 12 settings files still ship `disableOauth: true`; no startup assertion exists anywhere |
-| CR-3 | **OPEN** | `authQuery` built only in search GET (`:1279`) and POST `_search` (`:2503`). Instance GET `:598`, PUT `:1876`, PATCH `:2076`+`:2177`, DELETE `:2188`+`:2232` unfiltered. ⚠️ PATCH and DELETE are **duplicate shadowed registrations** — fix both copies or de-duplicate first |
-| CR-4 | **OPEN** | `newRecord = req.body` `:1748`; `cloneDeep(req.body)` `:1897`, `:2096`; `meta.security.display` gating `:1280`, `:1602` |
-| CR-5 | **OPEN** | Secret still at `settings/settings.pacio.json:367` + 4 `pacio-core/configs/*.json`. Progress: `*.template.json` files with empty values now exist alongside. Galaxy config moved (see §7 above) |
-| CR-6 | **OPEN** | `settings.pacio.json`, `accounts.multiuser.settings.json` still force-tracked (`git ls-files` confirms) |
+| CR-1 | **✅ FIXED** (branch `fix/security-audit-2026-07`, commit `1e4ca233`) | JWT signature now verified via shared `server/lib/verifyClientAssertion.js`; both `/oauth/token` JWT paths unified onto it with an asymmetric-alg whitelist. node-20 CI green. |
+| CR-2 | **✅ FIXED** (`70725fed`) | Fail-closed `Meteor.startup` assertion (`server/lib/assertSecureConfig.js`): production refuses to boot with auth disabled UNLESS declared an open sandbox (`settings.private.fhir.openSandbox`). Dev never blocked. |
+| CR-3 | **✅ FIXED** (`38ccdd87` + PUT follow-up `f30572cb`) | `server/lib/patientCompartment.js` enforces the compartment on instance read/DELETE/PATCH **and PUT**; search unified onto the same module. Audit correction: the "shadowed" PATCH/DELETE were if/else branches (real vs 501 stub), not duplicates. |
+| CR-4 | **✅ FIXED** (`41f6bf35`) | `server/lib/writeSanitization.js` governs client `meta.security` on POST/PUT/PATCH (strip on create, preserve server labels on update; privileged writers may label). |
+| CR-5 | **✅ MACHINE-SIDE FIXED** (`88c1f4cc`) | Secret scrubbed from tracked files + `*.template.json` placeholders; gitleaks custom rules block reintroduction. **Human rotation still required** — see `remediation-actions.md` (sandbox-only posture: hygiene backlog, hard gate before first real prod deploy). |
+| CR-6 | **✅ FIXED** (`88c1f4cc`) | `settings.pacio.json` + `accounts.multiuser.settings.json` untracked (`git rm --cached`), `.gitignore` corrected, scrubbed templates track instead. |
 | CR-7 | **LARGELY REMEDIATED** | `methods.js` migrated to ServerMethods, 22× `requireAuth: true`. **Residual**: `server/import/methods.warehouse.js:69` still accepts caller-controlled `options.relayEndpoint` (SSRF/exfil) — verify its auth + add allowlist |
 | CR-8 | **LARGELY REMEDIATED** | 34× `requireAuth: true` in `ipfs-swarm/server/methods.js`. **Residual**: verify the `connectToPeer`/multiaddr SSRF path got host validation, not just auth |
 | CR-9 | **RESOLVED** | `server/Methods.js` is now a ServerMethods stub (`certificates.fetch`) that throws `not operational`; no live URL fetch remains outside the registration flow (= CR-10's scope) |
-| CR-10 | **OPEN** | Recursive AIA/CRL fetch at `OAuthEndpoints.js:258,:273,:494,:500`; no host allowlist |
+| CR-10 | **✅ FIXED** (`85510464`) | `server/lib/outboundUrlGuard.js` SSRF guard wired at the `fetchCertificate`/`fetchRevokationList` entry points (covers both AIA/CRL blocks); blocks IMDS/loopback/private/internal, optional `settings.private.fhir.udapFetchAllowlist`. Residual: literal-host only, no DNS-rebinding protection (documented follow-up). |
 | HI-1 | **RESOLVED 2026-07-23** | Fossil `jwt.decode` block *deleted* (`43996554`; see july-fix-now.md #2). **NEW follow-up finding**: FhirAuth login-token hash lookups do NOT enforce token expiry (RpcAuth does) — FHIR REST accepts expired-but-present resume tokens. Mirror RpcAuth's `when` + `Accounts._getTokenLifetimeMs()` check |
 | HI-2 | **OPEN** | Default `'change-me-in-production'` + non-constant-time `===` at `FhirAuth.js:222` |
 | HI-3 | *reported*, unverified | Re-verify before fixing |
@@ -60,7 +87,7 @@
 | HI-6 | **RESOLVED** | `WebsocketsAccessControl.js` deleted; zero references remain |
 | HI-7 | **OPEN** | `SearchParametersEngine.js:707-716` `buildStringQuery` still `$regex: '^' + searchValue` unescaped (the July "CodeQL ReDoS fixes" were elsewhere) |
 | HI-8 | **OPEN** | `rejectUnauthorized: false` at `provider-directory/server/hooks.js:69` |
-| HI-9 | **OPEN** | default `adminPassword` literal at `accounts.multiuser.settings.json:72`, still tracked |
+| HI-9 | **✅ MACHINE-SIDE FIXED** (`88c1f4cc`) | Default admin password no longer in any tracked file (template carries empty value). **Human rotation still required** where the file was deployed — see `remediation-actions.md`. |
 | HI-10 | **OPEN** | RSA PRIVATE KEY still at `extensions/timelines/configs/settings.lcars.json:347`; `AIzaSy…` keys in 5 extension files incl. `care-commons-sandbox` galaxy config. NOT covered by CI gitleaks (extensions absent from checkout) |
 | HI-11 | **OPEN** | `'default-secret'` fallback at `digitalIdGenerator.js:94,109` |
 | HI-12 | **PARTIAL** | `Metadata.js` + `CdsHooksEndpoints.js` wildcard CORS gone (July harmonization). `BulkData.js` still has **5** `Allow-Origin: '*'` sites; `ConsentEngineHttp.js` unverified |
