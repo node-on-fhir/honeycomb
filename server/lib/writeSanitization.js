@@ -13,6 +13,10 @@
 // under a type:commonjs package loads as CommonJS. Genuine CJS + default-import
 // is the repo's proven dual-context pattern (see imports/lib/loggerRedact.js).
 
+// TODO(node24): this CJS style is a workaround for CI's Node 20.11 (no ESM
+// syntax detection in a .js). Once CI runs Node >=24 (via a Meteor 3.6+ upgrade),
+// this file MAY revert to clean ESM `export` + named imports. See memory
+// dual-context-lib-must-be-cjs. Confirm the CI node version before reverting.
 const { get, set, unset, cloneDeep } = require('lodash');
 
 // Return a copy of incomingRecord with meta.security governed by the server:
