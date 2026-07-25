@@ -23,6 +23,8 @@ import forge from 'node-forge';
 // exports — matches imports/lib/loggerRedact.js usage).
 import verifyClientAssertionModule from '/server/lib/verifyClientAssertion.js';
 const { verifyClientAssertionSignature } = verifyClientAssertionModule;
+import outboundUrlGuardModule from '/server/lib/outboundUrlGuard.js';
+const { isSafeOutboundUrl } = outboundUrlGuardModule;
 import express from 'express';
 
 import bodyParser from 'body-parser';
@@ -174,6 +176,17 @@ WebApp.handlers.post("/oauth/registration", async (req, res) => {
 
   async function fetchCertificate(certificateUrl, certificateArray = [], certificateSerialNumbers = []) {
     log.debug('fetchCertificate.certificateUrl', { certificateUrl });
+
+    // CR-10 (security audit 2026-07-01): certificateUrl originates from a
+    // caller-supplied certificate's AIA extension. Block internal / cloud-
+    // metadata / private targets before fetching (SSRF). Guarding at the entry
+    // point covers every call site (top-level + recursive).
+    const urlCheck = isSafeOutboundUrl(certificateUrl, { allowlist: get(Meteor, 'settings.private.fhir.udapFetchAllowlist', []) });
+    if (!urlCheck.safe) {
+      log.warn('fetchCertificate blocked - unsafe URL', { reason: urlCheck.reason });
+      return certificateArray;
+    }
+
     try {
       // Fetch the certificate from the URL using meteor/http
 
@@ -263,7 +276,8 @@ WebApp.handlers.post("/oauth/registration", async (req, res) => {
               const httpIndex = extension.value.toString().indexOf('http');
               const recursiveLookupUrl = extension.value.toString().substring(httpIndex);
 
-              // Recursively fetch additional certificates
+              // Recursively fetch additional certificates. The caller-supplied
+              // URL is SSRF-guarded at the fetchCertificate entry point (CR-10).
               await fetchCertificate(recursiveLookupUrl, certificateArray, certificateSerialNumbers);
               if (Array.isArray(recursiveCerts)) {
                 recursiveCerts.forEach(cert => certificateArray.push(cert));
@@ -278,7 +292,8 @@ WebApp.handlers.post("/oauth/registration", async (req, res) => {
               const httpRevocationIndex = extension.value.toString().indexOf('http');
               const intermediateCertRevokationUrl = extension.value.toString().substring(httpRevocationIndex);
 
-              // Fetch the revocation list
+              // Fetch the revocation list (SSRF-guarded at the
+              // fetchRevokationList entry point, CR-10).
               revokedSerialNumbers = await fetchRevokationList(intermediateCertRevokationUrl);
               checkRevokedSerialNumbersAgainstCerts(revokedSerialNumbers, certificateSerialNumbers, res);
             }
@@ -2286,6 +2301,15 @@ function checkRevokedSerialNumbersAgainstCerts(revokedSerialNumbers, recursiveCe
 // }
 
 export async function fetchRevokationList(revokationUrl) {
+  // CR-10 (security audit 2026-07-01): revokationUrl originates from a
+  // caller-supplied certificate's CRL extension. Block internal / cloud-metadata
+  // / private targets before fetching (SSRF).
+  const urlCheck = isSafeOutboundUrl(revokationUrl, { allowlist: get(Meteor, 'settings.private.fhir.udapFetchAllowlist', []) });
+  if (!urlCheck.safe) {
+    log.warn('fetchRevokationList blocked - unsafe URL', { reason: urlCheck.reason });
+    return [];
+  }
+
   try {
     // Fetch the revocation list from the URL using meteor/http
     // const res = HTTP.call('GET', revokationUrl, { npmRequestOptions: { encoding: null } });
