@@ -56,7 +56,8 @@
     "test:rpc-methods": "node --test tests/rpc/",
     "test:oauth-assertion": "node --test tests/unit/server/lib/verifyClientAssertion.test.mjs",
     "test:patient-compartment": "node --test tests/unit/server/lib/patientCompartment.test.mjs",
-    "test:write-sanitization": "node --test tests/unit/server/lib/writeSanitization.test.mjs"
+    "test:write-sanitization": "node --test tests/unit/server/lib/writeSanitization.test.mjs",
+    "test:secure-config": "node --test tests/unit/server/lib/assertSecureConfig.test.mjs"
   },
   "dependencies": {
     "@accounts/client": "0.33.1",
