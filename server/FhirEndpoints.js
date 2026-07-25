@@ -1909,16 +1909,30 @@ if(typeof serverRouteManifest === "object"){
 
                 log.trace('req.body', req.body);
 
-                // CR-4 (security audit 2026-07-01): govern client-supplied
-                // meta.security on write. On update the existing record's server
-                // labels are preserved; on create any client label is dropped —
-                // unless the caller is a privileged (system / clinician) writer.
+                // CR-3 follow-up + CR-4 (security audit 2026-07-01): on PUT,
+                // (a) enforce the patient compartment against the EXISTING record
+                // so a patient token cannot overwrite another patient's resource
+                // by id (update-by-id IDOR — the CR-3 class the audit did not name
+                // for PUT), and (b) govern client-supplied meta.security (preserve
+                // the server's existing labels on update, strip on create).
+                // Privileged system/clinician writers bypass both.
                 {
                   const writeRole = get(authorizationContext, 'role', 'PAT');
+                  const acDisabled = get(Meteor, 'settings.private.fhir.disableAccessControl') === true;
                   const practitionerFullAccess = get(Meteor, 'settings.private.accessControl.practitionerFullAccess', true);
-                  const callerMaySetSecurity = isCompartmentExempt({ role: writeRole, resourceType: routeResourceType, practitionerFullAccess: practitionerFullAccess });
+                  const callerExempt = isCompartmentExempt({ role: writeRole, resourceType: routeResourceType, practitionerFullAccess: practitionerFullAccess });
                   const existingRecord = await Collections[collectionName].findOneAsync({ id: req.params.id });
-                  newRecord = governSecurityLabels(newRecord, { existingRecord: existingRecord, callerMaySetSecurity: callerMaySetSecurity });
+
+                  if (existingRecord && !acDisabled && !callerExempt && !recordMatchesCompartment(existingRecord, authorizationContext, routeResourceType)) {
+                    log.phi('Instance put denied - target resource outside patient compartment', null, { action: 'update', resourceType: routeResourceType });
+                    res.status(403).json({
+                      resourceType: "OperationOutcome",
+                      issue: [{ severity: "error", code: "forbidden", diagnostics: `Access to this ${routeResourceType} resource is not authorized` }]
+                    });
+                    return;
+                  }
+
+                  newRecord = governSecurityLabels(newRecord, { existingRecord: existingRecord, callerMaySetSecurity: callerExempt });
                 }
 
                 newRecord.resourceType = routeResourceType;
