@@ -746,6 +746,21 @@ jobs:
           name: Endpoint smoke tests
           command: ./scripts/endpoint-smoke-test.sh
       - run:
+          name: OAuth client_assertion signature verification (CR-1)
+          command: npm run test:oauth-assertion
+      - run:
+          name: Patient-compartment authorization (CR-3)
+          command: npm run test:patient-compartment
+      - run:
+          name: Write-sanitization / meta.security governance (CR-4)
+          command: npm run test:write-sanitization
+      - run:
+          name: Secure production config assertion (CR-2)
+          command: npm run test:secure-config
+      - run:
+          name: Outbound URL SSRF guard (CR-10)
+          command: npm run test:outbound-url-guard
+      - run:
           name: RPC method tests (conformance sweep FULL + method suites)
           command: RPC_SWEEP=all npm run test:rpc-methods
 

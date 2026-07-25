@@ -5,6 +5,9 @@ import '/imports/startup/both/loggingSetup.js';
 import LoggerModule from '/imports/lib/Logger.js';
 const log = LoggerModule.Logger.for('main');
 
+import assertSecureConfigModule from './lib/assertSecureConfig.js';
+const { checkProductionAuthConfig } = assertSecureConfigModule;
+
 // Log immediately to see if we're reaching this point
 log.info('==========================================================================================');
 log.info('Starting server initialization...', { TEST_RUN: process.env.TEST_RUN, ENABLE_SYNCED_CRON: process.env.ENABLE_SYNCED_CRON });
@@ -451,6 +454,44 @@ Meteor.startup(function() {
     initializeWorkflowHooks();
   } catch (e) {
     log.error('Failed to initialize workflow hooks', { error: e && e.message, stack: e && e.stack });
+  }
+});
+
+// CR-2 (security audit 2026-07-01): fail-closed config assertion. A PRODUCTION
+// deployment must not ACCIDENTALLY boot with OAuth or access control disabled —
+// that silently opens the FHIR API to unauthenticated access. Local dev
+// (Meteor.isDevelopment) is never blocked; it legitimately runs disableOauth.
+//
+// An INTENTIONAL open sandbox (unauthenticated FHIR API by design — a supported
+// deployment posture) declares itself via settings.private.fhir.openSandbox:true
+// (or OPEN_SANDBOX=true). When declared, production boots normally with an
+// informational notice. When NOT declared, auth-off in production is treated as
+// an accident and the server refuses to boot.
+Meteor.startup(function() {
+  const settingsOpenSandbox =
+    Meteor.settings && Meteor.settings.private && Meteor.settings.private.fhir &&
+    Meteor.settings.private.fhir.openSandbox === true;
+  const sandboxAcknowledged = settingsOpenSandbox || process.env.OPEN_SANDBOX === 'true';
+
+  const configCheck = checkProductionAuthConfig({
+    settings: Meteor.settings,
+    isProduction: Meteor.isProduction,
+    sandboxAcknowledged: sandboxAcknowledged
+  });
+
+  if (!configCheck.secure) {
+    log.error('FATAL: refusing to boot — production deployment has authentication/access control disabled and is not declared an open sandbox', {
+      violations: configCheck.violations,
+      remedy: 'enable OAuth + access control for production, OR declare an intentional open sandbox via settings.private.fhir.openSandbox:true (or OPEN_SANDBOX=true)'
+    });
+    // Fail closed: do not serve requests with an accidentally-insecure config.
+    process.exit(1);
+  }
+
+  if (configCheck.sandboxMode) {
+    log.warn('Open sandbox mode: the FHIR API is UNAUTHENTICATED by configuration (settings.private.fhir.openSandbox)', {
+      unauthenticated: configCheck.violations
+    });
   }
 });
 
