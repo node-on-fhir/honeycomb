@@ -749,6 +749,9 @@ jobs:
           name: OAuth client_assertion signature verification (CR-1)
           command: npm run test:oauth-assertion
       - run:
+          name: Patient-compartment authorization (CR-3)
+          command: npm run test:patient-compartment
+      - run:
           name: RPC method tests (conformance sweep FULL + method suites)
           command: RPC_SWEEP=all npm run test:rpc-methods
 
