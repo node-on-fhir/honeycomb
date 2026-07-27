@@ -1,0 +1,18 @@
+# graphify scan exclusions — keep the knowledge graph to real app code.
+# Syntax: gitignore-style (parsed by graphify detect).
+
+# Meteor build cache — generated bundler artifacts, never architecture
+.meteor/
+
+# Vendored/minified third-party bundles (pdf.worker.min.mjs alone added ~3k
+# nodes of PDF.js internals, polluting god-nodes and community labels)
+*.min.js
+*.min.mjs
+public/service-worker.js
+
+# Generated FHIR schema definitions — 20k+ nodes of pure schema noise
+# (see memory: graphify-scope-and-setup — 1,886-community FHIR-schema noise)
+imports/lib/schemas/
+
+# Retired Atmosphere-era packages
+deprecated/
