@@ -62,10 +62,8 @@ import {
                     if(result){
                       console.log('result', result)
                     }
-                    Session.set('mainAppDialogOpen', false)
                 }).catch(function(error){
                     if(error){ console.error('error', error)}
-                    Session.set('mainAppDialogOpen', false)
                 })
                 if(get(Meteor, 'settings.private.accessControl.enableHipaaLogging')){
                   let newCareTeamEvent = { 

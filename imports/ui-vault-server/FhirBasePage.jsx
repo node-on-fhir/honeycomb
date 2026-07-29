@@ -152,7 +152,6 @@ Session.setDefault('showExperimental', false);
 Session.setDefault('onlyShowMatched', false);
 Session.setDefault('showUrlPreview', false);
 Session.setDefault('showServerStats', true);
-Session.setDefault('dialogReturnValue', 'MainSearch.state');
 
 
 

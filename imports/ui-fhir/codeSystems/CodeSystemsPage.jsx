@@ -274,18 +274,10 @@ export function CodeSystemsPage(props){
       Session.set('selectedCodeSystemId', get(codeSystem, 'id'));
       Session.set('selectedCodeSystem', codeSystem);
       Session.set('CodeSystem.Current', codeSystem);
-      
-      let showModals = true;
-      if(showModals){
-        Session.set('mainAppDialogOpen', true);
-        Session.set('mainAppDialogComponent', "CodeSystemDetail");
-        Session.set('mainAppDialogMaxWidth', "sm");
-        if(Meteor.currentUserId()){
-          Session.set('mainAppDialogTitle', "Edit Code System");
-        } else {
-          Session.set('mainAppDialogTitle', "View Code System");
-        }
-      }      
+      // Row-click previously opened a CodeSystemDetail modal through the
+      // mainAppDialog bus, whose host never existed in this repo (see
+      // .claude/rules/meteor/session-keys.md). Selection state above still
+      // updates; render a real <Dialog> here if the detail modal is wanted.
     }
   }
   function onInsert(codeSystemId){

@@ -1,6 +1,7 @@
 // /packages/pacio-core/client/pages/PatientNutritionOrders.jsx
 
 import React, { useState, useEffect } from 'react';
+import { notify } from '/imports/lib/notify.js';
 import { useParams } from 'react-router-dom';
 import {
   Container,
@@ -65,7 +66,7 @@ export function PatientNutritionOrders() {
   }
   
   function handleAddOrder() {
-    Session.set('mainAppDialogJson', {
+    notify({
       title: 'Add Nutrition Order',
       message: 'Add nutrition order functionality coming soon'
     });

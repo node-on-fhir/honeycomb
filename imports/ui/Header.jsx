@@ -229,19 +229,14 @@ function Header({ drawerIsOpen, handleDrawerOpen, lastUpdated }) {
 
 
   function toggleLoginDialog(){
-    // console.log('Toggle login dialog open/close.')
-    Session.set('mainAppDialogJson', false);
-    Session.set('mainAppDialogMaxWidth', "sm");
-
+    // Was the mainAppDialog "LoginDialog"/"LogoutDialog" bus (host never existed
+    // in this repo — see .claude/rules/meteor/session-keys.md). Use the real
+    // /login route + Meteor.logout instead.
     if(Session.get('currentUser')){
-      Session.set('mainAppDialogTitle', "Logout");
-      Session.set('mainAppDialogComponent', "LogoutDialog");
+      Meteor.logout(function(){ navigate('/'); });
     } else {
-      Session.set('mainAppDialogTitle', "Login");
-      Session.set('mainAppDialogComponent', "LoginDialog");      
+      navigate('/login');
     }
-
-    Session.toggle('mainAppDialogOpen');
   }
 
 

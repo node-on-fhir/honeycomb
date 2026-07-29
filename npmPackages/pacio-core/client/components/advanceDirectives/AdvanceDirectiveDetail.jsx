@@ -1,6 +1,7 @@
 // /packages/pacio-core/client/components/advanceDirectives/AdvanceDirectiveDetail.jsx
 
 import React, { useState } from 'react';
+import { notify } from '/imports/lib/notify.js';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Card, 
@@ -83,7 +84,7 @@ export default function AdvanceDirectiveDetail() {
   
   function handleRevokeSuccess() {
     // Refresh the directive data
-    Session.set('mainAppDialogJson', {
+    notify({
       title: 'Success',
       message: 'Advance Directive has been revoked.'
     });

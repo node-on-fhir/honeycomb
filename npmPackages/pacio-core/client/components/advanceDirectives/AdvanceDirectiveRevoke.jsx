@@ -1,6 +1,7 @@
 // /packages/pacio-core/client/components/advanceDirectives/AdvanceDirectiveRevoke.jsx
 
 import React, { useState } from 'react';
+import { notify } from '/imports/lib/notify.js';
 import { 
   Dialog,
   DialogTitle,
@@ -68,7 +69,7 @@ export function AdvanceDirectiveRevoke(props) {
       const result = await Meteor.rpc('pacio.revokeAdvanceDirective', { directiveId: directiveId, reason: reason });
       setLoading(false);
 
-      Session.set('mainAppDialogJson', {
+      notify({
         title: 'Success',
         message: 'The advance directive has been successfully revoked.'
       });

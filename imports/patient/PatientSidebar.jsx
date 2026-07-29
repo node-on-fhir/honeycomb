@@ -404,9 +404,6 @@ export function PatientSidebar(props){
       Session.set('workflowTabs', tabs)
     }
   }
-  function toggleAboutDialog(){
-    Session.toggle('mainAppDialogOpen');
-  }
   function handleLogout(){
     logger.verbose('client.app.patient.PatientSidebar.handleLogout');
     Meteor.logoutCurrentUser();
@@ -1580,22 +1577,6 @@ export function PatientSidebar(props){
   //----------------------------------------------------------------------
   // LoginPage
 
-  function toggleLoginDialog(){
-    // console.log('Toggle login dialog open/close.')
-    Session.set('mainAppDialogJson', false);
-    Session.set('mainAppDialogMaxWidth', "sm");
-
-    if(Session.get('currentUser')){
-      Session.set('mainAppDialogTitle', "Logout");
-      Session.set('mainAppDialogComponent', "LogoutDialog");
-    } else {
-      Session.set('mainAppDialogTitle', "Login");
-      Session.set('mainAppDialogComponent', "LoginDialog");      
-    }
-
-    Session.toggle('mainAppDialogOpen');
-  }
-
   let loginElements = [];
   function determineDialogOrRouteLogin(loginElements){
 
@@ -1617,7 +1598,7 @@ export function PatientSidebar(props){
           <ListItemText primary="Login" />
         </ListItem>);   
       } else {
-        loginElements.push(<ListItem id='loginDialogMenuItem' key='loginDialogMenuItem' button onClick={function(){ toggleLoginDialog(); }} >
+        loginElements.push(<ListItem id='loginDialogMenuItem' key='loginDialogMenuItem' button onClick={function(){ openPage('/login'); }} >
           <ListItemIcon >
             <Icon icon={signIn} />
           </ListItemIcon>
