@@ -1,6 +1,7 @@
 // /packages/pacio-core/client/pages/PatientTransitionOfCare.jsx
 
 import React, { useState, useEffect } from 'react';
+import { notify } from '/imports/lib/notify.js';
 import { useParams } from 'react-router-dom';
 import { 
   Container, 
@@ -113,7 +114,7 @@ export function PatientTransitionOfCare() {
   }
   
   function handleAddDocument() {
-    Session.set('mainAppDialogJson', {
+    notify({
       title: 'Create Transition of Care Document',
       message: 'Create TOC document functionality coming soon'
     });
