@@ -59,6 +59,7 @@ export const DISPLAY_NAVBARS  = 'displayNavbars';
 export const APP_HEIGHT       = 'appHeight';
 export const APP_WIDTH        = 'appWidth';
 export const VIEWPORT         = 'viewport';
+export const SESSION_INSPECTOR_OPEN = 'sessionInspectorOpen'; // Cmd/Ctrl+Shift+D debug dashboard
 
 // ── FHIR id / display toggles ────────────────────────────────────────────────
 export const SHOW_SYSTEM_IDS    = 'showSystemIds';
@@ -129,7 +130,7 @@ export default {
   MAIN_APP_DIALOG_OPEN, MAIN_APP_DIALOG_TITLE, MAIN_APP_DIALOG_COMPONENT,
   MAIN_APP_DIALOG_MAX_WIDTH, MAIN_APP_DIALOG_JSON, DIALOG_RETURN_VALUE,
   SELECTED_ENDPOINT, SELECTED_ENDPOINT_ID,
-  THEME, DISPLAY_NAVBARS, APP_HEIGHT, APP_WIDTH, VIEWPORT,
+  THEME, DISPLAY_NAVBARS, APP_HEIGHT, APP_WIDTH, VIEWPORT, SESSION_INSPECTOR_OPEN,
   SHOW_SYSTEM_IDS, SHOW_FHIR_IDS, SHOW_EXPERIMENTAL,
   SIMULATOR_MISSION_ID, SIMULATOR_LAUNCH_DATE, SIMULATOR_VEHICLE,
   SIMULATOR_MISSION_MODE, SELECTED_CREWED_VEHICLE,

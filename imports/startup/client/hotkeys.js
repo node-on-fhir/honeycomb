@@ -1,6 +1,7 @@
 // imports/startup/client/hotkeys.js
 
 import { Session } from 'meteor/session';
+import { SESSION_INSPECTOR_OPEN } from '/imports/lib/SessionKeys.js';
 
 export function initializeKeyboardShortcuts() {
   document.addEventListener('keydown', (event) => {
@@ -78,9 +79,15 @@ export function initializeKeyboardShortcuts() {
       window.dispatchEvent(new CustomEvent('toggleHomePage'));
     }
 
+    // Cmd/Ctrl + Shift + D — Toggle Session Inspector (internal-state dashboard)
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && (event.key === 'D' || event.key === 'd')) {
+      event.preventDefault();
+      Session.set(SESSION_INSPECTOR_OPEN, !Session.get(SESSION_INSPECTOR_OPEN));
+    }
+
     // Escape — Close dialogs
     if (event.key === 'Escape') {
-      Session.set('mainAppDialogOpen', false);
+      Session.set(SESSION_INSPECTOR_OPEN, false);
       Session.set('quickSearchOpen', false);
     }
   });

@@ -47,6 +47,7 @@ import PatientGuard from './guards/PatientGuard.jsx';
 import DataGuard from './guards/DataGuard.jsx';
 import ErrorBoundary from './ErrorBoundary.jsx';
 import WelcomeDialog from './components/WelcomeDialog.jsx';
+import SessionInspectorDialog from './SessionInspectorDialog.jsx';
 import ExtensiblePage from './extensible/ExtensiblePage.jsx';
 import ErrorPage from './extensible/ErrorPage.jsx';
 import LoadingPage from './extensible/LoadingPage.jsx';
@@ -1786,6 +1787,7 @@ export function App(props){
               history={window.history}
               { ...otherProps } />
             <WelcomeDialog />
+            <SessionInspectorDialog />
             <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
               <StyledMainRouter style={{flex: 1}} />
               <SecondaryIframePanel />
