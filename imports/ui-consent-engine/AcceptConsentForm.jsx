@@ -436,33 +436,17 @@ function AcceptConsentForm(props){
       onSave(newConsent)
     }
   }
+  // These three code-system pickers were opened through the mainAppDialog bus,
+  // whose host never existed in this repo — so the pickers have never rendered
+  // (see .claude/rules/meteor/session-keys.md). Left as no-ops rather than
+  // silently mutating dead Session keys; wire a real <SearchCodeSystemDialog>
+  // with its own open state here if this picker UX is wanted.
   function handleSelectResourceType(){
-    Session.set('selectedCodeSystem', 'resource-types');
-    Session.set('mainAppDialogTitle', "Search Resource Types");
-    Session.set('mainAppDialogComponent', "SearchCodeSystemDialog");
-    Session.set('lastUpdated', new Date());
-    Session.set('mainAppDialogMaxWidth', "md");
-    Session.set('mainAppDialogOpen', true);
-    Session.set('dialogReturnValue', 'MainSearch.resourceType');
-  }  
+  }
   function handleSelectPractitionerRole(){
-    Session.set('selectedCodeSystem', 'v3-RoleClass-flattened');
-    Session.set('mainAppDialogTitle', "Search Practitioner Roles");
-    Session.set('mainAppDialogComponent', "SearchCodeSystemDialog");
-    Session.set('lastUpdated', new Date());
-    Session.set('mainAppDialogMaxWidth', "md");
-    Session.set('mainAppDialogOpen', true);
-    Session.set('dialogReturnValue', 'MainSearch.practitionerRole');
-  }  
+  }
   function handleSelectConfidentiality(){
-    Session.set('selectedCodeSystem', 'v3-Confidentiality');
-    Session.set('mainAppDialogTitle', "Select Confidentiality Level");
-    Session.set('mainAppDialogComponent', "SearchCodeSystemDialog");
-    Session.set('lastUpdated', new Date());
-    Session.set('mainAppDialogMaxWidth', "md");
-    Session.set('mainAppDialogOpen', true);
-    Session.set('dialogReturnValue', 'MainSearch.confidentialityLevel');
-  }  
+  }
   function handleClearSearch(){
     Session.set('MainSearch.resourceType', {display: '', code: ''});
   }
