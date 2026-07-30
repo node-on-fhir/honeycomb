@@ -173,6 +173,13 @@ import { AccountsServer } from '@accounts/server';
 
 import { LinksCollection } from '/imports/collections/LinksCollection';
 import { OAuthClients } from '/imports/collections/OAuthClients';
+import { ConnectedSources } from '/imports/collections/ConnectedSources';
+
+// Patient Records Connect — SMART standalone patient launch + OAuth callback.
+// Settings-gated via settings.private.smartConnect (methods throw
+// feature-disabled when off).
+import './connect/methods.js';
+import './connect/launchHandlers.js';
 
 
 //===============================================================================================================
@@ -283,6 +290,7 @@ Meteor.Collections = {
   ClinicalImpressions,
   CodeSystems,
   Conditions,
+  ConnectedSources,
   Consents,
   Coverages,
   Communications,
@@ -375,6 +383,7 @@ Object.assign(global.Collections, {
   ClinicalImpressions,
   CodeSystems,
   Conditions,
+  ConnectedSources,
   Consents,
   Coverages,
   Communications,

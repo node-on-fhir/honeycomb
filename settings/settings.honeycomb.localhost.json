@@ -729,6 +729,21 @@
       "baseUrl": "https://rxnav.nlm.nih.gov/REST",
       "cacheTtlDays": 30,
       "timeoutMs": 5000
+    },
+    "smartConnect": {
+      "enabled": true,
+      "redirectUri": "http://localhost:3000/connect/callback",
+      "vendors": {
+        "epic": {
+          "clientId": "",
+          "scopes": "openid fhirUser launch/patient patient/*.read"
+        },
+        "oracle-cerner": {
+          "clientId": "",
+          "scopes": "openid fhirUser launch/patient online_access patient/Patient.rs patient/AllergyIntolerance.rs patient/CarePlan.rs patient/CareTeam.rs patient/Condition.rs patient/Coverage.rs patient/Device.rs patient/DiagnosticReport.rs patient/DocumentReference.rs patient/Encounter.rs patient/FamilyMemberHistory.rs patient/Goal.rs patient/Immunization.rs patient/MedicationAdministration.rs patient/MedicationDispense.rs patient/MedicationRequest.rs patient/Observation.rs patient/Person.rs patient/Procedure.rs patient/Provenance.rs patient/Questionnaire.rs patient/QuestionnaireResponse.rs patient/RelatedPerson.rs patient/ServiceRequest.rs patient/Specimen.rs",
+          "intersectWithSupported": true
+        }
+      }
     }
   }
 }
