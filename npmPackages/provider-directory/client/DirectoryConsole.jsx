@@ -9,9 +9,10 @@
 // DESIGN NOTE: this page is a deliberate always-dark set piece (like the
 // DICOM viewers) — it paints its own console-black background in both theme
 // modes by design, and self-hosts its display faces (Chakra Petch + Martian
-// Mono, served from /workflows/provider-directory/fonts/ — external font
-// origins are blocked by CSP). The classic facet page remains at
-// /provider-directory-classic.
+// Mono). The fonts live flat in the package's assets/ dir because the workflow
+// parser copies only top-level asset files (no subdirs) into
+// public/workflows/provider-directory/ — external font origins are blocked by
+// CSP. The classic facet page remains at /provider-directory-classic.
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box, Collapse } from '@mui/material';
@@ -25,7 +26,7 @@ const log = (Meteor.Logger ? Meteor.Logger.for('DirectoryConsole') : console);
 // Console styles — vars, fonts, keyframes. Injected once.
 // ---------------------------------------------------------------------------
 
-const FONT_BASE = '/workflows/provider-directory/fonts';
+const FONT_BASE = '/workflows/provider-directory';
 
 const CONSOLE_CSS = `
 @font-face {
