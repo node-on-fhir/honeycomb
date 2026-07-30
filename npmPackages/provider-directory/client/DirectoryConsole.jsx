@@ -17,7 +17,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box, Collapse } from '@mui/material';
 import { Meteor } from 'meteor/meteor';
 import { get } from 'lodash';
-import { useNavigate } from 'react-router-dom';
 import { SpiderScanLine, useSpiderScanning } from '/imports/ui/components/SpiderScanLine.jsx';
 
 const log = (Meteor.Logger ? Meteor.Logger.for('DirectoryConsole') : console);
@@ -215,11 +214,86 @@ function UtcClock() {
 // ---------------------------------------------------------------------------
 
 const BAND_CONFIG = {
-  Organization:  { label: 'ORGANIZATIONS', unit: 'CONTACTS',  sigil: '⬡', route: '/organizations', accent: 'var(--amber)' },
-  Practitioner:  { label: 'CLINICIANS',    unit: 'REGISTERED', sigil: '✛', route: '/practitioners', accent: 'var(--cyan)' },
-  Location:      { label: 'LOCATIONS',     unit: 'SITES',      sigil: '◬', route: '/locations',     accent: 'var(--magenta)' },
-  Endpoint:      { label: 'ENDPOINTS',     unit: 'UPLINKS',    sigil: '⌁', route: '/endpoints',     accent: 'var(--green)' }
+  Organization:  { label: 'ORGANIZATIONS', unit: 'CONTACTS',  sigil: '⬡', accent: 'var(--amber)' },
+  Practitioner:  { label: 'CLINICIANS',    unit: 'REGISTERED', sigil: '✛', accent: 'var(--cyan)' },
+  Location:      { label: 'LOCATIONS',     unit: 'SITES',      sigil: '◬', accent: 'var(--magenta)' },
+  Endpoint:      { label: 'ENDPOINTS',     unit: 'UPLINKS',    sigil: '⌁', accent: 'var(--green)' }
 };
+
+// Directory records live in the Directory.* collections, not the core resource
+// collections — so there is no detail page to navigate to. Instead each row
+// reveals its record inline from the hit we already hold. flattenDetail pulls
+// the human-useful fields out of a raw FHIR resource, defensively.
+function flattenDetail(resourceName, hit) {
+  const addresses = Array.isArray(get(hit, 'address')) ? get(hit, 'address') : (get(hit, 'address') ? [get(hit, 'address')] : []);
+  const addressLines = addresses.map(function(addr) {
+    if (typeof addr === 'string') { return addr; }
+    const street = (get(addr, 'line') || []).join(', ');
+    const tail = [get(addr, 'city'), get(addr, 'state'), get(addr, 'postalCode')].filter(Boolean).join(' ');
+    return [street, tail].filter(Boolean).join(', ');
+  }).filter(Boolean);
+
+  const telecom = (Array.isArray(get(hit, 'telecom')) ? get(hit, 'telecom') : [])
+    .map(function(t) { return { system: get(t, 'system', 'contact'), value: get(t, 'value', '') }; })
+    .filter(function(t) { return t.value; });
+
+  const rows = [];
+  if (get(hit, 'id')) { rows.push(['FHIR ID', String(get(hit, 'id'))]); }
+  addressLines.forEach(function(line, i) { rows.push([i === 0 ? 'ADDRESS' : '', line]); });
+  telecom.forEach(function(t) { rows.push([t.system.toUpperCase(), t.value]); });
+
+  if (resourceName === 'Endpoint') {
+    const ct = get(hit, 'connectionType.0.coding.0.code') || get(hit, 'connectionType.coding.0.code') || get(hit, 'connectionType.code');
+    if (ct) { rows.push(['CONNECTION', String(ct)]); }
+    const org = get(hit, 'managingOrganization.display') || get(hit, 'managingOrganization.reference');
+    if (org) { rows.push(['MANAGED BY', String(org)]); }
+  }
+  if (resourceName === 'Practitioner') {
+    const quals = (Array.isArray(get(hit, 'qualification')) ? get(hit, 'qualification') : [])
+      .map(function(q) { return get(q, 'code.text') || get(q, 'code.coding.0.display'); })
+      .filter(Boolean);
+    if (quals.length) { rows.push(['QUALIFICATION', quals.join(' · ')]); }
+  }
+  return rows;
+}
+
+function RecordDetail({ resourceName, hit, accent }) {
+  const rows = flattenDetail(resourceName, hit);
+  return (
+    <Box sx={{
+      ml: '58px', mr: 2, mb: 1, px: 2.5, py: 2,
+      borderLeft: '2px solid ' + accent,
+      background: 'linear-gradient(90deg, rgba(83,230,255,0.04), transparent)'
+    }}>
+      {rows.length === 0 ? (
+        <Box sx={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--ink-dim)', letterSpacing: '0.12em' }}>
+          NO ADDITIONAL FIELDS ON THIS RECORD
+        </Box>
+      ) : (
+        <Box sx={{ display: 'grid', gridTemplateColumns: '120px 1fr', rowGap: 0.75, columnGap: 2 }}>
+          {rows.map(function(pair, index) {
+            return (
+              <React.Fragment key={index}>
+                <Box sx={{
+                  fontFamily: 'var(--mono)', fontSize: '9px', letterSpacing: '0.24em',
+                  color: 'var(--ink-dim)', pt: '2px', textAlign: 'right'
+                }}>
+                  {pair[0]}
+                </Box>
+                <Box sx={{
+                  fontFamily: 'var(--mono)', fontSize: '12px', letterSpacing: '0.04em',
+                  color: 'var(--ink)', wordBreak: 'break-word'
+                }}>
+                  {pair[1]}
+                </Box>
+              </React.Fragment>
+            );
+          })}
+        </Box>
+      )}
+    </Box>
+  );
+}
 
 function flattenHit(resourceName, hit) {
   const address = Array.isArray(get(hit, 'address')) ? get(hit, 'address.0') : get(hit, 'address');
@@ -260,7 +334,10 @@ function StatusChip({ status }) {
   );
 }
 
-function ResultBand({ band, config, navigate, revealIndex }) {
+function ResultBand({ band, config, revealIndex }) {
+  const [expandedId, setExpandedId] = useState(null);
+  const hitsById = {};
+  (band.hits || []).forEach(function(hit) { hitsById[get(hit, '_id')] = hit; });
   const rows = (band.hits || []).map(function(hit) { return flattenHit(band.resourceName, hit); });
   const countLabel = band.matchCount >= 1000
     ? '1,000+' : band.matchCount.toLocaleString();
@@ -298,44 +375,54 @@ function ResultBand({ band, config, navigate, revealIndex }) {
           NO RETURNS ON THIS BAND
         </Box>
       ) : rows.map(function(row, index) {
+        const isOpen = expandedId === row._id;
         return (
-          <button
-            key={row._id}
-            className="gc-row gc-row-btn"
-            style={{ animationDelay: (revealIndex * 120 + 150 + index * 60) + 'ms' }}
-            onClick={function() {
-              log.info('acquire', { resourceType: band.resourceName, id: row._id });
-              navigate(config.route);
-            }}
-          >
-            <Box component="span" sx={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              width: 34, height: 34, color: config.accent, fontSize: '16px',
-              border: '1px solid var(--hairline)', background: 'rgba(83,230,255,0.03)'
-            }}>
-              {config.sigil}
-            </Box>
-            <Box component="span" sx={{ minWidth: 0 }}>
+          <Box key={row._id}>
+            <button
+              className="gc-row gc-row-btn"
+              style={{ animationDelay: (revealIndex * 120 + 150 + index * 60) + 'ms' }}
+              aria-expanded={isOpen}
+              onClick={function() {
+                log.info('reveal', { resourceType: band.resourceName, id: row._id, open: !isOpen });
+                setExpandedId(isOpen ? null : row._id);
+              }}
+            >
               <Box component="span" sx={{
-                display: 'block', fontFamily: 'var(--display)', fontWeight: 500,
-                fontSize: '17px', color: 'var(--ink)', letterSpacing: '0.02em',
-                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: 34, height: 34, color: config.accent, fontSize: '16px',
+                border: '1px solid var(--hairline)',
+                background: isOpen ? 'rgba(255,180,84,0.08)' : 'rgba(83,230,255,0.03)',
+                transition: 'background 0.2s ease'
               }}>
-                {row.name}
+                {config.sigil}
               </Box>
-              <Box component="span" sx={{
-                display: 'block', fontFamily: 'var(--mono)', fontSize: '10px',
-                letterSpacing: '0.12em', color: 'var(--ink-dim)', mt: 0.4,
-                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-              }}>
-                {row.meta.toUpperCase()}{row.fhirId ? '  ·  ID ' + String(row.fhirId).slice(0, 18) : ''}
+              <Box component="span" sx={{ minWidth: 0 }}>
+                <Box component="span" sx={{
+                  display: 'block', fontFamily: 'var(--display)', fontWeight: 500,
+                  fontSize: '17px', color: 'var(--ink)', letterSpacing: '0.02em',
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                }}>
+                  {row.name}
+                </Box>
+                <Box component="span" sx={{
+                  display: 'block', fontFamily: 'var(--mono)', fontSize: '10px',
+                  letterSpacing: '0.12em', color: 'var(--ink-dim)', mt: 0.4,
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                }}>
+                  {row.meta.toUpperCase()}{row.fhirId ? '  ·  ID ' + String(row.fhirId).slice(0, 18) : ''}
+                </Box>
               </Box>
-            </Box>
-            <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <StatusChip status={row.status} />
-              <span className="gc-acquire">ACQUIRE ▸</span>
-            </Box>
-          </button>
+              <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <StatusChip status={row.status} />
+                <span className="gc-acquire" style={isOpen ? { opacity: 1, transform: 'none', color: 'var(--amber)' } : undefined}>
+                  {isOpen ? 'CLOSE ▾' : 'INSPECT ▸'}
+                </span>
+              </Box>
+            </button>
+            <Collapse in={isOpen} unmountOnExit>
+              <RecordDetail resourceName={band.resourceName} hit={hitsById[row._id]} accent={config.accent} />
+            </Collapse>
+          </Box>
         );
       })}
     </Box>
@@ -347,8 +434,6 @@ function ResultBand({ band, config, navigate, revealIndex }) {
 // ---------------------------------------------------------------------------
 
 export function DirectoryConsole() {
-  const navigate = useNavigate();
-
   const [query, setQuery] = useState('');
   const [facets, setFacets] = useState({ city: '', state: '', postalCode: '' });
   const [showFacets, setShowFacets] = useState(false);
@@ -651,7 +736,6 @@ export function DirectoryConsole() {
                     key={band.resourceName + '-' + query}
                     band={band}
                     config={config}
-                    navigate={navigate}
                     revealIndex={index}
                   />
                 );
