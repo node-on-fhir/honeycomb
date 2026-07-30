@@ -10,6 +10,11 @@ registerDirectoryCollections();
 // its default export is still internally named MainPage. The Atmosphere index.jsx
 // imported it as ./client/MainPage — a stale path from before the file rename.
 import MainPage from './client/ProviderDirectory';
+
+// GRID CONTROL — the redesigned directory console (free-text omniSearch over
+// the Directory.* collections). Now the primary /provider-directory route;
+// the classic faceted page stays reachable at /provider-directory-classic.
+import DirectoryConsole from './client/DirectoryConsole';
 // NOTE: /baseR4 is owned by the host app (imports/ui/pages/FhirBasePage.jsx).
 // The package's FhirBasePage was a fully-commented-out dead stub and has been removed.
 
@@ -63,6 +68,11 @@ import {
 let DynamicRoutes = [{
   name: 'ProviderDirectory',
   path: '/provider-directory',
+  element: <DirectoryConsole />,
+  requireAuth: true
+}, {
+  name: 'ProviderDirectoryClassic',
+  path: '/provider-directory-classic',
   element: <MainPage />,
   requireAuth: true
 }]
