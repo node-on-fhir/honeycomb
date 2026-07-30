@@ -21,6 +21,15 @@
 import { Meteor } from 'meteor/meteor';
 import { get } from 'lodash';
 import { getDirectoryCollection } from '../lib/DirectoryCollections.js';
+import { Endpoints as CoreEndpoints } from '/imports/lib/schemas/SimpleSchemas/Endpoints.js';
+
+// Endpoints live in TWO physical collections (a deliberate scale split — see
+// lib/DirectoryCollections.js): the CMS National Directory mirror
+// (Directory.Endpoints, ~630K, mostly Direct secure-messaging) and the core
+// Endpoints collection (~91K: lantern / epic-open / cerner-ignite — the
+// connectable FHIR base URLs the spider probes and /patient-fetch launches
+// against). We unify them at the READ layer here, tagging each hit with its
+// meta.source lineage so the console shows one logical directory.
 
 const RESULT_LIMIT_DEFAULT = 8;
 const RESULT_LIMIT_MAX = 25;
@@ -50,13 +59,41 @@ const SEARCH_TARGETS = [
     resourceName: 'Location',
     nameFields: ['name'],
     projection: { name: 1, address: 1, telecom: 1, status: 1, id: 1 }
-  },
-  {
-    resourceName: 'Endpoint',
-    nameFields: ['name', 'address'],
-    projection: { name: 1, address: 1, status: 1, connectionType: 1, managingOrganization: 1, id: 1 }
   }
 ];
+
+// Endpoint is special-cased (unified across both collections), so it carries
+// meta + connectionType in its projection to derive source + connectability.
+const ENDPOINT_TARGET = {
+  resourceName: 'Endpoint',
+  nameFields: ['name', 'address'],
+  projection: { name: 1, address: 1, status: 1, connectionType: 1, managingOrganization: 1, meta: 1, id: 1 }
+};
+
+// meta.tag.code → the source chip the console shows. Core Endpoints carry
+// lantern / epic-open / cerner-ignite; Directory.Endpoints (NPPES) carry none,
+// so we label those 'nppes' by origin collection.
+function endpointSourceLabel(hit, originIsCore) {
+  const tags = get(hit, 'meta.tag', []);
+  const code = Array.isArray(tags) && tags.length ? get(tags, '0.code') : null;
+  if (code === 'epic-open') { return 'epic'; }
+  if (code === 'cerner-ignite') { return 'cerner'; }
+  if (code === 'lantern') { return 'lantern'; }
+  return originIsCore ? 'other' : 'nppes';
+}
+
+// connectionType code → is this a SMART-launchable FHIR REST endpoint (vs a
+// Direct secure-messaging address)? Handles the several shapes it comes in.
+function isConnectable(hit) {
+  const ct = get(hit, 'connectionType');
+  let code = null;
+  if (Array.isArray(ct)) {
+    code = get(ct, '0.coding.0.code') || get(ct, '0.code');
+  } else if (ct && typeof ct === 'object') {
+    code = get(ct, 'coding.0.code') || get(ct, 'code');
+  }
+  return code === 'hl7-fhir-rest';
+}
 
 function buildNameSelector(nameFields, regex, extra) {
   const or = nameFields.map(function(field) {
@@ -86,8 +123,8 @@ function buildFacetSelector(params) {
   return extra;
 }
 
-async function searchOneType(target, q, facets, limit) {
-  const raw = getDirectoryCollection(target.resourceName).rawCollection();
+async function searchOneType(target, q, facets, limit, rawOverride) {
+  const raw = rawOverride || getDirectoryCollection(target.resourceName).rawCollection();
   const escaped = escapeRegex(q);
   const prefixRegex = { $regex: '^' + escaped, $options: 'i' };
   const prefixSelector = buildNameSelector(target.nameFields, prefixRegex, facets);
@@ -131,6 +168,44 @@ async function searchOneType(target, q, facets, limit) {
   };
 }
 
+// Unified Endpoint band: search BOTH the connectable core Endpoints collection
+// and the NPPES Directory.Endpoints mirror, tag each hit with its source +
+// connectability, and interleave with connectable (FHIR REST) results first so
+// the actionable endpoints surface at the top.
+async function searchEndpointsUnified(q, facets, limit) {
+  const coreRaw = CoreEndpoints.rawCollection();
+  const directoryRaw = getDirectoryCollection('Endpoint').rawCollection();
+
+  const [core, directory] = await Promise.all([
+    searchOneType(ENDPOINT_TARGET, q, facets, limit, coreRaw),
+    searchOneType(ENDPOINT_TARGET, q, facets, limit, directoryRaw)
+  ]);
+
+  const coreHits = core.hits.map(function(hit) {
+    return Object.assign({}, hit, {
+      _source: endpointSourceLabel(hit, true),
+      _connectable: isConnectable(hit)
+    });
+  });
+  const directoryHits = directory.hits.map(function(hit) {
+    return Object.assign({}, hit, {
+      _source: endpointSourceLabel(hit, false),
+      _connectable: isConnectable(hit)
+    });
+  });
+
+  // Connectable (FHIR REST) first, then the rest; cap at limit.
+  const merged = coreHits.concat(directoryHits);
+  merged.sort(function(a, b) { return (b._connectable ? 1 : 0) - (a._connectable ? 1 : 0); });
+
+  return {
+    resourceName: 'Endpoint',
+    matchCount: core.matchCount + directory.matchCount,
+    countCapped: core.countCapped || directory.countCapped,
+    hits: merged.slice(0, limit)
+  };
+}
+
 Meteor.ServerMethods.define('providerDirectory.omniSearch', {
   description: 'Free-text search across the National Directory (organizations, practitioners, locations, endpoints) with bounded counts and estimated totals.',
   requireAuth: false,
@@ -153,21 +228,28 @@ Meteor.ServerMethods.define('providerDirectory.omniSearch', {
   const startedAt = Date.now();
 
   // Fast estimated totals for the stat ticker — always returned, even for an
-  // empty query, so the console can render the grid census on load.
+  // empty query, so the console can render the grid census on load. Endpoint
+  // total is the union of both collections (Directory mirror + connectable core).
   const totals = {};
   await Promise.all(SEARCH_TARGETS.map(async function(target) {
     totals[target.resourceName] = await getDirectoryCollection(target.resourceName)
       .rawCollection().estimatedDocumentCount()
       .catch(function() { return 0; });
   }));
+  const [directoryEndpointCount, coreEndpointCount] = await Promise.all([
+    getDirectoryCollection('Endpoint').rawCollection().estimatedDocumentCount().catch(function() { return 0; }),
+    CoreEndpoints.rawCollection().estimatedDocumentCount().catch(function() { return 0; })
+  ]);
+  totals.Endpoint = directoryEndpointCount + coreEndpointCount;
 
   if (q.length < 2) {
     return { q: q, totals: totals, results: [], searchMs: Date.now() - startedAt };
   }
 
-  const results = await Promise.all(SEARCH_TARGETS.map(function(target) {
-    return searchOneType(target, q, facets, limit);
-  }));
+  const results = await Promise.all(
+    SEARCH_TARGETS.map(function(target) { return searchOneType(target, q, facets, limit); })
+      .concat([searchEndpointsUnified(q, facets, limit)])
+  );
 
   const searchMs = Date.now() - startedAt;
   console.log('[provider-directory] omniSearch "' + q + '" → ' +

@@ -15,10 +15,10 @@
 // CSP. The classic facet page remains at /provider-directory-classic.
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Box, Collapse } from '@mui/material';
+import { Box, Collapse, Button, CircularProgress } from '@mui/material';
 import { Meteor } from 'meteor/meteor';
 import { get } from 'lodash';
-import { SpiderScanLine, useSpiderScanning } from '/imports/ui/components/SpiderScanLine.jsx';
+import { SpiderScanLine, useSpiderScanning, withSpiderScanning } from '/imports/ui/components/SpiderScanLine.jsx';
 
 const log = (Meteor.Logger ? Meteor.Logger.for('DirectoryConsole') : console);
 
@@ -46,9 +46,9 @@ const CONSOLE_CSS = `
 }
 
 .grid-console {
-  --void: #050810;
-  --panel: rgba(11, 18, 32, 0.72);
-  --panel-hard: #0b1220;
+  --void: #0a0a0b;
+  --panel: rgba(24, 24, 26, 0.72);
+  --panel-hard: #141416;
   --amber: #ffb454;
   --amber-dim: rgba(255, 180, 84, 0.42);
   --cyan: #53e6ff;
@@ -292,6 +292,120 @@ function RecordDetail({ resourceName, hit, accent }) {
           })}
         </Box>
       )}
+
+      {/* Connectable FHIR endpoint → the Probe & Connect bridge into the
+          spider + SMART launch flow. */}
+      {resourceName === 'Endpoint' && get(hit, '_connectable') ? (
+        <EndpointFetchPanel endpointId={get(hit, '_id')} accent={accent} />
+      ) : null}
+    </Box>
+  );
+}
+
+// Bridges a connectable FHIR endpoint to the spider probe + SMART launch we
+// built (lantern.probeEndpoint → connect.beginLaunch). Probe raises the global
+// SPIDER_SCANNING signal (the sweep line fires); a launchable result reveals
+// Connect & Fetch, which hands off to the vendor login. Settings-gated: an
+// unconfigured vendor surfaces the actionable admin message.
+function EndpointFetchPanel({ endpointId, accent }) {
+  const [probing, setProbing] = useState(false);
+  const [conformance, setConformance] = useState(null);
+  const [connecting, setConnecting] = useState(false);
+  const [error, setError] = useState(null);
+
+  async function handleProbe() {
+    setError(null);
+    setProbing(true);
+    try {
+      const result = await withSpiderScanning(function() {
+        return Meteor.rpc('lantern.probeEndpoint', { endpointId: endpointId });
+      });
+      setConformance(result);
+    } catch (err) {
+      setError(get(err, 'reason', err.message));
+    } finally {
+      setProbing(false);
+    }
+  }
+
+  async function handleConnect() {
+    setError(null);
+    setConnecting(true);
+    try {
+      const result = await Meteor.rpc('connect.beginLaunch', { endpointId: endpointId });
+      window.location.assign(get(result, 'authorizeUrl'));
+    } catch (err) {
+      setConnecting(false);
+      setError(get(err, 'reason', err.message));
+    }
+  }
+
+  const launchable = conformance && get(conformance, 'patientLaunchable');
+  const btnSx = {
+    fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.18em',
+    color: accent, borderColor: accent,
+    '&:hover': { borderColor: accent, background: 'rgba(255,255,255,0.04)' }
+  };
+
+  return (
+    <Box sx={{ mt: 2, pt: 1.5, borderTop: '1px dashed var(--hairline)' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+        <Button
+          variant="outlined" size="small" sx={btnSx}
+          disabled={probing || connecting}
+          startIcon={probing ? <CircularProgress size={14} color="inherit" /> : null}
+          onClick={handleProbe}
+        >
+          {probing ? 'Probing…' : (conformance ? 'Re-probe' : 'Probe endpoint')}
+        </Button>
+
+        {conformance ? (
+          <Box component="span" sx={{ display: 'inline-flex', gap: 0.75, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Box component="span" sx={{
+              fontFamily: 'var(--mono)', fontSize: '8.5px', letterSpacing: '0.2em', px: 0.9, py: 0.3,
+              color: get(conformance, 'healthTag') === 'up' ? 'var(--green)' : (get(conformance, 'healthTag') === 'degraded' ? 'var(--amber)' : 'var(--magenta)'),
+              border: '1px solid currentColor', opacity: 0.85
+            }}>
+              {String(get(conformance, 'healthTag', 'down')).toUpperCase()}
+            </Box>
+            {get(conformance, 'vendor') && get(conformance, 'vendor') !== 'unknown' ? (
+              <Box component="span" sx={{ fontFamily: 'var(--mono)', fontSize: '8.5px', letterSpacing: '0.2em', px: 0.9, py: 0.3, color: 'var(--ink-dim)', border: '1px solid var(--ink-dim)' }}>
+                {String(get(conformance, 'vendor')).toUpperCase()}
+              </Box>
+            ) : null}
+            {get(conformance, 'fhirVersion') ? (
+              <Box component="span" sx={{ fontFamily: 'var(--mono)', fontSize: '8.5px', letterSpacing: '0.2em', px: 0.9, py: 0.3, color: 'var(--ink-dim)', border: '1px solid var(--ink-dim)' }}>
+                FHIR {get(conformance, 'fhirVersion')}
+              </Box>
+            ) : null}
+          </Box>
+        ) : null}
+
+        {launchable ? (
+          <Button
+            variant="contained" size="small"
+            sx={{ fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.18em', ml: 'auto' }}
+            disabled={connecting}
+            startIcon={connecting ? <CircularProgress size={14} color="inherit" /> : null}
+            onClick={handleConnect}
+          >
+            {connecting ? 'Connecting…' : 'Connect & Fetch ▸'}
+          </Button>
+        ) : null}
+      </Box>
+
+      {conformance && !launchable ? (
+        <Box sx={{ fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.1em', color: 'var(--ink-dim)', mt: 1 }}>
+          NOT PATIENT-LAUNCHABLE — {get(conformance, 'healthTag', 'unknown').toUpperCase()}
+          {get(conformance, 'fhirVersion') ? ' · FHIR ' + get(conformance, 'fhirVersion') : ''}
+        </Box>
+      ) : null}
+
+      {error ? (
+        <Box sx={{ fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.06em', color: 'var(--magenta)', mt: 1 }}>
+          {error}
+        </Box>
+      ) : null}
     </Box>
   );
 }
@@ -315,8 +429,36 @@ function flattenHit(resourceName, hit) {
     name: name || '(unnamed)',
     meta: meta || '—',
     fhirId: get(hit, 'id', ''),
-    status: status
+    status: status,
+    // Endpoint-band extras (tagged server-side by the unified search).
+    source: get(hit, '_source', null),
+    connectable: !!get(hit, '_connectable'),
+    fhirBase: resourceName === 'Endpoint' && typeof get(hit, 'address') === 'string'
+      ? get(hit, 'address') : null
   };
+}
+
+// Source lineage chip for endpoint rows (meta.source discriminator).
+const SOURCE_CHIP = {
+  epic:    { label: 'EPIC',    color: 'var(--amber)' },
+  cerner:  { label: 'CERNER',  color: 'var(--green)' },
+  lantern: { label: 'LANTERN', color: 'var(--cyan)' },
+  nppes:   { label: 'NPPES',   color: 'var(--ink-dim)' },
+  other:   { label: 'OTHER',   color: 'var(--ink-dim)' }
+};
+
+function SourceChip({ source }) {
+  const cfg = SOURCE_CHIP[source];
+  if (!cfg) { return null; }
+  return (
+    <Box component="span" sx={{
+      fontFamily: 'var(--mono)', fontSize: '8.5px', letterSpacing: '0.2em',
+      px: 0.9, py: 0.3, whiteSpace: 'nowrap', color: cfg.color,
+      border: '1px solid ' + cfg.color, opacity: 0.85
+    }}>
+      {cfg.label}
+    </Box>
+  );
 }
 
 function StatusChip({ status }) {
@@ -414,6 +556,15 @@ function ResultBand({ band, config, revealIndex }) {
                 </Box>
               </Box>
               <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                {row.source ? <SourceChip source={row.source} /> : null}
+                {row.connectable ? (
+                  <Box component="span" sx={{
+                    fontFamily: 'var(--mono)', fontSize: '8.5px', letterSpacing: '0.2em',
+                    px: 0.9, py: 0.3, color: 'var(--green)', border: '1px solid var(--green)', whiteSpace: 'nowrap'
+                  }}>
+                    ⌁ FHIR
+                  </Box>
+                ) : null}
                 <StatusChip status={row.status} />
                 <span className="gc-acquire" style={isOpen ? { opacity: 1, transform: 'none', color: 'var(--amber)' } : undefined}>
                   {isOpen ? 'CLOSE ▾' : 'INSPECT ▸'}
@@ -519,9 +670,10 @@ export function DirectoryConsole() {
       '&::before': {
         content: '""', position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
         background: `
-          radial-gradient(120% 90% at 15% -10%, rgba(38, 64, 128, 0.35), transparent 55%),
-          radial-gradient(90% 70% at 95% 110%, rgba(255, 94, 168, 0.10), transparent 60%),
-          repeating-linear-gradient(0deg, rgba(255,255,255,0.022) 0px, rgba(255,255,255,0.022) 1px, transparent 1px, transparent 3px)
+          linear-gradient(160deg, #17171a 0%, #0d0d0f 45%, #050506 100%),
+          radial-gradient(120% 90% at 15% -10%, rgba(255, 255, 255, 0.06), transparent 55%),
+          radial-gradient(90% 70% at 95% 110%, rgba(255, 255, 255, 0.03), transparent 60%),
+          repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px)
         `
       },
       '&::after': {
