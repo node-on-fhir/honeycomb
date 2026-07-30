@@ -73,6 +73,12 @@ its own `open` state, or for cross-package modals register through
 > the old `dialogReturnValue` return-protocol and would need a real host/prop
 > when rewired.
 
+### Endpoint Conformance Spider
+
+| Key | Constant | Set by | Read by | Meaning |
+|-----|----------|--------|---------|---------|
+| `spiderScanning` | `SPIDER_SCANNING` | @orbital/lantern probe driver (EndpointList) + future sweep worker | provider-directory DirectoryConsole scan-line; any global chrome that adopts it | boolean — a probe/sweep is in flight; drives the traveling sweep-line "spider running" tell |
+
 ### Session Inspector (debug dashboard)
 
 | Key | Constant | Notes |

@@ -18,6 +18,7 @@ import { Box, Collapse } from '@mui/material';
 import { Meteor } from 'meteor/meteor';
 import { get } from 'lodash';
 import { useNavigate } from 'react-router-dom';
+import { SpiderScanLine, useSpiderScanning } from '/imports/ui/components/SpiderScanLine.jsx';
 
 const log = (Meteor.Logger ? Meteor.Logger.for('DirectoryConsole') : console);
 
@@ -70,13 +71,7 @@ const CONSOLE_CSS = `
 }
 .grid-console ::-webkit-scrollbar-thumb:hover { background: var(--amber-dim); }
 
-/* -- atmosphere ---------------------------------------------------------- */
-@keyframes gcSweep {
-  0%   { transform: translateY(-8%);  opacity: 0; }
-  8%   { opacity: 0.5; }
-  92%  { opacity: 0.5; }
-  100% { transform: translateY(108vh); opacity: 0; }
-}
+/* -- atmosphere (traveling sweep line now lives in SpiderScanLine) ------- */
 @keyframes gcFlicker {
   0%, 100% { opacity: 0.035; } 50% { opacity: 0.06; }
 }
@@ -365,6 +360,8 @@ export function DirectoryConsole() {
   const debounceRef = useRef(null);
   const scanSeq = useRef(0);
 
+  const spiderScanning = useSpiderScanning();
+
   const gridTotal = totals
     ? Object.values(totals).reduce(function(sum, n) { return sum + n; }, 0)
     : null;
@@ -448,12 +445,11 @@ export function DirectoryConsole() {
     }}>
       <style>{CONSOLE_CSS}</style>
 
-      {/* traveling sweep line */}
-      <Box sx={{
-        position: 'absolute', left: 0, right: 0, top: 0, height: '2px', zIndex: 1,
-        background: 'linear-gradient(90deg, transparent, var(--cyan-dim), transparent)',
-        animation: 'gcSweep 9s linear infinite', pointerEvents: 'none'
-      }} />
+      {/* Traveling sweep line — now a SIGNAL, not decoration. It runs while a
+          HAIL search is in flight OR the conformance spider is probing
+          anywhere (SPIDER_SCANNING contract), so the beam means "a scan is
+          running." */}
+      <SpiderScanLine active={scanning || spiderScanning} zIndex={1} />
 
       {/* scrollable console body */}
       <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', position: 'relative', zIndex: 2 }}>
@@ -662,26 +658,6 @@ export function DirectoryConsole() {
               })
             )}
           </Box>
-        </Box>
-      </Box>
-
-      {/* ---- footer telemetry strip ---- */}
-      <Box sx={{
-        position: 'relative', zIndex: 2, flexShrink: 0,
-        borderTop: '1px solid var(--hairline)', background: 'rgba(5,8,16,0.85)',
-        px: { xs: 2.5, md: 5 }, py: 1,
-        display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1,
-        fontFamily: 'var(--mono)', fontSize: '9px', letterSpacing: '0.22em', color: 'var(--ink-dim)'
-      }}>
-        <Box>
-          GRID CONTROL <Box component="span" sx={{ color: 'var(--amber)' }}>v2</Box>
-          {'  ·  '}CHRONICLE WORKSTATION
-        </Box>
-        <Box>
-          SOURCES <Box component="span" sx={{ color: 'var(--cyan)' }}>NPPES</Box> ·{' '}
-          <Box component="span" sx={{ color: 'var(--cyan)' }}>LANTERN</Box> ·{' '}
-          <Box component="span" sx={{ color: 'var(--cyan)' }}>VENDOR LISTS</Box>
-          {'  ·  '}CLASSIC CONSOLE AT /provider-directory-classic
         </Box>
       </Box>
     </Box>

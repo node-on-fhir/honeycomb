@@ -90,40 +90,38 @@ let buttonStyles = {
 //============================================================================================================================
 // Turntable / Biosignature
 
+// GRID CONTROL telemetry strip — the route-scoped footer for the redesigned
+// /provider-directory console. Replaces the old Preferences / Search NLM
+// buttons (which drove the now-removed mainAppDialog bus and were no-ops).
+// Mono display face matches DirectoryConsole; full-width justified strip.
 export function VhDirFooterButtons(props){
-  // const buttonClasses = buttonStyles();
-
-  let {
-    children,
-    jsonContent,
-    ...otherProps
-  } = props;
-
-  function togglePreferences(){
-    Session.toggle('mainAppDialogOpen');
-
-    Session.set('mainAppDialogComponent', "PreferencesDialog");
-    Session.set('mainAppDialogTitle', "Preferences");
-    Session.set('mainAppDialogMaxWidth', "sm");
-  }
-  function toggleSearchNlm(){
-    Session.toggle('mainAppDialogOpen');
-
-    Session.set('mainAppDialogComponent', "SearchLibraryOfMedicineDialog");
-    Session.set('mainAppDialogTitle', "Search the National Library of Medicine");
-    Session.set('mainAppDialogMaxWidth', "md");
-  }
-
-
   return (
-    <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
-      <Button id="provider-directory-preferences-footer-btn" onClick={ togglePreferences.bind(this) } style={buttonStyles.west_button}>
-        Preferences
-      </Button>
-      <Button id="provider-directory-search-nlm-footer-btn" onClick={ toggleSearchNlm.bind(this) } style={buttonStyles.west_button}>
-        Search NLM
-      </Button>
-    </MuiThemeProvider>
+    <div
+      className="footer-buttons-provider-directory"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '8px',
+        width: '100%',
+        padding: '0 8px',
+        fontFamily: "'Martian Mono', 'SF Mono', ui-monospace, monospace",
+        fontSize: '9px',
+        letterSpacing: '0.22em',
+        color: '#61758f'
+      }}
+    >
+      <span id="provider-directory-grid-control-footer-label">
+        GRID CONTROL <span style={{ color: '#ffb454' }}>v2</span>
+        {'  ·  '}CHRONICLE WORKSTATION
+      </span>
+      <span id="provider-directory-grid-sources-footer-label">
+        SOURCES <span style={{ color: '#53e6ff' }}>NPPES</span>
+        {' · '}<span style={{ color: '#53e6ff' }}>LANTERN</span>
+        {' · '}<span style={{ color: '#53e6ff' }}>VENDOR LISTS</span>
+      </span>
+    </div>
   );
 }
 

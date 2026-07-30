@@ -45,6 +45,13 @@ export const ACCOUNTS_REFRESH_TOKEN  = 'accountsRefreshToken';
 export const SELECTED_ENDPOINT     = 'selectedEndpoint';     // full FHIR Endpoint object
 export const SELECTED_ENDPOINT_ID  = 'selectedEndpointId';   // Endpoint _id (selection marker)
 
+// Endpoint Conformance Spider activity signal. Set true while a probe/sweep is
+// in flight (lantern.probeEndpoint driver, future sweep worker); read by the
+// scan-line indicator (provider-directory DirectoryConsole, and any global
+// chrome that adopts it) to animate the traveling sweep as a "spider running"
+// tell. Cross-package, so it lives here per the session-keys contract.
+export const SPIDER_SCANNING       = 'spiderScanning';       // boolean
+
 // ── App chrome / theme ───────────────────────────────────────────────────────
 export const THEME           = 'theme';            // 'light' | 'dark'
 export const DISPLAY_NAVBARS  = 'displayNavbars';
@@ -119,7 +126,7 @@ export default {
   SELECTED_PATIENT, SELECTED_PATIENT_ID, SELECTED_PATIENT_MONGO_ID,
   SELECTED_PRACTITIONER_ID, SELECTED_PRACTITIONER_ROLE_ID,
   CURRENT_USER, SESSION_ID, ACCOUNTS_ACCESS_TOKEN, ACCOUNTS_REFRESH_TOKEN,
-  SELECTED_ENDPOINT, SELECTED_ENDPOINT_ID,
+  SELECTED_ENDPOINT, SELECTED_ENDPOINT_ID, SPIDER_SCANNING,
   THEME, DISPLAY_NAVBARS, APP_HEIGHT, APP_WIDTH, VIEWPORT, SESSION_INSPECTOR_OPEN,
   SHOW_SYSTEM_IDS, SHOW_FHIR_IDS, SHOW_EXPERIMENTAL,
   SIMULATOR_MISSION_ID, SIMULATOR_LAUNCH_DATE, SIMULATOR_VEHICLE,
