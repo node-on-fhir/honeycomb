@@ -6,16 +6,24 @@
 // endpoints), census ticker with live count-up, precision-scan facet drawer,
 // stagger-revealed signal-return results.
 //
-// DESIGN NOTE: this page is a deliberate always-dark set piece (like the
-// DICOM viewers) — it paints its own console-black background in both theme
-// modes by design, and self-hosts its display faces (Chakra Petch + Martian
-// Mono). The fonts live flat in the package's assets/ dir because the workflow
-// parser copies only top-level asset files (no subdirs) into
-// public/workflows/provider-directory/ — external font origins are blocked by
-// CSP. The classic facet page remains at /provider-directory-classic.
+// DESIGN NOTE: this page is now THEME-DRIVEN (advance-theming applied, per the
+// /apply-advanced-theming procedure). Its signature console palette is no longer
+// hardcoded — the `.grid-console` CSS-var block is generated from the active MUI
+// theme (buildConsoleVars(theme)), so a preset selected in the ThemeDialog
+// restyles it live: Limestone → grayscale, Tron → single-hue, Vaporwave → the
+// original amber/green/cyan look (that preset IS this page's native aesthetic).
+// Every tint routes through those vars via color-mix(), so the subcomponents
+// stay theme-agnostic and only this top component reads the theme. The display
+// face follows the theme's displayFontFamily; Martian Mono stays the structural
+// data-readout mono. Fonts are app-wide now (client/main.css @font-face at
+// /fonts/*.woff2) but kept here too so the package renders standalone — the
+// workflow parser copies only top-level asset files into
+// public/workflows/provider-directory/. The classic facet page remains at
+// /provider-directory-classic.
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box, Collapse, Button, CircularProgress } from '@mui/material';
+import { useTheme, alpha, darken, lighten } from '@mui/material/styles';
 import { Meteor } from 'meteor/meteor';
 import { get } from 'lodash';
 import { SpiderScanLine, useSpiderScanning, withSpiderScanning } from '/imports/ui/components/SpiderScanLine.jsx';
@@ -28,7 +36,10 @@ const log = (Meteor.Logger ? Meteor.Logger.for('DirectoryConsole') : console);
 
 const FONT_BASE = '/workflows/provider-directory';
 
-const CONSOLE_CSS = `
+// Structural CSS — fonts, keyframes, and class rules. Every color is expressed
+// as a CSS var (or a color-mix against one), so this string is theme-agnostic
+// and injected once; the vars themselves come from buildConsoleVars(theme).
+const CONSOLE_STATIC_CSS = `
 @font-face {
   font-family: 'Chakra Petch';
   src: url('${FONT_BASE}/chakra-petch-500.woff2') format('woff2');
@@ -45,29 +56,12 @@ const CONSOLE_CSS = `
   font-weight: 100 800; font-style: normal; font-display: swap;
 }
 
-.grid-console {
-  --void: #0a0a0b;
-  --panel: rgba(24, 24, 26, 0.72);
-  --panel-hard: #141416;
-  --amber: #ffb454;
-  --amber-dim: rgba(255, 180, 84, 0.42);
-  --stone: #d8d2c4;
-  --stone-dim: rgba(216, 210, 196, 0.30);
-  --magenta: #ff5ea8;
-  --green: #69f0ae;
-  --ink: #d8e4f0;
-  --ink-dim: #61758f;
-  --hairline: rgba(216, 210, 196, 0.14);
-  --display: 'Chakra Petch', 'Avenir Next Condensed', sans-serif;
-  --mono: 'Martian Mono', 'SF Mono', ui-monospace, monospace;
-}
-
-.grid-console *::selection { background: var(--amber-dim); color: #0a0a0a; }
+.grid-console *::selection { background: var(--amber-dim); color: var(--void); }
 
 .grid-console ::-webkit-scrollbar { width: 10px; height: 10px; }
 .grid-console ::-webkit-scrollbar-track { background: transparent; }
 .grid-console ::-webkit-scrollbar-thumb {
-  background: rgba(216, 210, 196, 0.18); border: 2px solid var(--void); border-radius: 6px;
+  background: color-mix(in srgb, var(--stone) 18%, transparent); border: 2px solid var(--void); border-radius: 6px;
 }
 .grid-console ::-webkit-scrollbar-thumb:hover { background: var(--amber-dim); }
 
@@ -94,8 +88,8 @@ const CONSOLE_CSS = `
   100% { transform: translateX(200%); }
 }
 @keyframes gcPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(105, 240, 174, 0.4); }
-  50%      { box-shadow: 0 0 8px 2px rgba(105, 240, 174, 0.18); }
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 40%, transparent); }
+  50%      { box-shadow: 0 0 8px 2px color-mix(in srgb, var(--green) 18%, transparent); }
 }
 
 .gc-boot   { animation: gcBoot 0.7s cubic-bezier(0.2, 0.9, 0.25, 1) both; }
@@ -110,7 +104,7 @@ const CONSOLE_CSS = `
 }
 .gc-row-btn:hover {
   transform: translateX(6px);
-  background: linear-gradient(90deg, rgba(255, 180, 84, 0.07), rgba(216, 210, 196, 0.03) 60%, transparent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--amber) 7%, transparent), color-mix(in srgb, var(--stone) 3%, transparent) 60%, transparent);
   border-left-color: var(--amber);
 }
 .gc-row-btn:hover .gc-acquire { opacity: 1; transform: translateX(0); }
@@ -125,7 +119,7 @@ const CONSOLE_CSS = `
   color: var(--stone); background: transparent; border: 1px solid var(--stone-dim);
   padding: 6px 14px; cursor: pointer; transition: all 0.18s ease;
 }
-.gc-chip-btn:hover { border-color: var(--amber); color: var(--amber); background: rgba(255,180,84,0.06); }
+.gc-chip-btn:hover { border-color: var(--amber); color: var(--amber); background: color-mix(in srgb, var(--amber) 6%, transparent); }
 
 .gc-facet-input {
   font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em;
@@ -144,6 +138,38 @@ const CONSOLE_CSS = `
 }
 .gc-hail-input::placeholder { color: var(--ink-dim); opacity: 0.55; font-weight: 500; }
 `;
+
+// Generate the `.grid-console` design-token block from the active MUI theme.
+// This is the single seam that makes the console theme-driven: every var maps to
+// a palette token or the theme's display font, so switching presets in the
+// ThemeDialog re-paints the whole page. The three intensity tiers (--ink /
+// --stone / --ink-dim) map to text.primary / text.secondary / text.disabled;
+// the branded accents (--amber lead, --magenta, --green) map to primary /
+// secondary / success. Martian Mono stays fixed — mono is the console's
+// structural data-readout face, not a themed axis.
+function buildConsoleVars(theme) {
+  const p = theme.palette;
+  const canvas = p.background.default;
+  const displayFont = (theme.typography.h1 && theme.typography.h1.fontFamily) || theme.typography.fontFamily;
+  return `.grid-console {
+  --void: ${canvas};
+  --void-hi: ${lighten(canvas, 0.05)};
+  --void-lo: ${darken(canvas, 0.5)};
+  --panel: ${alpha(p.background.paper, 0.72)};
+  --panel-hard: ${p.background.paper};
+  --amber: ${p.primary.main};
+  --amber-dim: ${alpha(p.primary.main, 0.42)};
+  --stone: ${p.text.secondary};
+  --stone-dim: ${alpha(p.text.secondary, 0.30)};
+  --magenta: ${(p.secondary && p.secondary.main) || p.error.main};
+  --green: ${(p.success && p.success.main) || '#69f0ae'};
+  --ink: ${p.text.primary};
+  --ink-dim: ${p.text.disabled};
+  --hairline: ${p.divider};
+  --display: ${displayFont};
+  --mono: 'Martian Mono', 'SF Mono', ui-monospace, monospace;
+}`;
+}
 
 // Layered background: gradients + hex-grid + scanlines + noise.
 const NOISE_URI = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E\")";
@@ -191,7 +217,7 @@ function TickerNumber({ value, delay = 0 }) {
       fontFamily: 'var(--mono)', fontWeight: 700,
       fontSize: 'clamp(22px, 2.6vw, 32px)', color: 'var(--amber)',
       fontVariantNumeric: 'tabular-nums', letterSpacing: '0.02em',
-      textShadow: '0 0 18px rgba(255,180,84,0.35)'
+      textShadow: '0 0 18px color-mix(in srgb, var(--amber) 35%, transparent)'
     }}>
       {shown.toLocaleString()}
     </Box>
@@ -280,7 +306,7 @@ function RecordDetail({ resourceName, hit, accent }) {
     <Box sx={{
       ml: '58px', mr: 2, mb: 1, px: 2.5, py: 2,
       borderLeft: '2px solid ' + accent,
-      background: 'linear-gradient(90deg, rgba(216,210,196,0.04), transparent)'
+      background: 'linear-gradient(90deg, color-mix(in srgb, var(--stone) 4%, transparent), transparent)'
     }}>
       {rows.length === 0 ? (
         <Box sx={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--ink-dim)', letterSpacing: '0.12em' }}>
@@ -360,7 +386,7 @@ function EndpointFetchPanel({ endpointId, accent }) {
   const btnSx = {
     fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.18em',
     color: accent, borderColor: accent,
-    '&:hover': { borderColor: accent, background: 'rgba(255,255,255,0.04)' }
+    '&:hover': { borderColor: accent, background: 'color-mix(in srgb, var(--ink) 4%, transparent)' }
   };
 
   return (
@@ -485,7 +511,7 @@ function StatusChip({ status }) {
       fontFamily: 'var(--mono)', fontSize: '9px', letterSpacing: '0.2em',
       px: 1, py: 0.4, whiteSpace: 'nowrap',
       color: live ? 'var(--green)' : 'var(--ink-dim)',
-      border: '1px solid ' + (live ? 'rgba(105,240,174,0.4)' : 'rgba(97,117,143,0.4)'),
+      border: '1px solid ' + (live ? 'color-mix(in srgb, var(--green) 40%, transparent)' : 'color-mix(in srgb, var(--ink-dim) 40%, transparent)'),
       animation: live ? 'gcPulse 3s ease-in-out infinite' : 'none'
     }}>
       {status.toUpperCase()}
@@ -550,7 +576,7 @@ function ResultBand({ band, config, revealIndex }) {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 width: 34, height: 34, color: config.accent, fontSize: '16px',
                 border: '1px solid var(--hairline)',
-                background: isOpen ? 'rgba(255,180,84,0.08)' : 'rgba(216,210,196,0.03)',
+                background: isOpen ? 'color-mix(in srgb, var(--amber) 8%, transparent)' : 'color-mix(in srgb, var(--stone) 3%, transparent)',
                 transition: 'background 0.2s ease'
               }}>
                 {config.sigil}
@@ -602,6 +628,8 @@ function ResultBand({ band, config, revealIndex }) {
 // ---------------------------------------------------------------------------
 
 export function DirectoryConsole() {
+  const theme = useTheme();
+  const consoleVars = buildConsoleVars(theme);
   const [query, setQuery] = useState('');
   const [facets, setFacets] = useState({ city: '', state: '', postalCode: '' });
   const [showFacets, setShowFacets] = useState(false);
@@ -688,10 +716,10 @@ export function DirectoryConsole() {
       '&::before': {
         content: '""', position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
         background: `
-          linear-gradient(160deg, #17171a 0%, #0d0d0f 45%, #050506 100%),
-          radial-gradient(120% 90% at 15% -10%, rgba(255, 255, 255, 0.06), transparent 55%),
-          radial-gradient(90% 70% at 95% 110%, rgba(255, 255, 255, 0.03), transparent 60%),
-          repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px)
+          linear-gradient(160deg, var(--void-hi) 0%, var(--void) 45%, var(--void-lo) 100%),
+          radial-gradient(120% 90% at 15% -10%, color-mix(in srgb, var(--ink) 6%, transparent), transparent 55%),
+          radial-gradient(90% 70% at 95% 110%, color-mix(in srgb, var(--ink) 3%, transparent), transparent 60%),
+          repeating-linear-gradient(0deg, color-mix(in srgb, var(--ink) 2%, transparent) 0px, color-mix(in srgb, var(--ink) 2%, transparent) 1px, transparent 1px, transparent 3px)
         `
       },
       '&::after': {
@@ -699,7 +727,8 @@ export function DirectoryConsole() {
         backgroundImage: NOISE_URI, animation: 'gcFlicker 4s ease-in-out infinite'
       }
     }}>
-      <style>{CONSOLE_CSS}</style>
+      <style>{CONSOLE_STATIC_CSS}</style>
+      <style>{consoleVars}</style>
 
       {/* Traveling sweep line — now a SIGNAL, not decoration. It runs while a
           SEARCH is in flight OR the conformance spider is probing
@@ -727,9 +756,9 @@ export function DirectoryConsole() {
                 m: 0, fontFamily: 'var(--display)', fontWeight: 700,
                 fontSize: 'clamp(40px, 6.5vw, 76px)', lineHeight: 0.95,
                 letterSpacing: '0.06em', textTransform: 'uppercase',
-                background: 'linear-gradient(100deg, var(--amber) 10%, #ffe3b0 38%, var(--stone) 90%)',
+                background: 'linear-gradient(100deg, var(--amber) 10%, color-mix(in srgb, var(--amber) 55%, white) 38%, var(--stone) 90%)',
                 WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
-                filter: 'drop-shadow(0 0 26px rgba(255,180,84,0.18))'
+                filter: 'drop-shadow(0 0 26px color-mix(in srgb, var(--amber) 18%, transparent))'
               }}>
                 Directory
               </Box>
@@ -780,7 +809,7 @@ export function DirectoryConsole() {
               transition: 'border-color 0.25s ease, box-shadow 0.25s ease',
               '&:focus-within': {
                 borderColor: 'var(--stone)',
-                boxShadow: '0 0 34px rgba(216,210,196,0.14), inset 0 0 22px rgba(216,210,196,0.04)'
+                boxShadow: '0 0 34px color-mix(in srgb, var(--stone) 14%, transparent), inset 0 0 22px color-mix(in srgb, var(--stone) 4%, transparent)'
               }
             }}>
               <Brackets color="var(--amber-dim)" size={18} />
@@ -810,7 +839,7 @@ export function DirectoryConsole() {
               {scanning ? (
                 <Box sx={{
                   position: 'absolute', top: 0, bottom: 0, width: '38%', pointerEvents: 'none',
-                  background: 'linear-gradient(90deg, transparent, rgba(216,210,196,0.10), transparent)',
+                  background: 'linear-gradient(90deg, transparent, color-mix(in srgb, var(--stone) 10%, transparent), transparent)',
                   animation: 'gcScan 1.1s linear infinite'
                 }} />
               ) : null}
@@ -853,7 +882,7 @@ export function DirectoryConsole() {
               <Box sx={{
                 display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 3,
                 border: '1px solid var(--hairline)', borderTop: 'none',
-                background: 'rgba(11,18,32,0.5)', px: 3, py: 2.5
+                background: 'var(--panel)', px: 3, py: 2.5
               }}>
                 {[['city', 'CITY'], ['state', 'STATE'], ['postalCode', 'POSTAL CODE']].map(function(pair) {
                   return (
