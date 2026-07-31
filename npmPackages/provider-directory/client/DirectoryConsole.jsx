@@ -51,13 +51,13 @@ const CONSOLE_CSS = `
   --panel-hard: #141416;
   --amber: #ffb454;
   --amber-dim: rgba(255, 180, 84, 0.42);
-  --cyan: #53e6ff;
-  --cyan-dim: rgba(83, 230, 255, 0.28);
+  --stone: #d8d2c4;
+  --stone-dim: rgba(216, 210, 196, 0.30);
   --magenta: #ff5ea8;
   --green: #69f0ae;
   --ink: #d8e4f0;
   --ink-dim: #61758f;
-  --hairline: rgba(83, 230, 255, 0.16);
+  --hairline: rgba(216, 210, 196, 0.14);
   --display: 'Chakra Petch', 'Avenir Next Condensed', sans-serif;
   --mono: 'Martian Mono', 'SF Mono', ui-monospace, monospace;
 }
@@ -67,7 +67,7 @@ const CONSOLE_CSS = `
 .grid-console ::-webkit-scrollbar { width: 10px; height: 10px; }
 .grid-console ::-webkit-scrollbar-track { background: transparent; }
 .grid-console ::-webkit-scrollbar-thumb {
-  background: rgba(83, 230, 255, 0.18); border: 2px solid var(--void); border-radius: 6px;
+  background: rgba(216, 210, 196, 0.18); border: 2px solid var(--void); border-radius: 6px;
 }
 .grid-console ::-webkit-scrollbar-thumb:hover { background: var(--amber-dim); }
 
@@ -110,7 +110,7 @@ const CONSOLE_CSS = `
 }
 .gc-row-btn:hover {
   transform: translateX(6px);
-  background: linear-gradient(90deg, rgba(255, 180, 84, 0.07), rgba(83, 230, 255, 0.03) 60%, transparent);
+  background: linear-gradient(90deg, rgba(255, 180, 84, 0.07), rgba(216, 210, 196, 0.03) 60%, transparent);
   border-left-color: var(--amber);
 }
 .gc-row-btn:hover .gc-acquire { opacity: 1; transform: translateX(0); }
@@ -122,7 +122,7 @@ const CONSOLE_CSS = `
 
 .gc-chip-btn {
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
-  color: var(--cyan); background: transparent; border: 1px solid var(--cyan-dim);
+  color: var(--stone); background: transparent; border: 1px solid var(--stone-dim);
   padding: 6px 14px; cursor: pointer; transition: all 0.18s ease;
 }
 .gc-chip-btn:hover { border-color: var(--amber); color: var(--amber); background: rgba(255,180,84,0.06); }
@@ -134,7 +134,7 @@ const CONSOLE_CSS = `
   padding: 8px 2px; outline: none; width: 100%;
   transition: border-color 0.2s ease;
 }
-.gc-facet-input:focus { border-bottom-color: var(--cyan); }
+.gc-facet-input:focus { border-bottom-color: var(--stone); }
 .gc-facet-input::placeholder { color: var(--ink-dim); opacity: 0.7; }
 
 .gc-hail-input {
@@ -153,7 +153,7 @@ const NOISE_URI = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000
 // ---------------------------------------------------------------------------
 
 // Corner brackets on a panel — the console's signature framing device.
-function Brackets({ color = 'var(--cyan-dim)', size = 14 }) {
+function Brackets({ color = 'var(--stone-dim)', size = 14 }) {
   const common = { position: 'absolute', width: size, height: size, pointerEvents: 'none' };
   const b = '1px solid ' + color;
   return (
@@ -198,16 +198,32 @@ function TickerNumber({ value, delay = 0 }) {
   );
 }
 
-// Live UTC clock for the masthead status block.
-function UtcClock() {
-  const [now, setNow] = useState(function() { return new Date(); });
+// Elapsed since a timestamp, expressed dynamically: minutes under an hour,
+// hours under two days, days beyond that.
+function formatElapsed(iso) {
+  if (!iso) { return null; }
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) { return null; }
+  const mins = Math.max(0, Math.floor((Date.now() - then) / 60000));
+  if (mins < 1) { return 'just now'; }
+  if (mins < 60) { return mins + 'm ago'; }
+  const hours = Math.floor(mins / 60);
+  if (hours < 48) { return hours + 'h ago'; }
+  return Math.floor(hours / 24) + 'd ago';
+}
+
+// Masthead "last updated" — the last time the endpoint directory was synced
+// (ServerConfiguration.lanternSync.lastSyncAt), with dynamic elapsed. Re-ticks
+// the elapsed label once a minute; no second-by-second clock.
+function LastUpdated({ iso }) {
+  const [, setTick] = useState(0);
   useEffect(function() {
-    const interval = setInterval(function() { setNow(new Date()); }, 1000);
+    const interval = setInterval(function() { setTick(function(n) { return n + 1; }); }, 60000);
     return function() { clearInterval(interval); };
   }, []);
-  const hms = now.toISOString().slice(11, 19);
-  const ymd = now.toISOString().slice(0, 10).replace(/-/g, '.');
-  return <>{ymd} · {hms} UTC</>;
+  if (!iso) { return <>UPDATED · UNKNOWN</>; }
+  const ymd = new Date(iso).toISOString().slice(0, 10).replace(/-/g, '.');
+  return <>UPDATED {ymd} · {formatElapsed(iso)}</>;
 }
 
 // ---------------------------------------------------------------------------
@@ -216,7 +232,7 @@ function UtcClock() {
 
 const BAND_CONFIG = {
   Organization:  { label: 'ORGANIZATIONS', unit: 'CONTACTS',  sigil: '⬡', accent: 'var(--amber)' },
-  Practitioner:  { label: 'CLINICIANS',    unit: 'REGISTERED', sigil: '✛', accent: 'var(--cyan)' },
+  Practitioner:  { label: 'CLINICIANS',    unit: 'REGISTERED', sigil: '✛', accent: 'var(--stone)' },
   Location:      { label: 'LOCATIONS',     unit: 'SITES',      sigil: '◬', accent: 'var(--magenta)' },
   Endpoint:      { label: 'ENDPOINTS',     unit: 'UPLINKS',    sigil: '⌁', accent: 'var(--green)' }
 };
@@ -264,7 +280,7 @@ function RecordDetail({ resourceName, hit, accent }) {
     <Box sx={{
       ml: '58px', mr: 2, mb: 1, px: 2.5, py: 2,
       borderLeft: '2px solid ' + accent,
-      background: 'linear-gradient(90deg, rgba(83,230,255,0.04), transparent)'
+      background: 'linear-gradient(90deg, rgba(216,210,196,0.04), transparent)'
     }}>
       {rows.length === 0 ? (
         <Box sx={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--ink-dim)', letterSpacing: '0.12em' }}>
@@ -442,7 +458,7 @@ function flattenHit(resourceName, hit) {
 const SOURCE_CHIP = {
   epic:    { label: 'EPIC',    color: 'var(--amber)' },
   cerner:  { label: 'CERNER',  color: 'var(--green)' },
-  lantern: { label: 'LANTERN', color: 'var(--cyan)' },
+  lantern: { label: 'LANTERN', color: 'var(--stone)' },
   nppes:   { label: 'NPPES',   color: 'var(--ink-dim)' },
   other:   { label: 'OTHER',   color: 'var(--ink-dim)' }
 };
@@ -534,7 +550,7 @@ function ResultBand({ band, config, revealIndex }) {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 width: 34, height: 34, color: config.accent, fontSize: '16px',
                 border: '1px solid var(--hairline)',
-                background: isOpen ? 'rgba(255,180,84,0.08)' : 'rgba(83,230,255,0.03)',
+                background: isOpen ? 'rgba(255,180,84,0.08)' : 'rgba(216,210,196,0.03)',
                 transition: 'background 0.2s ease'
               }}>
                 {config.sigil}
@@ -590,6 +606,7 @@ export function DirectoryConsole() {
   const [facets, setFacets] = useState({ city: '', state: '', postalCode: '' });
   const [showFacets, setShowFacets] = useState(false);
   const [totals, setTotals] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
   const [bands, setBands] = useState(null);          // null = no search yet
   const [scanning, setScanning] = useState(false);
   const [scanMs, setScanMs] = useState(null);
@@ -611,6 +628,7 @@ export function DirectoryConsole() {
       const result = await Meteor.rpc('providerDirectory.omniSearch', Object.assign({ q: q }, facetValues));
       if (seq !== scanSeq.current) { return; }   // superseded by a newer scan
       setTotals(result.totals);
+      setLastUpdated(get(result, 'lastUpdated', null));
       setBands(q.trim().length >= 2 ? result.results : null);
       setScanMs(result.searchMs);
     } catch (error) {
@@ -684,7 +702,7 @@ export function DirectoryConsole() {
       <style>{CONSOLE_CSS}</style>
 
       {/* Traveling sweep line — now a SIGNAL, not decoration. It runs while a
-          HAIL search is in flight OR the conformance spider is probing
+          SEARCH is in flight OR the conformance spider is probing
           anywhere (SPIDER_SCANNING contract), so the beam means "a scan is
           running." */}
       <SpiderScanLine active={scanning || spiderScanning} zIndex={1} />
@@ -701,15 +719,15 @@ export function DirectoryConsole() {
             <Box>
               <Box sx={{
                 fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.34em',
-                color: 'var(--cyan)', mb: 1
+                color: 'var(--stone)', mb: 1
               }}>
-                NATIONAL PROVIDER GRID <Box component="span" sx={{ color: 'var(--ink-dim)' }}>// FHIR R4 // VhDir</Box>
+                NATIONAL PROVIDER GRID <Box component="span" sx={{ color: 'var(--ink-dim)' }}>// FHIR R4</Box>
               </Box>
               <Box component="h1" sx={{
                 m: 0, fontFamily: 'var(--display)', fontWeight: 700,
                 fontSize: 'clamp(40px, 6.5vw, 76px)', lineHeight: 0.95,
                 letterSpacing: '0.06em', textTransform: 'uppercase',
-                background: 'linear-gradient(100deg, var(--amber) 10%, #ffe3b0 38%, var(--cyan) 90%)',
+                background: 'linear-gradient(100deg, var(--amber) 10%, #ffe3b0 38%, var(--stone) 90%)',
                 WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
                 filter: 'drop-shadow(0 0 26px rgba(255,180,84,0.18))'
               }}>
@@ -720,7 +738,7 @@ export function DirectoryConsole() {
               fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.16em',
               color: 'var(--ink-dim)', textAlign: 'right', lineHeight: 2
             }}>
-              <Box><UtcClock /></Box>
+              <Box><LastUpdated iso={lastUpdated} /></Box>
               <Box>
                 UPLINK <Box component="span" sx={{ color: 'var(--green)' }}>◉ NOMINAL</Box>
                 {'  ·  '}
@@ -753,16 +771,16 @@ export function DirectoryConsole() {
             })}
           </Box>
 
-          {/* ---- the HAIL bar ---- */}
+          {/* ---- the SEARCH bar ---- */}
           <Box className="gc-boot" sx={{ animationDelay: '240ms', mb: 1.5 }}>
             <Box sx={{
               position: 'relative', display: 'flex', alignItems: 'center', gap: 2.5,
-              border: '1px solid var(--cyan-dim)', background: 'var(--panel-hard)',
+              border: '1px solid var(--stone-dim)', background: 'var(--panel-hard)',
               px: { xs: 2, md: 3.5 }, py: { xs: 2, md: 2.8 }, overflow: 'hidden',
               transition: 'border-color 0.25s ease, box-shadow 0.25s ease',
               '&:focus-within': {
-                borderColor: 'var(--cyan)',
-                boxShadow: '0 0 34px rgba(83,230,255,0.14), inset 0 0 22px rgba(83,230,255,0.04)'
+                borderColor: 'var(--stone)',
+                boxShadow: '0 0 34px rgba(216,210,196,0.14), inset 0 0 22px rgba(216,210,196,0.04)'
               }
             }}>
               <Brackets color="var(--amber-dim)" size={18} />
@@ -771,7 +789,7 @@ export function DirectoryConsole() {
                 letterSpacing: '0.3em', color: 'var(--amber)', whiteSpace: 'nowrap',
                 borderRight: '1px solid var(--hairline)', pr: 2.5, py: 0.5
               }}>
-                HAIL ▸
+                SEARCH ▸
               </Box>
               <input
                 id="gridHailInput"
@@ -792,7 +810,7 @@ export function DirectoryConsole() {
               {scanning ? (
                 <Box sx={{
                   position: 'absolute', top: 0, bottom: 0, width: '38%', pointerEvents: 'none',
-                  background: 'linear-gradient(90deg, transparent, rgba(83,230,255,0.10), transparent)',
+                  background: 'linear-gradient(90deg, transparent, rgba(216,210,196,0.10), transparent)',
                   animation: 'gcScan 1.1s linear infinite'
                 }} />
               ) : null}
@@ -806,7 +824,7 @@ export function DirectoryConsole() {
             }}>
               <Box>
                 {scanning
-                  ? <Box component="span" sx={{ color: 'var(--cyan)' }}>SCANNING {gridTotal === null ? '' : gridTotal.toLocaleString() + ' RECORDS ACROSS 4 BANDS…'}</Box>
+                  ? <Box component="span" sx={{ color: 'var(--stone)' }}>SCANNING {gridTotal === null ? '' : gridTotal.toLocaleString() + ' RECORDS ACROSS 4 BANDS…'}</Box>
                   : scanError
                     ? <Box component="span" sx={{ color: 'var(--magenta)' }}>SCAN FAULT — {String(scanError).toUpperCase()}</Box>
                     : hasQuery && scanMs !== null

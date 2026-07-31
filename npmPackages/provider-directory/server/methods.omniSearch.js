@@ -227,6 +227,22 @@ Meteor.ServerMethods.define('providerDirectory.omniSearch', {
   const facets = buildFacetSelector(params);
   const startedAt = Date.now();
 
+  // Last-updated signal for the masthead: the most recent endpoint-directory
+  // sync (lantern/epic/cerner all stamp ServerConfiguration.lanternSync.lastSyncAt).
+  // The NPPES national install writes no timestamp, so this reflects the
+  // connectable-endpoint hydration — the part that actually changes.
+  let lastUpdated = null;
+  try {
+    const ServerConfiguration = get(global, 'Collections.ServerConfiguration');
+    if (ServerConfiguration) {
+      const doc = await ServerConfiguration.findOneAsync({ configType: 'lanternSync' });
+      const stamp = get(doc, 'data.lastSyncAt', null);
+      lastUpdated = stamp ? new Date(stamp).toISOString() : null;
+    }
+  } catch (error) {
+    lastUpdated = null;
+  }
+
   // Fast estimated totals for the stat ticker — always returned, even for an
   // empty query, so the console can render the grid census on load. Endpoint
   // total is the union of both collections (Directory mirror + connectable core).
@@ -243,7 +259,7 @@ Meteor.ServerMethods.define('providerDirectory.omniSearch', {
   totals.Endpoint = directoryEndpointCount + coreEndpointCount;
 
   if (q.length < 2) {
-    return { q: q, totals: totals, results: [], searchMs: Date.now() - startedAt };
+    return { q: q, totals: totals, lastUpdated: lastUpdated, results: [], searchMs: Date.now() - startedAt };
   }
 
   const results = await Promise.all(
@@ -256,5 +272,5 @@ Meteor.ServerMethods.define('providerDirectory.omniSearch', {
     results.map(function(r) { return r.resourceName + ':' + r.matchCount + (r.countCapped ? '+' : ''); }).join(' ') +
     ' in ' + searchMs + 'ms');
 
-  return { q: q, totals: totals, results: results, searchMs: searchMs };
+  return { q: q, totals: totals, lastUpdated: lastUpdated, results: results, searchMs: searchMs };
 });
