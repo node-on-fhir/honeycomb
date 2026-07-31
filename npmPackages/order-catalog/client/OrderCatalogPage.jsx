@@ -76,6 +76,7 @@ import {
 
 // Import radiology catalog
 import { RADIOLOGY_CATALOG, RADIOLOGY_CATEGORIES, MODALITY_CODES } from './RadiologyCatalog';
+import { getRegisteredCatalogs, getRegisteredCatalog } from './catalogRegistry.js';
 
 // =============================================================================
 // SAMPLE CATALOG DATA
@@ -164,9 +165,11 @@ function OrderCatalogPage(props) {
 
   // Filter catalog based on search and category
   const filteredCatalog = useMemo(() => {
+    const registered = getRegisteredCatalog(orderType);
     const catalog = orderType === 'laboratory' ? LAB_CATALOG :
                     orderType === 'medication' ? MEDICATION_CATALOG :
                     orderType === 'radiology' ? RADIOLOGY_CATALOG :
+                    registered ? registered.catalog :
                     [];
 
     return catalog.filter(item => {
@@ -195,6 +198,15 @@ function OrderCatalogPage(props) {
     // For radiology, use predefined categories for better UX
     if (orderType === 'radiology') {
       return ['all', ...RADIOLOGY_CATEGORIES];
+    }
+
+    // Registered (plugin) catalogs may ship predefined categories
+    const registered = getRegisteredCatalog(orderType);
+    if (registered) {
+      const cats = registered.categories.length > 0
+        ? registered.categories
+        : [...new Set(registered.catalog.map(item => item.category))];
+      return ['all', ...cats];
     }
 
     const catalog = orderType === 'laboratory' ? LAB_CATALOG :
@@ -376,7 +388,7 @@ function OrderCatalogPage(props) {
             <Card>
               <CardHeader
                 title="Order Catalog"
-                subheader={`Browse ${orderType === 'laboratory' ? 'laboratory tests' : orderType === 'medication' ? 'medications' : 'radiology procedures'}`}
+                subheader={`Browse ${orderType === 'laboratory' ? 'laboratory tests' : orderType === 'medication' ? 'medications' : orderType === 'radiology' ? 'radiology procedures' : `${((getRegisteredCatalog(orderType) || {}).label || orderType).toLowerCase()} orders`}`}
                 action={
                   <ToggleButtonGroup
                     value={orderType}
@@ -397,6 +409,12 @@ function OrderCatalogPage(props) {
                       <MedicalServicesIcon sx={{ mr: 1 }} />
                       Radiology
                     </ToggleButton>
+                    {getRegisteredCatalogs().map(registered => (
+                      <ToggleButton key={registered.key} value={registered.key} data-testid={`${registered.key}-tab`}>
+                        <MedicalServicesIcon sx={{ mr: 1 }} />
+                        {registered.label}
+                      </ToggleButton>
+                    ))}
                   </ToggleButtonGroup>
                 }
               />

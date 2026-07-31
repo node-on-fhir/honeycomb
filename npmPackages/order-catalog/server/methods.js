@@ -39,7 +39,7 @@ Meteor.ServerMethods.define('orderCatalog.submitOrders', {
         properties: {
           patientId: { type: 'string' },
           orders: { type: 'array', items: { type: 'object' } },
-          orderType: { type: 'string', enum: ['laboratory', 'medication', 'radiology'] },
+          orderType: { type: 'string' },
           authorId: { type: 'string' },
           encounterId: { type: 'string' }
         },
@@ -368,6 +368,52 @@ Meteor.ServerMethods.define('orderCatalog.submitOrders', {
               valueString: order.views
             });
           }
+
+          collection = ServiceRequests;
+        } else {
+          // Generic branch: registered plugin catalogs (client/catalogRegistry.js),
+          // e.g. @orbital/dental. Catalog items may carry their own coding
+          // system, a ServiceRequest.category Coding, and meta.profile stamps.
+          resource = {
+            resourceType: 'ServiceRequest',
+            id: Random.id(),
+            meta: Array.isArray(order.profileUrls) && order.profileUrls.length > 0
+              ? { profile: order.profileUrls }
+              : undefined,
+            status: 'active',
+            intent: 'order',
+            priority: order.priority || 'routine',
+            code: {
+              coding: [{
+                system: order.system || 'http://snomed.info/sct',
+                code: order.code,
+                display: order.display
+              }],
+              text: order.display
+            },
+            category: order.categoryCoding ? [{
+              coding: [order.categoryCoding],
+              text: order.categoryCoding.display
+            }] : undefined,
+            subject: {
+              reference: `Patient/${patientFhirId}`,
+              display: patientDisplay
+            },
+            encounter: encounterReference,
+            occurrenceDateTime: timestamp,
+            authoredOn: timestamp,
+            requester: {
+              reference: `Practitioner/${context.userId}`,
+              display: practitionerDisplay
+            },
+            note: order.notes ? [{
+              text: order.notes,
+              time: timestamp,
+              authorReference: {
+                reference: `Practitioner/${context.userId}`
+              }
+            }] : undefined
+          };
 
           collection = ServiceRequests;
         }

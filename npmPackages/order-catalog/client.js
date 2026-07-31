@@ -62,6 +62,7 @@ const ModuleConfig = {
 };
 
 export { DynamicRoutes, SidebarWorkflows, FooterButtons, ServerConfigs, ModuleConfig, OrderCatalogPage };
+export { registerOrderCatalog, getRegisteredCatalogs, getRegisteredCatalog } from './client/catalogRegistry.js';
 
 export default {
   name: workflowConfig.name,
