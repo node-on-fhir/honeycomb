@@ -36,7 +36,12 @@
         "background": "linear-gradient(45deg, rgb(108, 183, 110) 30%, rgb(150, 202, 144) 90%)",
         "nivoTheme": "red_grey",
         "successColor": "#4caf50"
-      }
+      },
+      "typography": {
+        "fontFamily": "",
+        "displayFontFamily": ""
+      },
+      "defaultPreset": "limestone"
     },
     "welcome": {
       "enabled": true,
@@ -251,7 +256,8 @@
       "supplyChain": {
         "enabled": true,
         "showInSidebar": true
-      }
+      },
+      "Theming": true
     },
     "pantry": {
       "defaultDailyCalories": 2500,
