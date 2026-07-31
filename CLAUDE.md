@@ -31,6 +31,7 @@ Comprehensive guidance is organized in `.claude/`:
 - `/audit-id-lookups` - Scan for ID collision bugs
 - `/audit-theme` - Scan for dark mode issues
 - `/audit-print` - Scan for print-theme hazards (always print the light theme)
+- `/apply-advanced-theming {route-or-file}` - Wire a bespoke, self-styled page into the ThemeDialog/preset system (theme-bind its CSS vars + literals)
 - `/healthit-checklist {topic}` - Generate paranoia checklist
 - `/maintain-certification` - Re-sync the ONC Base EHR certification artifacts (tests, screenshots, SBOM/license audit, manual PDF, dashboard). See `certification/CLAUDE.md`.
 

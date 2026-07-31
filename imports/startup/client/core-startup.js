@@ -6,6 +6,11 @@ import { Tracker } from 'meteor/tracker';
 import { get } from 'lodash';
 
 import { initializeKeyboardShortcuts } from './hotkeys';
+import { applyThemeChoiceAtBoot } from '/imports/ui/themePresets.js';
+
+// Re-apply the persisted theme choice into Meteor.settings BEFORE the theme
+// provider mounts, so there's no first-paint flash of the default theme.
+applyThemeChoiceAtBoot();
 
 const log = (typeof Meteor !== 'undefined' && Meteor.Logger) ? Meteor.Logger.for('CoreStartup') : console;
 

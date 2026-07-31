@@ -1,7 +1,7 @@
 // imports/startup/client/hotkeys.js
 
 import { Session } from 'meteor/session';
-import { SESSION_INSPECTOR_OPEN } from '/imports/lib/SessionKeys.js';
+import { SESSION_INSPECTOR_OPEN, THEME_DIALOG_OPEN } from '/imports/lib/SessionKeys.js';
 
 export function initializeKeyboardShortcuts() {
   document.addEventListener('keydown', (event) => {
@@ -85,9 +85,16 @@ export function initializeKeyboardShortcuts() {
       Session.set(SESSION_INSPECTOR_OPEN, !Session.get(SESSION_INSPECTOR_OPEN));
     }
 
+    // Cmd/Ctrl + Shift + T — Toggle Theme palette dialog
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && (event.key === 'T' || event.key === 't')) {
+      event.preventDefault();
+      Session.set(THEME_DIALOG_OPEN, !Session.get(THEME_DIALOG_OPEN));
+    }
+
     // Escape — Close dialogs
     if (event.key === 'Escape') {
       Session.set(SESSION_INSPECTOR_OPEN, false);
+      Session.set(THEME_DIALOG_OPEN, false);
       Session.set('quickSearchOpen', false);
     }
   });
