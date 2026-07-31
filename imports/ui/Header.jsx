@@ -15,6 +15,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import LightMode from '@mui/icons-material/LightMode';
 import DarkMode from '@mui/icons-material/DarkMode';
 import CastIcon from '@mui/icons-material/Cast';
+import PaletteIcon from '@mui/icons-material/Palette';
+import { THEME_DIALOG_OPEN } from '/imports/lib/SessionKeys.js';
 
 
 import { Meteor } from 'meteor/meteor';
@@ -229,19 +231,14 @@ function Header({ drawerIsOpen, handleDrawerOpen, lastUpdated }) {
 
 
   function toggleLoginDialog(){
-    // console.log('Toggle login dialog open/close.')
-    Session.set('mainAppDialogJson', false);
-    Session.set('mainAppDialogMaxWidth', "sm");
-
+    // Was the mainAppDialog "LoginDialog"/"LogoutDialog" bus (host never existed
+    // in this repo — see .claude/rules/meteor/session-keys.md). Use the real
+    // /login route + Meteor.logout instead.
     if(Session.get('currentUser')){
-      Session.set('mainAppDialogTitle', "Logout");
-      Session.set('mainAppDialogComponent', "LogoutDialog");
+      Meteor.logout(function(){ navigate('/'); });
     } else {
-      Session.set('mainAppDialogTitle', "Login");
-      Session.set('mainAppDialogComponent', "LoginDialog");      
+      navigate('/login');
     }
-
-    Session.toggle('mainAppDialogOpen');
   }
 
 
@@ -353,12 +350,20 @@ function Header({ drawerIsOpen, handleDrawerOpen, lastUpdated }) {
           <Typography id="headerTitle" variant="h6" component="div" sx={{ flexGrow: 1, color: muiTheme.palette.appbar?.contrastText || muiTheme.palette.primary.contrastText }}>
           { parseTitle() || get(Meteor, 'settings.public.title', 'Honeycomb') }
           </Typography>
-          <IconButton  
+          <IconButton
             onClick={toggleTheme}
             aria-label="Toggle theme"
             title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
           >
             {theme === 'light' ? <LightMode sx={{ color: muiTheme.palette.appbar?.contrastText || muiTheme.palette.primary.contrastText }} /> : <DarkMode sx={{ color: muiTheme.palette.appbar?.contrastText || muiTheme.palette.primary.contrastText }} />}
+          </IconButton>
+          <IconButton
+            id="headerThemeDialogButton"
+            onClick={function() { Session.set(THEME_DIALOG_OPEN, true); }}
+            aria-label="Theme palette"
+            title="Theme & palette (Ctrl+Shift+T)"
+          >
+            <PaletteIcon sx={{ color: muiTheme.palette.appbar?.contrastText || muiTheme.palette.primary.contrastText }} />
           </IconButton>
           <IconButton
             onClick={function() { navigate('/fhircast-publish'); }}

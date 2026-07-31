@@ -6,13 +6,20 @@ import { Tracker } from 'meteor/tracker';
 import { get } from 'lodash';
 
 import { initializeKeyboardShortcuts } from './hotkeys';
+import { applyThemeChoiceAtBoot } from '/imports/ui/themePresets.js';
+
+// Re-apply the persisted theme choice into Meteor.settings BEFORE the theme
+// provider mounts, so there's no first-paint flash of the default theme.
+applyThemeChoiceAtBoot();
+
+const log = (typeof Meteor !== 'undefined' && Meteor.Logger) ? Meteor.Logger.for('CoreStartup') : console;
 
 // Core client initialization that always runs
-console.log('Initializing Honeycomb client...');
+log.info('Initializing Honeycomb client...');
 
 // Set up global error handling
 window.addEventListener('error', (event) => {
-  console.error('Global error:', event.error);
+  log.error('Global error', { error: event.error && event.error.message, stack: event.error && event.error.stack });
   
   // Report to server if configured
   if (get(Meteor, 'settings.public.errorReporting.enabled', false)) {
@@ -28,7 +35,7 @@ window.addEventListener('error', (event) => {
 
 // Handle unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {
-  console.error('Unhandled promise rejection:', event.reason);
+  log.error('Unhandled promise rejection', { reason: event.reason && event.reason.message || String(event.reason) });
   
   // Report to server if configured
   if (get(Meteor, 'settings.public.errorReporting.enabled', false)) {
@@ -44,7 +51,6 @@ window.addEventListener('unhandledrejection', (event) => {
 // Initialize session variables
 Session.setDefault('selectedPatientId', null);
 Session.setDefault('selectedPatient', null);
-Session.setDefault('mainAppDialogOpen', false);
 Session.setDefault('theme', get(Meteor, 'settings.public.theme.default', 'light'));
 Session.setDefault('sidebarOpen', true);
 Session.setDefault('accountsDialogTab', 0);
@@ -59,9 +65,9 @@ Meteor.startup(() => {
     Session.set('connectionStatus', status);
     
     if (!status.connected) {
-      console.warn('Lost connection to server');
+      log.warn('Lost connection to server');
     } else if (status.connected && Session.get('wasDisconnected')) {
-      console.log('Reconnected to server');
+      log.info('Reconnected to server');
       Session.set('wasDisconnected', false);
       
       // Refresh subscriptions after reconnection
@@ -99,7 +105,7 @@ Meteor.startup(() => {
   // Initialize keyboard shortcuts
   initializeKeyboardShortcuts();
 
-  console.log('Core client startup complete');
+  log.info('Core client startup complete');
 });
 
 // Check browser compatibility
@@ -128,7 +134,7 @@ function checkBrowserCompatibility() {
   }
   
   if (warnings.length > 0) {
-    console.warn('Browser compatibility issues:', warnings);
+    log.warn('Browser compatibility issues', { warnings: warnings });
     Session.set('browserWarnings', warnings);
   }
 }
@@ -151,7 +157,7 @@ function loadUserPreferences() {
       Session.set('language', savedLanguage);
     }
   } catch (error) {
-    console.error('Failed to load user preferences:', error);
+    log.error('Failed to load user preferences', { error: error && error.message });
   }
 }
 

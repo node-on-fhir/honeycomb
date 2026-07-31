@@ -1406,11 +1406,9 @@ function ServerConfigurationPage(props){
   
 
   function handleOpenResourceTypes(){
-    Session.set('mainAppDialogTitle', "Select Resource Types");
-    Session.set('mainAppDialogComponent', "SearchResourceTypesDialog");
-    Session.set('lastUpdated', new Date());
-    Session.set('mainAppDialogMaxWidth', "md");
-    Session.set('mainAppDialogOpen', true);
+    // Opened a SearchResourceTypesDialog through the mainAppDialog bus, whose
+    // host never existed in this repo (see .claude/rules/meteor/session-keys.md).
+    // No-op until a real <Dialog> picker is wired here.
   }
 
   // let headerHeight = LayoutHelpers.calcHeaderHeight();

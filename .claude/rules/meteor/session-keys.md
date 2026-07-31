@@ -42,16 +42,48 @@ Lifecycle: set **both** `selectedPatient` (object) and `selectedPatientId` (id)
 together; clear both on deselection/logout. See
 [`anti-patterns/patient-context.md`](../anti-patterns/patient-context.md).
 
-### Main application dialog (cross-package modal)
+### Main application dialog (cross-package modal) — REMOVED (was a dead contract)
+
+The `mainAppDialog*` / `dialogReturnValue` keys were a shared-modal bus: a
+package set `mainAppDialogComponent` to a component *name* and toggled
+`mainAppDialogOpen`, and a host at the app root was meant to resolve the name
+(via provider-directory's `DialogComponents` registry) and render it, handing
+results back through `dialogReturnValue`.
+
+**That host never existed in this repo** (it stayed behind in the upstream
+node-on-fhir Meteor-2 app shell during the Meteor 2→3 reseed — `git log --all
+-S "Session.get('mainAppDialogOpen')"` finds nothing). So the bus had ~30
+writers in core and 144 in provider-directory but **zero readers** — every
+"open dialog" through it was a silent no-op.
+
+Removed 2026-07 (branch `feat/session-visibility`): the constants are gone from
+`SessionKeys.js`, the core writers were converted to real navigation
+(`/login` + `Meteor.logout`) or neutered, and pacio-core's `mainAppDialogJson`
+message channel is now a real Snackbar via [`imports/lib/notify.js`](../../../imports/lib/notify.js).
+Do **not** reintroduce these keys — open a modal with a local MUI `<Dialog>` +
+its own `open` state, or for cross-package modals register through
+`WorkflowRegistry`. For toasts use `notify({ title, message, severity })`.
+
+> Residual: provider-directory's footer still carries the dead writes (tracked
+> as a follow-up — it's the flagship National Directory package and its picker
+> UX needs hand-testing before that surface changes). A handful of preserved
+> terminology/geography picker components (`SearchValueSetsDialog`,
+> `SearchCodeSystemDialog`, `SearchStatesDialog`,
+> `SearchLibraryOfMedicineDialog`, `SearchResourceTypesDialog`) still contain
+> the old `dialogReturnValue` return-protocol and would need a real host/prop
+> when rewired.
+
+### Endpoint Conformance Spider
+
+| Key | Constant | Set by | Read by | Meaning |
+|-----|----------|--------|---------|---------|
+| `spiderScanning` | `SPIDER_SCANNING` | @orbital/lantern probe driver (EndpointList) + future sweep worker | provider-directory DirectoryConsole scan-line; any global chrome that adopts it | boolean — a probe/sweep is in flight; drives the traveling sweep-line "spider running" tell |
+
+### Session Inspector (debug dashboard)
 
 | Key | Constant | Notes |
 |-----|----------|-------|
-| `mainAppDialogOpen` | `MAIN_APP_DIALOG_OPEN` | any package opens the shared modal by setting these |
-| `mainAppDialogTitle` | `MAIN_APP_DIALOG_TITLE` | |
-| `mainAppDialogComponent` | `MAIN_APP_DIALOG_COMPONENT` | component rendered inside the dialog |
-| `mainAppDialogMaxWidth` | `MAIN_APP_DIALOG_MAX_WIDTH` | |
-| `mainAppDialogJson` | `MAIN_APP_DIALOG_JSON` | JSON payload to display |
-| `dialogReturnValue` | `DIALOG_RETURN_VALUE` | result handed back to the opener |
+| `sessionInspectorOpen` | `SESSION_INSPECTOR_OPEN` | Cmd/Ctrl+Shift+D toggles the live Session-state dashboard ([`imports/ui/SessionInspectorDialog.jsx`](../../../imports/ui/SessionInspectorDialog.jsx)); groups keys by the families in this doc via [`imports/lib/sessionKeyGroups.js`](../../../imports/lib/sessionKeyGroups.js). The observability answer to the "invisible string contracts" problem — use it to see every key the app is carrying. |
 
 ### Orbital simulator (shared: orbital ⇄ life-support-systems ⇄ greenhouses ⇄ hexgrid ⇄ voyager-technologies)
 

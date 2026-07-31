@@ -31,6 +31,7 @@ Comprehensive guidance is organized in `.claude/`:
 - `/audit-id-lookups` - Scan for ID collision bugs
 - `/audit-theme` - Scan for dark mode issues
 - `/audit-print` - Scan for print-theme hazards (always print the light theme)
+- `/apply-advanced-theming {route-or-file}` - Wire a bespoke, self-styled page into the ThemeDialog/preset system (theme-bind its CSS vars + literals)
 - `/healthit-checklist {topic}` - Generate paranoia checklist
 - `/maintain-certification` - Re-sync the ONC Base EHR certification artifacts (tests, screenshots, SBOM/license audit, manual PDF, dashboard). See `certification/CLAUDE.md`.
 
@@ -346,7 +347,7 @@ Use `/audit-id-lookups` and `/audit-theme` commands to scan the codebase for com
 - **HTTP calls**: Use `meteor/fetch` package
 - **Server method calls (client)**: `await Meteor.rpc('name', { namedParams })` — never switch a call site back to `Meteor.call`/`callAsync` "for latency compensation" (this app has no client stubs, so it restores nothing and loses DevTools observability). Want optimistic UI? Add it deliberately: `.claude/rules/meteor/latency-compensation.md`
 - **Routing**: Use `useNavigate()` hook, never `window.location.href`
-- **Logging**: Use the structured Logger, full level gamut (`log.warn`, `log.error`, `log.group`, `log.phi`, etc.) — app code: `Logger.for('ModuleName')` from `/imports/lib/Logger.js`; packages: `const log = (Meteor.Logger ? Meteor.Logger.for('pkg') : console);`. Put objects in the `data` arg (redaction net inspects it), never interpolated into the msg string. Full reference: `docs/LOGGING.md`
+- **Logging**: Use the structured Logger, full level gamut (`log.warn`, `log.error`, `log.group`, `log.phi`, etc.) — app code: `Logger.for('ModuleName')` from `/imports/lib/Logger.js`; packages: `const log = (Meteor.Logger ? Meteor.Logger.for('pkg') : console);`. Put objects in the `data` arg (redaction net inspects it), never interpolated into the msg string. Debugging toggles: `Meteor.Logger.focus('Module*')` / `.setThreshold('debug')` / `.reset()` from DevTools (persisted across reloads; error/warn always emit) — see `docs/LOGGING.md` § Debugging Workflow. Full reference: `docs/LOGGING.md`
 - **Conditionals**: Always balance if/then with log messages, don't silently swallow
 - **File headers**: Add path/name as first line (commented out)
 - **No bundlers**: Don't suggest webpack, vite, etc. (Meteor has built-in bundler)

@@ -1,6 +1,7 @@
 // /packages/pacio-core/client/pages/TakeVitalSignsPage.jsx
 
 import React, { useState } from 'react';
+import { notify } from '/imports/lib/notify.js';
 import { 
     Container, 
     Paper, 
@@ -308,7 +309,7 @@ export default function TakeVitalSignsPage() {
     
     const handleSave = async function() {
         if (!selectedPatient) {
-            Session.set('mainAppDialogJson', {
+            notify({
                 title: 'No Patient Selected',
                 message: 'Please select a patient before recording vital signs.'
             });
@@ -350,7 +351,7 @@ export default function TakeVitalSignsPage() {
             } catch (error) {
                 saveErrorCount++;
                 console.error('Error creating observation:', error);
-                Session.set('mainAppDialogJson', {
+                notify({
                     title: 'Error Saving Vital Signs',
                     message: `Failed to save ${observation.code.text}: ${error.message}`
                 });
@@ -364,7 +365,7 @@ export default function TakeVitalSignsPage() {
             return;
         }
 
-        Session.set('mainAppDialogJson', {
+        notify({
             title: 'Success',
             message: 'Vital signs have been saved successfully.'
         });

@@ -90,40 +90,38 @@ let buttonStyles = {
 //============================================================================================================================
 // Turntable / Biosignature
 
+// GRID CONTROL telemetry strip — the route-scoped footer for the redesigned
+// /provider-directory console. Replaces the old Preferences / Search NLM
+// buttons (which drove the now-removed mainAppDialog bus and were no-ops).
+// Mono display face matches DirectoryConsole; full-width justified strip.
 export function VhDirFooterButtons(props){
-  // const buttonClasses = buttonStyles();
-
-  let {
-    children,
-    jsonContent,
-    ...otherProps
-  } = props;
-
-  function togglePreferences(){
-    Session.toggle('mainAppDialogOpen');
-
-    Session.set('mainAppDialogComponent', "PreferencesDialog");
-    Session.set('mainAppDialogTitle', "Preferences");
-    Session.set('mainAppDialogMaxWidth', "sm");
-  }
-  function toggleSearchNlm(){
-    Session.toggle('mainAppDialogOpen');
-
-    Session.set('mainAppDialogComponent', "SearchLibraryOfMedicineDialog");
-    Session.set('mainAppDialogTitle', "Search the National Library of Medicine");
-    Session.set('mainAppDialogMaxWidth', "md");
-  }
-
-
   return (
-    <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
-      <Button id="provider-directory-preferences-footer-btn" onClick={ togglePreferences.bind(this) } style={buttonStyles.west_button}>
-        Preferences
-      </Button>
-      <Button id="provider-directory-search-nlm-footer-btn" onClick={ toggleSearchNlm.bind(this) } style={buttonStyles.west_button}>
-        Search NLM
-      </Button>
-    </MuiThemeProvider>
+    <div
+      className="footer-buttons-provider-directory"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '8px',
+        width: '100%',
+        padding: '0 8px',
+        fontFamily: "'Martian Mono', 'SF Mono', ui-monospace, monospace",
+        fontSize: '9px',
+        letterSpacing: '0.22em',
+        color: '#61758f'
+      }}
+    >
+      <span id="provider-directory-grid-control-footer-label">
+        GRID CONTROL <span style={{ color: '#ffb454' }}>v2</span>
+        {'  ·  '}CHRONICLE WORKSTATION
+      </span>
+      <span id="provider-directory-grid-sources-footer-label">
+        SOURCES <span style={{ color: '#53e6ff' }}>NPPES</span>
+        {' · '}<span style={{ color: '#53e6ff' }}>LANTERN</span>
+        {' · '}<span style={{ color: '#53e6ff' }}>VENDOR LISTS</span>
+      </span>
+    </div>
   );
 }
 
@@ -188,7 +186,7 @@ export function DefaultPostDialogActions(props){
     }
 
     let actionsToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         actionsToRender = <DialogActions >
             <Button onClick={handleClose} color="primary">
                 Close
@@ -222,7 +220,7 @@ export function CareTeamsFooterButtons(props){
     let buttonArray = [];
 
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-team-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
                 New Team
@@ -258,7 +256,7 @@ export function CodeSystemsFooterButtons(props){
     let buttonArray = [];
 
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-code-system-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
                 New Code System
@@ -294,7 +292,7 @@ export function CommunicationsFooterButtons(props){
     let buttonArray = [];
 
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-communication-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
                 New Communication
@@ -331,7 +329,7 @@ export function CommunicationRequestsFooterButtons(props){
     let buttonArray = [];
 
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-communication-request-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
                 New Communication Request
@@ -366,7 +364,7 @@ export function EndpointsFooterButtons(props){
     }
 
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-endpoint-footer-btn" onClick={ openDialog.bind(this, "Endpoint") } style={ buttonStyles.west_button }>
             New Endpoint
@@ -400,7 +398,7 @@ export function HealthcareServicesFooterButtons(props){
     }
 
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-service-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
                 New Service
@@ -434,7 +432,7 @@ export function InsurancePlansFooterButtons(props){
     }
 
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-plan-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
             New Plan
@@ -467,7 +465,7 @@ export function LocationsFooterButtons(props){
     }
 
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-location-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
             New Location
@@ -501,7 +499,7 @@ export function NetworksFooterButtons(props){
     }
 
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-network-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
                 New Network
@@ -544,7 +542,7 @@ export function OrganizationsFooterButtons(props){
     }
   
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-organization-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
             New Organization
@@ -581,7 +579,7 @@ export function OrganizationAffiliationsFooterButtons(props){
     }
 
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-affiliation-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
             New Affiliation
@@ -617,7 +615,7 @@ export function PractitionersFooterButtons(props){
     }
 
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-practitioner-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
                 New Practitioner
@@ -653,7 +651,7 @@ export function PractitionerRolesFooterButtons(props){
     }
   
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-role-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
             New Role
@@ -687,7 +685,7 @@ export function ProvenancesFooterButtons(props){
     }
   
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-provenance-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
             New Provenance
@@ -721,7 +719,7 @@ export function RelatedPersonsFooterButtons(props){
     }
   
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-related-person-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
             New RelatedPerson
@@ -755,7 +753,7 @@ export function RestrictionsFooterButtons(props){
     }
   
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-restriction-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
             New Restriction
@@ -789,7 +787,7 @@ export function SearchParametersFooterButtons(props){
     }
 
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-parameter-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
             New Parameter
@@ -825,7 +823,7 @@ export function StructureDefinitionsFooterButtons(props){
     }
 
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-definition-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
             New Definition
@@ -859,7 +857,7 @@ export function TasksFooterButtons(props){
     }
   
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-task-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
             New Task
@@ -893,7 +891,7 @@ export function ValueSetsFooterButtons(props){
     }
   
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-value-set-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
             New Value Set
@@ -927,7 +925,7 @@ export function VerificationResultsFooterButtons(props){
     }
   
     let componentToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         componentToRender = <MuiThemeProvider theme={muiTheme} className="footer-buttons-provider-directory">
             <Button id="provider-directory-new-verification-result-footer-btn" onClick={ openDialog.bind(this) } style={ buttonStyles.west_button }>
                 New Verification Result
@@ -1011,7 +1009,7 @@ export function AddCertificateDialogActions(props){
     }
 
     let actionsToRender;
-    if(Meteor.currentUserId()){
+    if(Meteor.userId()){
         actionsToRender = <DialogActions >
             <Button onClick={handleClose} color="primary">
                 Close

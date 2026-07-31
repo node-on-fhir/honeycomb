@@ -1,6 +1,7 @@
 // /packages/pacio-core/client/pages/PatientMedicationLists.jsx
 
 import React, { useState, useEffect } from 'react';
+import { notify } from '/imports/lib/notify.js';
 import { useParams } from 'react-router-dom';
 import { 
   Container, 
@@ -87,7 +88,7 @@ export function PatientMedicationLists() {
   }
   
   function handleAddList() {
-    Session.set('mainAppDialogJson', {
+    notify({
       title: 'Add Medication List',
       message: 'Add medication list functionality coming soon'
     });

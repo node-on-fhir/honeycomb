@@ -280,10 +280,7 @@ function MyProfilePage(props) {
             }
           });
 
-          // close dialog
-          Session.set('mainAppDialogOpen', false);
-
-          // clear current user 
+          // clear current user
           Session.set('currentUser', false);
 
           // clear session data

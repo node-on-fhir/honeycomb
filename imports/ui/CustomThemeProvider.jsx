@@ -38,6 +38,25 @@ export function getThemeSetting(path, defaultValue){
   return rawValue;
 }
 
+// Build the MUI typography block from theme settings. The app-wide DEFAULT is
+// the Roboto/Helvetica stack (unchanged); a theme/preset may set
+// settings.public.theme.typography.fontFamily (body/neutral) and .displayFontFamily
+// (headings + UI). When a display font is chosen, it drives h1–h6, subtitles,
+// and buttons — the "headings + UI, neutral body" mapping — so a squared display
+// face like Chakra Petch elevates the chrome without hurting long-text legibility.
+const DEFAULT_FONT_STACK = '"Roboto", "Helvetica", "Arial", sans-serif';
+export function buildTypography(){
+  const bodyFont = getThemeSetting('settings.public.theme.typography.fontFamily', DEFAULT_FONT_STACK) || DEFAULT_FONT_STACK;
+  const displayFont = getThemeSetting('settings.public.theme.typography.displayFontFamily', bodyFont) || bodyFont;
+  const typography = { fontFamily: bodyFont };
+  if (displayFont !== bodyFont) {
+    ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'subtitle1', 'subtitle2', 'button'].forEach(function(variant){
+      typography[variant] = { fontFamily: displayFont };
+    });
+  }
+  return typography;
+}
+
 // this Provider components enables the useTheme() hook in child components
 export const CustomThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(function() {
@@ -199,9 +218,7 @@ export const CustomThemeProvider = ({ children }) => {
           }
         }
       },
-      typography: {
-        fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-      }
+      typography: buildTypography()
     };
 
     // Palette background tokens share the surface values computed above —

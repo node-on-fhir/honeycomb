@@ -2,6 +2,8 @@
 
 import { Meteor } from 'meteor/meteor';
 
+const log = (typeof Meteor !== 'undefined' && Meteor.Logger) ? Meteor.Logger.for('Collections') : console;
+
 // Import all collections
 import { ActivityDefinitions } from '/imports/lib/schemas/SimpleSchemas/ActivityDefinitions';
 import { AllergyIntolerances } from '/imports/lib/schemas/SimpleSchemas/AllergyIntolerances';
@@ -20,6 +22,7 @@ import { Communications } from '/imports/lib/schemas/SimpleSchemas/Communication
 import { CommunicationRequests } from '/imports/lib/schemas/SimpleSchemas/CommunicationRequests';
 import { Compositions } from '/imports/lib/schemas/SimpleSchemas/Compositions';
 import { Conditions } from '/imports/lib/schemas/SimpleSchemas/Conditions';
+import { ConnectedSources } from '/imports/collections/ConnectedSources';
 import { Consents } from '/imports/lib/schemas/SimpleSchemas/Consents';
 import { Devices } from '/imports/lib/schemas/SimpleSchemas/Devices';
 import { DiagnosticReports } from '/imports/lib/schemas/SimpleSchemas/DiagnosticReports';
@@ -98,6 +101,7 @@ if (Meteor.isClient) {
     ClinicalImpressions,
     CodeSystems,
     Conditions,
+    ConnectedSources,
     Consents,
     Communications,
     CommunicationRequests,
@@ -245,5 +249,5 @@ if (Meteor.isClient) {
   window.Tasks = Tasks;
   window.ValueSets = ValueSets;
 
-  console.log('Client collections initialized');
+  log.info('Client collections initialized');
 }

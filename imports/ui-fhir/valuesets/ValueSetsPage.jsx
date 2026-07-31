@@ -130,14 +130,10 @@ export function ValueSetsPage(props){
       Session.set('selectedValueSetId', get(valueSet, 'id'));
       Session.set('selectedValueSet', valueSet);
       Session.set('ValueSet.Current', valueSet);
-      
-      let showModals = true;
-      if(showModals){
-        Session.set('mainAppDialogOpen', true);
-        Session.set('mainAppDialogComponent', "ValueSetDetail");
-        Session.set('mainAppDialogTitle', "Edit Value Set");
-        Session.set('mainAppDialogMaxWidth', "sm");
-      }      
+      // Row-click previously opened a ValueSetDetail modal through the
+      // mainAppDialog bus, whose host never existed in this repo (see
+      // .claude/rules/meteor/session-keys.md). Selection state above still
+      // updates; render a real <Dialog> here if the detail modal is wanted.
     }
   }
 

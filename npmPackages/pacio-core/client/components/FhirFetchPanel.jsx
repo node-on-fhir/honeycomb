@@ -1,6 +1,6 @@
 // /packages/pacio-core/client/components/FhirFetchPanel.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -16,8 +16,14 @@ import {
   List,
   ListItem,
   ListItemText,
-  LinearProgress
+  LinearProgress,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Chip
 } from '@mui/material';
+import LinkIcon from '@mui/icons-material/Link';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { get } from 'lodash';
@@ -52,6 +58,13 @@ export function FhirFetchPanel() {
   const [progress, setProgress] = useState(0);
   const [isImporting, setIsImporting] = useState(false);
 
+  // SMART connect state — launchable endpoints from the spider, the settings
+  // gate, and the in-flight connection.
+  const [connectGate, setConnectGate] = useState(null);   // null = loading (tri-state)
+  const [launchableEndpoints, setLaunchableEndpoints] = useState([]);
+  const [selectedEndpointId, setSelectedEndpointId] = useState('');
+  const [connecting, setConnecting] = useState(false);
+
   // Build the full URL based on components
   const buildUrl = () => {
     return `${fhirServerUrl}/Patient/${patientId}/$everything`;
@@ -63,8 +76,96 @@ export function FhirFetchPanel() {
     setResourceLogs(prev => [...prev, { timestamp, message, type }]);
   };
 
-  // Handle fetch operation
+  // On mount: load the connect gate + launchable endpoints, and complete a
+  // returning OAuth callback (?connect-code&connect-state from
+  // /connect/callback) — exchange happens server-side, then the pull runs
+  // with the opaque sessionToken.
+  useEffect(function() {
+    let cancelled = false;
+
+    async function loadConnectState() {
+      try {
+        const gate = await Meteor.rpc('connect.checkEnabled', {});
+        if (!cancelled) { setConnectGate(gate || {}); }
+      } catch (gateError) {
+        if (!cancelled) { setConnectGate({}); }
+      }
+      try {
+        const endpoints = await Meteor.rpc('connect.listLaunchableEndpoints', {});
+        if (!cancelled) { setLaunchableEndpoints(endpoints || []); }
+      } catch (listError) {
+        // not signed in yet, or none probed — leave empty
+      }
+    }
+    loadConnectState();
+
+    const params = new URLSearchParams(window.location.search);
+    const connectError = params.get('connect-error');
+    const connectCode = params.get('connect-code');
+    const connectState = params.get('connect-state');
+
+    function scrubCallbackParams() {
+      const clean = new URLSearchParams(window.location.search);
+      ['connect-code', 'connect-state', 'connect-error'].forEach(function(key) { clean.delete(key); });
+      const next = window.location.pathname + (clean.toString() ? '?' + clean.toString() : '');
+      window.history.replaceState(null, '', next);
+    }
+
+    if (connectError) {
+      setError('EHR connection failed: ' + connectError);
+      addLog('EHR connection failed: ' + connectError, 'error');
+      scrubCallbackParams();
+    } else if (connectCode && connectState) {
+      scrubCallbackParams();
+      (async function completeAndFetch() {
+        setConnecting(true);
+        addLog('Completing SMART launch (exchanging code server-side)...', 'info');
+        try {
+          const session = await Meteor.rpc('connect.completeLaunch', {
+            code: connectCode,
+            state: connectState
+          });
+          addLog('Connected to ' + get(session, 'fhirBaseUrl', 'EHR') +
+            ' — patient context: ' + (get(session, 'patient') || '(none)'), 'success');
+          setConnecting(false);
+          await runFetch({ sessionToken: get(session, 'sessionToken') },
+            get(session, 'patient', ''));
+        } catch (completeError) {
+          setConnecting(false);
+          setError(get(completeError, 'reason', completeError.message));
+          addLog('Launch completion failed: ' + get(completeError, 'reason', completeError.message), 'error');
+        }
+      })();
+    }
+
+    return function() { cancelled = true; };
+  }, []);
+
+  // Begin the SMART standalone launch for the selected probed endpoint —
+  // server builds the PKCE authorize URL, browser goes to the vendor login.
+  async function beginConnect() {
+    if (!selectedEndpointId) { return; }
+    setError(null);
+    setConnecting(true);
+    try {
+      const result = await Meteor.rpc('connect.beginLaunch', { endpointId: selectedEndpointId });
+      addLog('Redirecting to the EHR sign-in page...', 'info');
+      window.location.assign(get(result, 'authorizeUrl'));
+    } catch (beginError) {
+      setConnecting(false);
+      setError(get(beginError, 'reason', beginError.message));
+    }
+  }
+
+  // Handle fetch operation (manual URL path)
   const handleFetch = async () => {
+    const url = buildUrl();
+    await runFetch({ url: url, patientId: patientId }, patientId);
+  };
+
+  // Shared fetch runner — rpcParams is either {url, patientId} (open
+  // endpoint) or {sessionToken} (bearer pull after a SMART connect).
+  const runFetch = async (rpcParams, displayPatientId) => {
     setIsLoading(true);
     setError(null);
     setSuccess(null);
@@ -72,18 +173,27 @@ export function FhirFetchPanel() {
     setProgress(0);
 
     try {
-      const url = buildUrl();
-      addLog(`Starting fetch from: ${url}`, 'info');
+      addLog(rpcParams.sessionToken
+        ? 'Starting authorized fetch via connected EHR session...'
+        : `Starting fetch from: ${rpcParams.url}`, 'info');
 
       // Call server method to fetch patient data
       try {
-        const result = await Meteor.rpc('pacio.fetchPatientEverything', { url: url, patientId: patientId });
+        const result = await Meteor.rpc('pacio.fetchPatientEverything', rpcParams);
         {
           log.phi('Successfully fetched patient data', { result }, { action: 'read' });
 
           // Log summary information
-          addLog(`Fetch complete! Pages: ${result.pagesFetched}`, 'success');
+          addLog(`Fetch complete! Mode: ${result.mode || '$everything'} · Pages: ${result.pagesFetched}`, 'success');
           addLog(`Total resources: ${result.resourceCount}`, 'success');
+          if (result.deniedResourceTypes && result.deniedResourceTypes.length > 0) {
+            addLog(`Not granted by this EHR (${result.deniedResourceTypes.length}): ` +
+              result.deniedResourceTypes.map(d => `${d.label} (${d.status})`).join(', '), 'info');
+          }
+          if (result.attachments && result.attachments.downloaded > 0) {
+            addLog(`Attachments downloaded to GridFS: ${result.attachments.downloaded}` +
+              (result.attachments.skipped ? ` (${result.attachments.skipped} skipped)` : ''), 'success');
+          }
 
           // Log resource breakdown
           if (result.resourceDetails && result.resourceDetails.length > 0) {
@@ -101,7 +211,7 @@ export function FhirFetchPanel() {
           }
 
           const pageInfo = result.pagesFetched > 1 ? ` across ${result.pagesFetched} pages` : '';
-          setSuccess(`Successfully fetched ${result.resourceCount || 0} resources${pageInfo} for patient ${patientId}`);
+          setSuccess(`Successfully fetched ${result.resourceCount || 0} resources${pageInfo} for patient ${result.patientId || displayPatientId}`);
 
           // Import the bundle if available
           if (result.bundle) {
@@ -146,7 +256,7 @@ export function FhirFetchPanel() {
 
     } catch (err) {
       setIsLoading(false);
-      console.error('Error in handleFetch:', err);
+      console.error('Error in runFetch:', err);
       setError(err.message || 'An unexpected error occurred');
       addLog(`Error: ${err.message}`, 'error');
     }
@@ -163,8 +273,79 @@ export function FhirFetchPanel() {
     }
   };
 
+  const connectEnabled = !!get(connectGate, 'enabled', false);
+  const configuredVendors = get(connectGate, 'configuredVendors', []);
+  const selectedLaunchable = launchableEndpoints.find(function(ep) {
+    return ep.endpointId === selectedEndpointId;
+  });
+  const selectedVendorConfigured = selectedLaunchable
+    ? configuredVendors.indexOf(selectedLaunchable.vendor) >= 0
+    : false;
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      {/* SMART Connect Card — authorized fetch from a probed hospital endpoint */}
+      <Card sx={{ bgcolor: 'background.paper' }}>
+        <CardHeader
+          title="Connect to your hospital"
+          subheader="SMART standalone patient launch against a probed endpoint (sign in at the hospital's own portal)"
+        />
+        <CardContent>
+          {connectGate !== null && !connectEnabled ? (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Patient Records Connect is disabled. Ask your administrator to enable it
+              (Meteor.settings.private.smartConnect.enabled) and configure a vendor client_id.
+            </Alert>
+          ) : null}
+          {connectEnabled && launchableEndpoints.length === 0 ? (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              No launchable endpoints yet. Hydrate the directory (Server Configuration → Lantern),
+              find your hospital at /lantern, and run its conformance probe — endpoints graded
+              patient-launchable appear here.
+            </Alert>
+          ) : null}
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, alignItems: { sm: 'center' } }}>
+            <FormControl fullWidth size="small" disabled={!connectEnabled || !launchableEndpoints.length}>
+              <InputLabel id="connectEndpointLabel">Hospital / endpoint</InputLabel>
+              <Select
+                labelId="connectEndpointLabel"
+                id="connectEndpointSelect"
+                label="Hospital / endpoint"
+                value={selectedEndpointId}
+                onChange={function(event) { setSelectedEndpointId(event.target.value); }}
+              >
+                {launchableEndpoints.map(function(endpoint) {
+                  return (
+                    <MenuItem key={endpoint.endpointId} value={endpoint.endpointId}>
+                      <Box component="span" sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                        {endpoint.name || endpoint.address}
+                        <Chip label={endpoint.vendor} size="small" variant="outlined" />
+                      </Box>
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+            <Button
+              id="connectToEhrButton"
+              variant="contained"
+              startIcon={connecting ? <CircularProgress size={18} color="inherit" /> : <LinkIcon />}
+              disabled={!connectEnabled || !selectedEndpointId || !selectedVendorConfigured || connecting || isLoading}
+              onClick={beginConnect}
+              sx={{ whiteSpace: 'nowrap' }}
+            >
+              {connecting ? 'Connecting…' : 'Connect & Fetch'}
+            </Button>
+          </Box>
+          {selectedLaunchable && !selectedVendorConfigured ? (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+              No client_id configured for vendor “{selectedLaunchable.vendor}” — ask your
+              administrator to set Meteor.settings.private.smartConnect.vendors.{selectedLaunchable.vendor}.clientId.
+            </Typography>
+          ) : null}
+        </CardContent>
+      </Card>
+
       {/* FHIR Server Configuration Card */}
       <Card sx={{
         bgcolor: cardBgColor,

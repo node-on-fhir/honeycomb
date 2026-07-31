@@ -1,6 +1,7 @@
 // /packages/pacio-core/client/pages/PatientGoals.jsx
 
 import React, { useState, useEffect } from 'react';
+import { notify } from '/imports/lib/notify.js';
 import { useParams } from 'react-router-dom';
 import { 
   Container, 
@@ -97,7 +98,7 @@ export function PatientGoals() {
   }
   
   function handleAddGoal() {
-    Session.set('mainAppDialogJson', {
+    notify({
       title: 'Add Goal',
       message: 'Add goal functionality coming soon'
     });

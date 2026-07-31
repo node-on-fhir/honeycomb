@@ -5,6 +5,9 @@ import '/imports/startup/both/loggingSetup.js';
 import LoggerModule from '/imports/lib/Logger.js';
 const log = LoggerModule.Logger.for('main');
 
+import assertSecureConfigModule from './lib/assertSecureConfig.js';
+const { checkProductionAuthConfig } = assertSecureConfigModule;
+
 // Log immediately to see if we're reaching this point
 log.info('==========================================================================================');
 log.info('Starting server initialization...', { TEST_RUN: process.env.TEST_RUN, ENABLE_SYNCED_CRON: process.env.ENABLE_SYNCED_CRON });
@@ -170,6 +173,13 @@ import { AccountsServer } from '@accounts/server';
 
 import { LinksCollection } from '/imports/collections/LinksCollection';
 import { OAuthClients } from '/imports/collections/OAuthClients';
+import { ConnectedSources } from '/imports/collections/ConnectedSources';
+
+// Patient Records Connect — SMART standalone patient launch + OAuth callback.
+// Settings-gated via settings.private.smartConnect (methods throw
+// feature-disabled when off).
+import './connect/methods.js';
+import './connect/launchHandlers.js';
 
 
 //===============================================================================================================
@@ -280,6 +290,7 @@ Meteor.Collections = {
   ClinicalImpressions,
   CodeSystems,
   Conditions,
+  ConnectedSources,
   Consents,
   Coverages,
   Communications,
@@ -372,6 +383,7 @@ Object.assign(global.Collections, {
   ClinicalImpressions,
   CodeSystems,
   Conditions,
+  ConnectedSources,
   Consents,
   Coverages,
   Communications,
@@ -451,6 +463,44 @@ Meteor.startup(function() {
     initializeWorkflowHooks();
   } catch (e) {
     log.error('Failed to initialize workflow hooks', { error: e && e.message, stack: e && e.stack });
+  }
+});
+
+// CR-2 (security audit 2026-07-01): fail-closed config assertion. A PRODUCTION
+// deployment must not ACCIDENTALLY boot with OAuth or access control disabled —
+// that silently opens the FHIR API to unauthenticated access. Local dev
+// (Meteor.isDevelopment) is never blocked; it legitimately runs disableOauth.
+//
+// An INTENTIONAL open sandbox (unauthenticated FHIR API by design — a supported
+// deployment posture) declares itself via settings.private.fhir.openSandbox:true
+// (or OPEN_SANDBOX=true). When declared, production boots normally with an
+// informational notice. When NOT declared, auth-off in production is treated as
+// an accident and the server refuses to boot.
+Meteor.startup(function() {
+  const settingsOpenSandbox =
+    Meteor.settings && Meteor.settings.private && Meteor.settings.private.fhir &&
+    Meteor.settings.private.fhir.openSandbox === true;
+  const sandboxAcknowledged = settingsOpenSandbox || process.env.OPEN_SANDBOX === 'true';
+
+  const configCheck = checkProductionAuthConfig({
+    settings: Meteor.settings,
+    isProduction: Meteor.isProduction,
+    sandboxAcknowledged: sandboxAcknowledged
+  });
+
+  if (!configCheck.secure) {
+    log.error('FATAL: refusing to boot — production deployment has authentication/access control disabled and is not declared an open sandbox', {
+      violations: configCheck.violations,
+      remedy: 'enable OAuth + access control for production, OR declare an intentional open sandbox via settings.private.fhir.openSandbox:true (or OPEN_SANDBOX=true)'
+    });
+    // Fail closed: do not serve requests with an accidentally-insecure config.
+    process.exit(1);
+  }
+
+  if (configCheck.sandboxMode) {
+    log.warn('Open sandbox mode: the FHIR API is UNAUTHENTICATED by configuration (settings.private.fhir.openSandbox)', {
+      unauthenticated: configCheck.violations
+    });
   }
 });
 
@@ -655,7 +705,14 @@ Accounts.createUser = function(options, callback) {
   }
 };
 
-// Add test method to verify accounts system
+// Add test methods to verify accounts system.
+//
+// SECURITY GATE (july-fix-now #1): these expose anonymous account creation,
+// user enumeration, and accounts-config disclosure, so they must NEVER ship
+// in production. Registered only in development (meteor run — which is what
+// CI uses) or when ENABLE_TEST_METHODS=true is set explicitly. No test suite
+// references them (verified 2026-07-23); they are manual dev scaffolding.
+if (Meteor.isDevelopment || process.env.ENABLE_TEST_METHODS === 'true') {
 Meteor.methods({
   'test.accounts': function() {
     log.debug('[Test] Accounts test method called');
@@ -706,6 +763,9 @@ Meteor.methods({
     }));
   }
 });
+} else {
+  log.info('test.* debug methods NOT registered (production; set ENABLE_TEST_METHODS=true to override)');
+}
 
 Meteor.startup(async () => {
   // If the Links collection is empty, add some data.

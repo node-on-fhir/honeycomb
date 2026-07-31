@@ -9,6 +9,12 @@ import querystring from 'querystring';
 
 import RestHelpers from './RestHelpers.js';
 import { SearchParametersEngine } from './SearchParametersEngine.js';
+// Default-import + destructure (CJS module.exports, not ESM named exports —
+// matches imports/lib/loggerRedact.js usage).
+import patientCompartmentModule from './lib/patientCompartment.js';
+const { isCompartmentExempt, recordMatchesCompartment, buildPatientCompartmentQuery } = patientCompartmentModule;
+import writeSanitizationModule from './lib/writeSanitization.js';
+const { governSecurityLabels } = writeSanitizationModule;
 
 import { get, has, set, unset, cloneDeep, capitalize, findIndex, countBy } from 'lodash';
 import moment from 'moment';
@@ -702,6 +708,32 @@ if(typeof serverRouteManifest === "object"){
 
                 records = await Collections[collectionName].find({id: req.params.id}, defaultOptions).fetch();
 
+                // CR-3 (security audit 2026-07-01): patient-compartment enforcement
+                // on instance read. The record was fetched by id alone; deny (403)
+                // when it belongs to a different patient's compartment. A genuine
+                // miss (records empty) falls through to the 404 path below, so this
+                // does NOT disclose existence of resources outside the compartment.
+                // Mirrors the granular-scope 403 denial a few lines down and the
+                // search handler's authQuery role gate.
+                if (Array.isArray(records) && records.length > 0) {
+                  const acDisabled = get(Meteor, 'settings.private.fhir.disableAccessControl') === true;
+                  const practitionerFullAccess = get(Meteor, 'settings.private.accessControl.practitionerFullAccess', true);
+                  if (!acDisabled && !isCompartmentExempt({ role: userRole, resourceType: routeResourceType, practitionerFullAccess: practitionerFullAccess })) {
+                    if (!recordMatchesCompartment(records[0], authorizationContext, routeResourceType)) {
+                      log.phi('Instance read denied - resource outside patient compartment', null, { action: 'read', resourceType: routeResourceType });
+                      res.status(403).json({
+                        resourceType: "OperationOutcome",
+                        issue: [{
+                          severity: "error",
+                          code: "forbidden",
+                          diagnostics: `Access to this ${routeResourceType} resource is not authorized`
+                        }]
+                      });
+                      return;
+                    }
+                  }
+                }
+
                 // plain ol regular approach
                 log.debug('records', records);
 
@@ -1255,56 +1287,23 @@ if(typeof serverRouteManifest === "object"){
                 }
                 
                 if(hipaaAccess.granted){
-                  // Check if healthcare practitioner/provider with full access
-                  const isPractitioner = (userRole === 'healthcare practitioner' || userRole === 'healthcare provider');
+                  // CR-3 (security audit 2026-07-01): the role gate and the
+                  // patient-compartment query now come from the shared module
+                  // (server/lib/patientCompartment.js) — the SAME definition the
+                  // instance read/delete/patch handlers enforce as a predicate, so
+                  // search and instance access can never diverge. isCompartmentExempt
+                  // folds the former inline practitioner-full-access / reference-
+                  // resource / system / noauth bypasses into one gate.
                   const practitionerFullAccess = get(Meteor, 'settings.private.accessControl.practitionerFullAccess', true);
 
-                  // Reference resources that don't belong to patient compartment per FHIR R4 spec
-                  // These are organizational resources accessible with appropriate scope without patient references
-                  const referenceResources = ['Location', 'Practitioner', 'PractitionerRole',
-                                              'Organization', 'HealthcareService', 'Endpoint'];
-                  const isReferenceResource = referenceResources.includes(routeResourceType);
-
-                  if (isPractitioner && practitionerFullAccess) {
-                    // Healthcare practitioner with full access - use search query as-is
+                  if (isCompartmentExempt({ role: userRole, resourceType: routeResourceType, practitionerFullAccess: practitionerFullAccess })) {
+                    // System / practitioner-full-access / reference resource — no
+                    // patient compartment filter (scope was already verified upstream).
                     mongoQuery = searchQuery;
-                    log.debug('Practitioner full access - no authorization filter applied');
-                  } else if (isReferenceResource) {
-                    // Reference resources bypass patient compartment filtering
-                    // The scope check (isResourceScopeAuthorized) already verified access
-                    mongoQuery = searchQuery;
-                    log.phi('Reference resource - no patient compartment filter applied for:', null, { action: 'search' });
+                    log.debug('Compartment-exempt request - no patient authorization filter applied');
                   } else {
-                    // Apply authorization filters
-                    let authQuery = {$or: [
-                      {'meta.security.display': {$eq: 'unrestricted'}}
-                    ]}
-                    if(routeResourceType === "Patient"){
-                      if(get(authorizationContext, 'patientId')){
-                        authQuery.$or.push({'id': get(authorizationContext, 'patientId')})
-                      }
-                      if(get(authorizationContext, 'practitionerId')){
-                        authQuery.$or.push({'generalPractitioner.reference': {$regex: get(authorizationContext, 'practitionerId')}})
-                      }
-                    } else {
-                      // FHIR resources use different reference paths for patients:
-                      // - Some use 'subject.reference' (Observation, Condition, Procedure, DiagnosticReport, etc.)
-                      // - Some use 'patient.reference' (AllergyIntolerance, CarePlan, CareTeam, Encounter, Immunization, MedicationRequest, etc.)
-                      // - Coverage uses 'beneficiary.reference'
-                      // We check all to properly filter by patient authorization
-                      // References may be stored as: Patient/uuid, urn:uuid:uuid, or just uuid
-                      if(get(authorizationContext, 'patientId')){
-                        let patientId = get(authorizationContext, 'patientId');
-                        let patientRefs = [
-                          patientId,
-                          'Patient/' + patientId,
-                          'urn:uuid:' + patientId
-                        ];
-                        authQuery.$or.push({'subject.reference': { $in: patientRefs }});
-                        authQuery.$or.push({'patient.reference': { $in: patientRefs }});
-                        authQuery.$or.push({'beneficiary.reference': { $in: patientRefs }});
-                      }
-                    }
+                    // Apply the patient-compartment authorization filter.
+                    let authQuery = buildPatientCompartmentQuery(authorizationContext, routeResourceType);
 
                     // Merge authorization query with search query
                     if(get(Meteor, 'settings.private.debug') === true) {
@@ -1747,7 +1746,19 @@ if(typeof serverRouteManifest === "object"){
               if (get(req, 'body')) {
                 let newRecord = req.body;
                 log.trace('req.body', req.body);
-                
+
+                // CR-4 (security audit 2026-07-01): the client cannot set its own
+                // meta.security access labels on create — labeling a resource
+                // 'unrestricted' would make PHI world-readable (the compartment
+                // filter treats 'unrestricted' as public). Privileged (system /
+                // clinician) writers may label legitimately.
+                {
+                  const writeRole = get(authorizationContext, 'role', 'PAT');
+                  const practitionerFullAccess = get(Meteor, 'settings.private.accessControl.practitionerFullAccess', true);
+                  const callerMaySetSecurity = isCompartmentExempt({ role: writeRole, resourceType: routeResourceType, practitionerFullAccess: practitionerFullAccess });
+                  newRecord = governSecurityLabels(newRecord, { existingRecord: null, callerMaySetSecurity: callerMaySetSecurity });
+                }
+
   
                 let newlyAssignedId = Random.id();
   
@@ -1895,9 +1906,35 @@ if(typeof serverRouteManifest === "object"){
         
               if (req.body) {
                 let newRecord = cloneDeep(req.body);
-        
+
                 log.trace('req.body', req.body);
-        
+
+                // CR-3 follow-up + CR-4 (security audit 2026-07-01): on PUT,
+                // (a) enforce the patient compartment against the EXISTING record
+                // so a patient token cannot overwrite another patient's resource
+                // by id (update-by-id IDOR — the CR-3 class the audit did not name
+                // for PUT), and (b) govern client-supplied meta.security (preserve
+                // the server's existing labels on update, strip on create).
+                // Privileged system/clinician writers bypass both.
+                {
+                  const writeRole = get(authorizationContext, 'role', 'PAT');
+                  const acDisabled = get(Meteor, 'settings.private.fhir.disableAccessControl') === true;
+                  const practitionerFullAccess = get(Meteor, 'settings.private.accessControl.practitionerFullAccess', true);
+                  const callerExempt = isCompartmentExempt({ role: writeRole, resourceType: routeResourceType, practitionerFullAccess: practitionerFullAccess });
+                  const existingRecord = await Collections[collectionName].findOneAsync({ id: req.params.id });
+
+                  if (existingRecord && !acDisabled && !callerExempt && !recordMatchesCompartment(existingRecord, authorizationContext, routeResourceType)) {
+                    log.phi('Instance put denied - target resource outside patient compartment', null, { action: 'update', resourceType: routeResourceType });
+                    res.status(403).json({
+                      resourceType: "OperationOutcome",
+                      issue: [{ severity: "error", code: "forbidden", diagnostics: `Access to this ${routeResourceType} resource is not authorized` }]
+                    });
+                    return;
+                  }
+
+                  newRecord = governSecurityLabels(newRecord, { existingRecord: existingRecord, callerMaySetSecurity: callerExempt });
+                }
+
                 newRecord.resourceType = routeResourceType;
                 newRecord = RestHelpers.toMongo(newRecord);
         
@@ -2107,27 +2144,67 @@ if(typeof serverRouteManifest === "object"){
   
                 if(typeof Collections[collectionName] === "object"){
                   let numRecordsToUpdate = await Collections[collectionName].find({id: req.params.id}).countAsync();
-  
-                  log.debug('Number of records found matching the id: ', numRecordsToUpdate); 
-                  
+
+                  log.debug('Number of records found matching the id: ', numRecordsToUpdate);
+
+                  // CR-3 (security audit 2026-07-01): patient-compartment enforcement
+                  // on instance patch. Deny (403) when the target belongs to another
+                  // patient's compartment, before applying any field mutation.
+                  if (numRecordsToUpdate > 0) {
+                    const patchRole = get(authorizationContext, 'role', 'PAT');
+                    const acDisabled = get(Meteor, 'settings.private.fhir.disableAccessControl') === true;
+                    const practitionerFullAccess = get(Meteor, 'settings.private.accessControl.practitionerFullAccess', true);
+                    if (!acDisabled && !isCompartmentExempt({ role: patchRole, resourceType: routeResourceType, practitionerFullAccess: practitionerFullAccess })) {
+                      const targetRecord = await Collections[collectionName].findOneAsync({id: req.params.id});
+                      if (!recordMatchesCompartment(targetRecord, authorizationContext, routeResourceType)) {
+                        log.phi('Instance patch denied - resource outside patient compartment', null, { action: 'update', resourceType: routeResourceType });
+                        res.status(403).json({
+                          resourceType: "OperationOutcome",
+                          issue: [{ severity: "error", code: "forbidden", diagnostics: `Access to this ${routeResourceType} resource is not authorized` }]
+                        });
+                        return;
+                      }
+                    }
+                  }
+
                   let newlyAssignedId;
-          
+
+                  // CR-4 (security audit 2026-07-01): a non-privileged writer
+                  // cannot patch server-owned meta.security access labels. Strip
+                  // any meta.security-targeting patch key (and the security
+                  // sub-field of a wholesale meta patch) unless the caller is a
+                  // privileged (system / clinician) writer.
+                  const patchWriteRole = get(authorizationContext, 'role', 'PAT');
+                  const patchPractitionerFullAccess = get(Meteor, 'settings.private.accessControl.practitionerFullAccess', true);
+                  const patchMaySetSecurity = isCompartmentExempt({ role: patchWriteRole, resourceType: routeResourceType, practitionerFullAccess: patchPractitionerFullAccess });
+                  function stripClientSecurityPatchKeys(patchObj){
+                    if (patchMaySetSecurity) { return patchObj; }
+                    Object.keys(patchObj).forEach(function(k){
+                      if (k === 'meta.security' || k.indexOf('meta.security') === 0) {
+                        delete patchObj[k];
+                      } else if (k === 'meta' && patchObj[k] && typeof patchObj[k] === 'object') {
+                        delete patchObj[k].security;
+                      }
+                    });
+                    return patchObj;
+                  }
+
                   if(numRecordsToUpdate > 1){
                     log.debug('Found existing records; this is an update interaction, not a create interaction');
                     log.debug(numRecordsToUpdate + ' records found...');
-  
+
                     if(process.env.DEBUG){
                       log.debug('req.query', req.query);
                       log.debug('req.params', req.params);
-                      log.debug('req.body', req.body);  
+                      log.debug('req.body', req.body);
                     }
-                    
+
                     let setObjectPatch = {};
                     Object.keys(req.query).forEach(function(key){
                       setObjectPatch[key] = get(req.body, key);
                     })
-  
-                    
+                    stripClientSecurityPatchKeys(setObjectPatch);
+
                     log.debug('setObjectPatch', setObjectPatch);
                     let result = await Collections[collectionName].updateAsync({id: req.params.id}, {$set: setObjectPatch}, {multi: true});
   
@@ -2147,9 +2224,10 @@ if(typeof serverRouteManifest === "object"){
                     Object.keys(req.query).forEach(function(key){
                       setObjectPatch[key] = get(req.body, key);
                     })
+                    stripClientSecurityPatchKeys(setObjectPatch);
                     log.debug('setObjectPatch', setObjectPatch);
-  
-                    
+
+
                     await Collections[collectionName].updateAsync({_id: setObjectPatch._id}, {$set: setObjectPatch});
   
                     delete setObjectPatch._document;
@@ -2206,11 +2284,30 @@ if(typeof serverRouteManifest === "object"){
               }
   
               if (await Collections[collectionName].find({id: req.params.id}).countAsync() === 0) {
-  
+
                 // Not Found
                 res.status(404).json();
-  
+
               } else {
+                // CR-3 (security audit 2026-07-01): patient-compartment enforcement
+                // on instance delete. Deny (403) when the target belongs to another
+                // patient's compartment, before removing anything. The record is
+                // known to exist here (count > 0), so 403 (not 404) is correct and
+                // matches the instance-read denial.
+                const deleteRole = get(authorizationContext, 'role', 'PAT');
+                const acDisabled = get(Meteor, 'settings.private.fhir.disableAccessControl') === true;
+                const practitionerFullAccess = get(Meteor, 'settings.private.accessControl.practitionerFullAccess', true);
+                if (!acDisabled && !isCompartmentExempt({ role: deleteRole, resourceType: routeResourceType, practitionerFullAccess: practitionerFullAccess })) {
+                  const targetRecord = await Collections[collectionName].findOneAsync({id: req.params.id});
+                  if (!recordMatchesCompartment(targetRecord, authorizationContext, routeResourceType)) {
+                    log.phi('Instance delete denied - resource outside patient compartment', null, { action: 'delete', resourceType: routeResourceType });
+                    res.status(403).json({
+                      resourceType: "OperationOutcome",
+                      issue: [{ severity: "error", code: "forbidden", diagnostics: `Access to this ${routeResourceType} resource is not authorized` }]
+                    });
+                    return;
+                  }
+                }
                 Collections[collectionName].remove({id: req.params.id}, function(error, result){
                   if (result) {
                     // No Content

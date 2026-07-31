@@ -106,7 +106,12 @@ In browser DevTools:
 | Component | Location | className | Example Button IDs |
 |-----------|----------|-----------|-------------------|
 | `CarePlanDesignerFooterButtons.jsx` | `imports/ui-fhir/carePlans/` | `footer-buttons-care-plan-designer` | `care-plan-designer-create-careplan-footer-btn` |
-| `FooterButtons.jsx` | `imports/ui-vault-server/` | `footer-buttons-vault-server` | `vault-server-preferences-footer-btn` |
+
+> Note: `imports/ui-vault-server/FooterButtons.jsx` and
+> `imports/ui-consent-engine/FooterButtons.jsx` were deleted 2026-07 — they were
+> unimported duplicates superseded by `npmPackages/provider-directory/client/FooterButtons.jsx`,
+> and their buttons opened the now-removed `mainAppDialog` bus (see
+> `rules/meteor/session-keys.md`).
 
 ## Related
 
