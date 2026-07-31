@@ -721,7 +721,7 @@ export function DirectoryConsole() {
                 fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.34em',
                 color: 'var(--stone)', mb: 1
               }}>
-                NATIONAL PROVIDER GRID <Box component="span" sx={{ color: 'var(--ink-dim)' }}>// FHIR R4</Box>
+                NATIONAL PROVIDER <Box component="span" sx={{ color: 'var(--ink-dim)' }}>// NPPES // FHIR R4</Box>
               </Box>
               <Box component="h1" sx={{
                 m: 0, fontFamily: 'var(--display)', fontWeight: 700,
