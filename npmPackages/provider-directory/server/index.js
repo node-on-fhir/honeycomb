@@ -10,6 +10,8 @@ import { registerDirectoryCollections } from '../lib/DirectoryCollections.js';
 import './methods.js';
 import './methods.directory.js';
 import './methods.omniSearch.js';
+import './methods.searchIndex.js';
+import './startup.indexes.js';
 import './https.js';
 import './hooks.js';
 

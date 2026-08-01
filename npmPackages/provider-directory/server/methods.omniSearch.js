@@ -22,6 +22,7 @@ import { Meteor } from 'meteor/meteor';
 import { get } from 'lodash';
 import { getDirectoryCollection } from '../lib/DirectoryCollections.js';
 import { Endpoints as CoreEndpoints } from '/imports/lib/schemas/SimpleSchemas/Endpoints.js';
+import { backfillFilter } from '../lib/searchShadow.js';
 
 // Endpoints live in TWO physical collections (a deliberate scale split — see
 // lib/DirectoryCollections.js): the CMS National Directory mirror
@@ -105,6 +106,59 @@ function buildNameSelector(nameFields, regex, extra) {
   return Object.assign({}, selector, extra);
 }
 
+// ---------------------------------------------------------------------------
+// nameLower shadow readiness (lib/searchShadow.js)
+//
+// When a collection's shadow backfill is complete, the primary pass switches
+// from `$regex ^q i` on the name fields (unindexable) to a CASE-SENSITIVE
+// `^q.toLowerCase()` regex on the indexed nameLower field. Until then, the
+// legacy selector runs unchanged. Readiness is a capped count (limit 1) with
+// a 60s TTL cache — cheap, and self-heals after an NPPES re-install wipes
+// shadows (replaceOne) or a backfill completes.
+
+const SHADOW_TTL_MS = 60 * 1000;
+const shadowReadiness = new Map();   // cacheKey -> { ready, checkedAt }
+
+async function isShadowReady(rawCollection, resourceName, cacheKey) {
+  const cached = shadowReadiness.get(cacheKey);
+  if (cached && (Date.now() - cached.checkedAt) < SHADOW_TTL_MS) {
+    return cached.ready;
+  }
+  let ready = false;
+  try {
+    const missing = await rawCollection.countDocuments(backfillFilter(resourceName), {
+      limit: 1,
+      maxTimeMS: 2000
+    });
+    ready = missing === 0;
+  } catch (error) {
+    ready = false;
+  }
+  shadowReadiness.set(cacheKey, { ready: ready, checkedAt: Date.now() });
+  return ready;
+}
+
+// Selector builder that understands both modes. Endpoint keeps its address
+// branch (URLs are effectively lowercase already; queried as typed, anchored
+// or not, so the $or stays fully indexed alongside {address:1}).
+function buildModeSelector(target, q, facets, { useShadow, anchored }) {
+  const escaped = escapeRegex(q);
+  if (!useShadow) {
+    const regex = anchored
+      ? { $regex: '^' + escaped, $options: 'i' }
+      : { $regex: escaped, $options: 'i' };
+    return buildNameSelector(target.nameFields, regex, facets);
+  }
+  const lowered = escapeRegex(q.toLowerCase());
+  const shadowRegex = anchored ? { $regex: '^' + lowered } : { $regex: lowered };
+  const clauses = [{ nameLower: shadowRegex }];
+  if (target.nameFields.indexOf('address') >= 0) {
+    clauses.push({ address: anchored ? { $regex: '^' + escaped } : { $regex: escaped } });
+  }
+  const selector = clauses.length === 1 ? clauses[0] : { $or: clauses };
+  return Object.assign({}, selector, facets);
+}
+
 // Optional facet narrowing (the "precision scan" drawer).
 function buildFacetSelector(params) {
   const extra = {};
@@ -123,11 +177,10 @@ function buildFacetSelector(params) {
   return extra;
 }
 
-async function searchOneType(target, q, facets, limit, rawOverride) {
+async function searchOneType(target, q, facets, limit, rawOverride, cacheKey) {
   const raw = rawOverride || getDirectoryCollection(target.resourceName).rawCollection();
-  const escaped = escapeRegex(q);
-  const prefixRegex = { $regex: '^' + escaped, $options: 'i' };
-  const prefixSelector = buildNameSelector(target.nameFields, prefixRegex, facets);
+  const useShadow = await isShadowReady(raw, target.resourceName, cacheKey || target.resourceName);
+  const prefixSelector = buildModeSelector(target, q, facets, { useShadow: useShadow, anchored: true });
 
   let hits = await raw.find(prefixSelector, { projection: target.projection })
     .limit(limit)
@@ -141,9 +194,10 @@ async function searchOneType(target, q, facets, limit, rawOverride) {
   }).catch(function() { return hits.length; });
 
   // Wide-band pass — mid-string matches when the prefix pass ran thin.
+  // (Still a scan either way, but case-sensitive on nameLower is several
+  // times cheaper than $options:'i' over the raw name fields.)
   if (hits.length < 3 && q.length >= WIDEBAND_MIN_QUERY) {
-    const wideRegex = { $regex: escaped, $options: 'i' };
-    const wideSelector = buildNameSelector(target.nameFields, wideRegex, facets);
+    const wideSelector = buildModeSelector(target, q, facets, { useShadow: useShadow, anchored: false });
     const wideHits = await raw.find(wideSelector, { projection: target.projection })
       .limit(limit)
       .maxTimeMS(WIDEBAND_TIMEOUT_MS)
@@ -177,8 +231,8 @@ async function searchEndpointsUnified(q, facets, limit) {
   const directoryRaw = getDirectoryCollection('Endpoint').rawCollection();
 
   const [core, directory] = await Promise.all([
-    searchOneType(ENDPOINT_TARGET, q, facets, limit, coreRaw),
-    searchOneType(ENDPOINT_TARGET, q, facets, limit, directoryRaw)
+    searchOneType(ENDPOINT_TARGET, q, facets, limit, coreRaw, 'Endpoint.core'),
+    searchOneType(ENDPOINT_TARGET, q, facets, limit, directoryRaw, 'Endpoint.directory')
   ]);
 
   const coreHits = core.hits.map(function(hit) {

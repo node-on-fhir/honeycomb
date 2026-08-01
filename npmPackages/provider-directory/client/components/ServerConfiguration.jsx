@@ -421,4 +421,138 @@ export function ServerConfiguration() {
   );
 }
 
-export default ServerConfiguration;
+// ---------------------------------------------------------------------------
+// Search Index card — nameLower shadow-field backfill for the directory
+// search (server/methods.searchIndex.js). The omniSearch console silently
+// falls back to unindexed scans until every collection reads ready.
+
+function SearchIndexCard() {
+  const [status, setStatus] = useState(null);    // null = loading
+  const [starting, setStarting] = useState(false);
+  const [error, setError] = useState(null);
+
+  const loadStatus = useCallback(async function () {
+    try {
+      const result = await Meteor.rpc('providerDirectory.searchIndexStatus', {});
+      setStatus(result || {});
+      setError(null);
+    } catch (err) {
+      setError(get(err, 'reason', err.message));
+      setStatus({});
+    }
+  }, []);
+
+  useEffect(function () {
+    loadStatus();
+  }, [loadStatus]);
+
+  // Poll while the backfill runs.
+  const running = !!get(status, 'running', false) || !!get(status, 'progress.running', false);
+  useEffect(function () {
+    if (!running) { return undefined; }
+    const timer = setInterval(loadStatus, 2500);
+    return function () { clearInterval(timer); };
+  }, [running, loadStatus]);
+
+  async function startBackfill() {
+    setStarting(true);
+    setError(null);
+    try {
+      await Meteor.rpc('providerDirectory.backfillSearchIndex', {});
+      await loadStatus();
+    } catch (err) {
+      setError(get(err, 'reason', err.message));
+    } finally {
+      setStarting(false);
+    }
+  }
+
+  const collections = get(status, 'collections', []);
+  const allReady = collections.length > 0 && collections.every(function (c) { return c.ready; });
+
+  return (
+    <Card sx={{ mt: 2 }}>
+      <CardHeader
+        avatar={<StorageIcon />}
+        title="Search Index"
+        subheader="nameLower shadow field — indexed prefix search for the directory console"
+      />
+      <CardContent>
+        {error ? <Alert severity="error" sx={{ mb: 2 }} onClose={function () { setError(null); }}>{error}</Alert> : null}
+        {status === null ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><CircularProgress size={24} /></Box>
+        ) : (
+          <Box>
+            {running ? (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Backfill running — {get(status, 'progress.phase', '…')}
+                <LinearProgress sx={{ mt: 1 }} />
+              </Alert>
+            ) : allReady ? (
+              <Alert severity="success" sx={{ mb: 2 }}>
+                Search index ready — omniSearch is using indexed prefix queries.
+              </Alert>
+            ) : (
+              <Alert severity="warning" sx={{ mb: 2 }}>
+                Some collections are missing the search shadow — directory search
+                falls back to slow unindexed scans until the backfill runs.
+              </Alert>
+            )}
+            <Table size="small" id="searchIndexStatusTable">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Collection</TableCell>
+                  <TableCell align="right">Documents</TableCell>
+                  <TableCell align="right">Missing shadow</TableCell>
+                  <TableCell align="right">Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {collections.map(function (row) {
+                  return (
+                    <TableRow key={row.collection}>
+                      <TableCell>{row.collection}</TableCell>
+                      <TableCell align="right">{Number(row.total || 0).toLocaleString()}</TableCell>
+                      <TableCell align="right">
+                        {row.missing < 0 ? '—' : (row.missingCapped ? '1,000+' : Number(row.missing).toLocaleString())}
+                      </TableCell>
+                      <TableCell align="right">
+                        <Chip size="small" label={row.ready ? 'ready' : 'pending'} color={row.ready ? 'success' : 'default'} />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Box>
+        )}
+      </CardContent>
+      <CardActions sx={{ px: 2, pb: 2 }}>
+        <Button
+          id="buildSearchIndexButton"
+          variant="contained"
+          startIcon={(starting || running) ? <CircularProgress size={18} color="inherit" /> : <StorageIcon />}
+          onClick={startBackfill}
+          disabled={starting || running || allReady}
+        >
+          {running ? 'Building…' : 'Build search index'}
+        </Button>
+        <Button startIcon={<RefreshIcon />} onClick={loadStatus}>Refresh</Button>
+      </CardActions>
+    </Card>
+  );
+}
+
+// The panel tab renders the National Directory import card plus the search
+// index card (and, when linkage ships, its card) as one column.
+function ProviderDirectoryPanel() {
+  return (
+    <Box>
+      <ServerConfiguration />
+      <SearchIndexCard />
+    </Box>
+  );
+}
+
+export { SearchIndexCard };
+export default ProviderDirectoryPanel;

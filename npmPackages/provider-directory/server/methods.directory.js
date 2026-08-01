@@ -40,6 +40,7 @@ import zlib from 'zlib';
 import readline from 'readline';
 
 import { DIRECTORY_RESOURCES, getDirectoryCollection } from '../lib/DirectoryCollections.js';
+import { stampNameShadow } from '../lib/searchShadow.js';
 
 const DEFAULT_BASE_URL = 'https://directory.cms.gov';
 const BATCH_SIZE = 2000;
@@ -323,6 +324,9 @@ async function installResource(resourceName, dir, prog) {
     const id = get(resource, 'id');
     if (!id) { errors++; continue; }
     resource._id = id;
+    // replaceOne wipes any prior shadow field — stamp nameLower here or the
+    // search index goes stale on every NPPES re-install (lib/searchShadow.js).
+    stampNameShadow(resourceName, resource);
     ops.push({ replaceOne: { filter: { _id: id }, replacement: resource, upsert: true } });
     if (ops.length >= BATCH_SIZE) { await flush(); }
   }
