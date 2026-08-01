@@ -55,14 +55,10 @@ Meteor.startup(() => {
   // Load additional modules based on configuration
   const modules = get(Meteor, 'settings.public.modules', {});
 
-  // Analytics module
-  if (modules.analytics?.enabled) {
-    import(/* webpackIgnore: true */ './analytics-startup').catch(error => {
-      log.warn('Analytics startup module not found', { error: error.message });
-    });
-  } else {
-    log.info('Analytics module disabled in settings');
-  }
+  // Analytics: no startup module — GA4 initializes in imports/ui/App.jsx,
+  // gated on settings.public.google.analytics.measurementId, with pageview
+  // scrubbing (imports/lib/scrubAnalyticsPath.js). A ./analytics-startup
+  // dynamic import used to sit here but the module never existed.
 
   // Chat module
   if (modules.chat?.enabled) {

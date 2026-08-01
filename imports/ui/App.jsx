@@ -48,6 +48,7 @@ import DataGuard from './guards/DataGuard.jsx';
 import ErrorBoundary from './ErrorBoundary.jsx';
 import WelcomeDialog from './components/WelcomeDialog.jsx';
 import SessionInspectorDialog from './SessionInspectorDialog.jsx';
+import AboutDialog from './AboutDialog.jsx';
 import ThemeDialog from './ThemeDialog.jsx';
 import AppSnackbar from './AppSnackbar.jsx';
 import ExtensiblePage from './extensible/ExtensiblePage.jsx';
@@ -1397,31 +1398,42 @@ const requreSysadmin = (nextState, replace) => {
 
 //===============================================================================================================
 // Analytics
+//
+// PHI discipline: pageviews report the route SHAPE only. Raw URLs carry
+// FHIR/Mongo ids and OAuth codes (/patients/:id, ?connect-code=...), so
+// GA4's automatic page_view is disabled (it sends the full page_location
+// including the query string) and every hit overrides page_location/page_path
+// with the scrubbed path. See imports/lib/scrubAnalyticsPath.js.
+
+import { scrubAnalyticsPath } from '/imports/lib/scrubAnalyticsPath.js';
 
 let analyticsMeasurementId = get(Meteor, 'settings.public.google.analytics.measurementId')
 
 import ReactGA from "react-ga4";
 if(analyticsMeasurementId){
-  ReactGA.initialize(analyticsMeasurementId, {debug: get(Meteor, 'settings.public.google.analytics.debug', false)});
+  ReactGA.initialize(analyticsMeasurementId, {
+    debug: get(Meteor, 'settings.public.google.analytics.debug', false),
+    gtagOptions: {
+      send_page_view: false,
+      anonymize_ip: true
+    }
+  });
 }
 
 function logPageView() {
   if(analyticsMeasurementId){
-    // ReactGA.pageview(window.location.pathname + window.location.search);
-    ReactGA.send({ hitType: "pageview", page: window.location.pathname });
+    const scrubbedPath = scrubAnalyticsPath(window.location.pathname);
+    // Override the auto-collected document location on every subsequent
+    // hit — otherwise gtag attaches the raw URL as page_location itself.
+    ReactGA.set({
+      page_location: window.location.origin + scrubbedPath,
+      page_path: scrubbedPath
+    });
+    ReactGA.send({ hitType: "pageview", page: scrubbedPath });
+  } else {
+    // analytics disabled (no measurementId) — nothing to send
   }
 };
-
-function usePageViews() {
-  // let location = useLocation();
-  React.useEffect(() => {
-    if(analyticsMeasurementId){
-      ReactGA.pageview(window.location.pathname + window.location.search);
-      // ReactGA.set({ page: window.location.pathname });  
-      ReactGA.send({ hitType: "pageview", page: window.location.pathname });
-    }
-  }, [window.location]);
-}
 
 
 
@@ -1572,10 +1584,6 @@ export function App(props){
       }        
     }  
   }
-
-  // forgot why we have this.  I think this is Google Analytics related?
-  // usePageViews();
-
 
   // ------------------------------------------------------------------
   // App UI State
@@ -1791,6 +1799,7 @@ export function App(props){
             <WelcomeDialog />
             <SessionInspectorDialog />
             <ThemeDialog />
+            <AboutDialog />
             <AppSnackbar />
             <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
               <StyledMainRouter style={{flex: 1}} />
