@@ -62,7 +62,8 @@
     "test:outbound-url-guard": "node --test tests/unit/server/lib/outboundUrlGuard.test.mjs",
     "test:conformance-probe": "node --test tests/unit/imports/lib/EndpointConformanceProbe.test.mjs",
     "test:smart-launch": "node --test tests/unit/imports/lib/SmartLaunch.test.mjs",
-    "test:analytics-scrub": "node --test tests/unit/imports/lib/scrubAnalyticsPath.test.mjs"
+    "test:analytics-scrub": "node --test tests/unit/imports/lib/scrubAnalyticsPath.test.mjs",
+    "test:update-check": "node --test tests/unit/imports/lib/updateCheck.test.mjs"
   },
   "dependencies": {
     "@accounts/client": "0.33.1",

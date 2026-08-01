@@ -181,6 +181,10 @@ import { ConnectedSources } from '/imports/collections/ConnectedSources';
 import './connect/methods.js';
 import './connect/launchHandlers.js';
 
+// Self-distribution update check — one startup ping of the homepage's
+// /releases.json. Settings-gated via settings.public.updates.
+import './UpdateChecker.js';
+
 
 //===============================================================================================================
 // Data Cursors

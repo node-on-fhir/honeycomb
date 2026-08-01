@@ -1,7 +1,7 @@
 // imports/startup/client/hotkeys.js
 
 import { Session } from 'meteor/session';
-import { SESSION_INSPECTOR_OPEN, THEME_DIALOG_OPEN } from '/imports/lib/SessionKeys.js';
+import { SESSION_INSPECTOR_OPEN, THEME_DIALOG_OPEN, ABOUT_DIALOG_OPEN } from '/imports/lib/SessionKeys.js';
 
 export function initializeKeyboardShortcuts() {
   document.addEventListener('keydown', (event) => {
@@ -55,8 +55,15 @@ export function initializeKeyboardShortcuts() {
       window.dispatchEvent(new CustomEvent('toggleServerConfiguration'));
     }
 
-    // Cmd/Ctrl + Shift + A — Toggle Admin Links sidebar section
+    // Cmd/Ctrl + Shift + A — Toggle About dialog (version + update status)
     if ((event.metaKey || event.ctrlKey) && event.shiftKey && (event.key === 'A' || event.key === 'a')) {
+      event.preventDefault();
+      Session.set(ABOUT_DIALOG_OPEN, !Session.get(ABOUT_DIALOG_OPEN));
+    }
+
+    // Cmd/Ctrl + Shift + U — Toggle Admin Links sidebar section
+    // (was Shift+A; moved 2026-07-31 when the About dialog claimed that combo)
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && (event.key === 'U' || event.key === 'u')) {
       event.preventDefault();
       window.dispatchEvent(new CustomEvent('toggleAdminLinks'));
     }

@@ -276,6 +276,11 @@
         "warning": 5,
         "caution": 10
       }
+    },
+    "updates": {
+      "releasesUrl": "",
+      "product": "chronicle-desktop",
+      "currentVersion": ""
     }
   },
   "private": {

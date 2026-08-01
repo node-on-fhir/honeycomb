@@ -16,7 +16,8 @@ import LightMode from '@mui/icons-material/LightMode';
 import DarkMode from '@mui/icons-material/DarkMode';
 import CastIcon from '@mui/icons-material/Cast';
 import PaletteIcon from '@mui/icons-material/Palette';
-import { THEME_DIALOG_OPEN } from '/imports/lib/SessionKeys.js';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { THEME_DIALOG_OPEN, ABOUT_DIALOG_OPEN } from '/imports/lib/SessionKeys.js';
 
 
 import { Meteor } from 'meteor/meteor';
@@ -88,6 +89,32 @@ function Header({ drawerIsOpen, handleDrawerOpen, lastUpdated }) {
   let [currentUser, setCurrentUser] = useState({
     givenName: 'Anonymous'
   });
+
+  // Self-distribution update tell: ask the server for its cached
+  // /releases.json check (server/UpdateChecker.js pings once at startup,
+  // ~15s after boot, so retry once after that window). Icon renders only
+  // when a newer build is published; failures stay silent.
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+  const headerUserId = useTracker(function() { return Meteor.userId(); }, []);
+  React.useEffect(function() {
+    let cancelled = false;
+    async function checkUpdateStatus() {
+      try {
+        const result = await Meteor.rpc('updates.getStatus', {});
+        if (!cancelled) {
+          setUpdateAvailable(!!get(result, 'status.updateAvailable', false));
+        }
+      } catch (err) {
+        // not signed in yet / check disabled — no update tell
+      }
+    }
+    if (headerUserId) {
+      checkUpdateStatus();
+      const retryTimer = setTimeout(checkUpdateStatus, 30 * 1000);
+      return function() { cancelled = true; clearTimeout(retryTimer); };
+    }
+    return function() { cancelled = true; };
+  }, [headerUserId]);
 
   
 
@@ -365,6 +392,16 @@ function Header({ drawerIsOpen, handleDrawerOpen, lastUpdated }) {
           >
             <PaletteIcon sx={{ color: muiTheme.palette.appbar?.contrastText || muiTheme.palette.primary.contrastText }} />
           </IconButton>
+          {updateAvailable && (
+            <IconButton
+              id="headerUpdateAvailableButton"
+              onClick={function() { Session.set(ABOUT_DIALOG_OPEN, true); }}
+              aria-label="Update Available"
+              title="Update Available"
+            >
+              <InfoOutlinedIcon sx={{ color: muiTheme.palette.warning?.main || muiTheme.palette.appbar?.contrastText }} />
+            </IconButton>
+          )}
           <IconButton
             onClick={function() { navigate('/fhircast-publish'); }}
             aria-label="FHIRcast"

@@ -60,6 +60,7 @@ export const APP_WIDTH        = 'appWidth';
 export const VIEWPORT         = 'viewport';
 export const SESSION_INSPECTOR_OPEN = 'sessionInspectorOpen'; // Cmd/Ctrl+Shift+D debug dashboard
 export const THEME_DIALOG_OPEN      = 'themeDialogOpen';      // Cmd/Ctrl+Shift+T theme palette dialog
+export const ABOUT_DIALOG_OPEN      = 'aboutDialogOpen';      // Cmd/Ctrl+Shift+A about + update status
 
 // ── FHIR id / display toggles ────────────────────────────────────────────────
 export const SHOW_SYSTEM_IDS    = 'showSystemIds';
@@ -129,6 +130,7 @@ export default {
   CURRENT_USER, SESSION_ID, ACCOUNTS_ACCESS_TOKEN, ACCOUNTS_REFRESH_TOKEN,
   SELECTED_ENDPOINT, SELECTED_ENDPOINT_ID, SPIDER_SCANNING,
   THEME, DISPLAY_NAVBARS, APP_HEIGHT, APP_WIDTH, VIEWPORT, SESSION_INSPECTOR_OPEN, THEME_DIALOG_OPEN,
+  ABOUT_DIALOG_OPEN,
   SHOW_SYSTEM_IDS, SHOW_FHIR_IDS, SHOW_EXPERIMENTAL,
   SIMULATOR_MISSION_ID, SIMULATOR_LAUNCH_DATE, SIMULATOR_VEHICLE,
   SIMULATOR_MISSION_MODE, SELECTED_CREWED_VEHICLE,
