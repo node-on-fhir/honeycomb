@@ -64,6 +64,7 @@
     "test:smart-launch": "node --experimental-detect-module --test tests/unit/imports/lib/SmartLaunch.test.mjs",
     "test:analytics-scrub": "node --experimental-detect-module --test tests/unit/imports/lib/scrubAnalyticsPath.test.mjs",
     "test:update-check": "node --experimental-detect-module --test tests/unit/imports/lib/updateCheck.test.mjs",
+    "test:logger-redact": "node --test tests/unit/imports/lib/loggerRedact.test.mjs",
     "test:search-shadow": "node --experimental-detect-module --test tests/unit/npmPackages/provider-directory/searchShadow.test.mjs",
     "test:org-linkage": "node --experimental-detect-module --test tests/unit/npmPackages/provider-directory/OrgEndpointLinkage.test.mjs"
   },

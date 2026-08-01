@@ -862,7 +862,7 @@ export function PersonsTable(props){
       }
 
       tableRows.push(
-        <TableRow key={i} className="personRow" hover={true} style={rowStyle} selected={selected} onClick={ selectPersonRow.bind(this, personsToRender[i] )} >
+        <TableRow key={i} className="personRow" hover={true} style={rowStyle} selected={selected} onClick={ selectPersonRow.bind(this, personsToRender[i], i )} >
           { renderActionIcons(personsToRender[i]) }
           { renderRowAvatar(personsToRender[i], styles.avatar) }
           { renderIdentifier(personsToRender[i].identifier)}
@@ -1024,7 +1024,8 @@ PersonsTable.defaultProps = {
   hideSystemBarcode: false,
   hideCounts: true,
   
-  rowClickMode: 'index',
+  // '_id' (default, MongoDB primary key per the id-lookup rule) | 'id' | 'index'
+  rowClickMode: '_id',
 
   font3of9: true,
   hideFhirBarcode: false,

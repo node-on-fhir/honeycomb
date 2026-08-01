@@ -664,6 +664,9 @@ jobs:
           name: Release-feed update check
           command: npm run test:update-check
       - run:
+          name: Logger PHI redaction walker (bounded on arbitrary graphs)
+          command: npm run test:logger-redact
+      - run:
           name: Directory search shadow (nameLower)
           command: npm run test:search-shadow
       - run:
