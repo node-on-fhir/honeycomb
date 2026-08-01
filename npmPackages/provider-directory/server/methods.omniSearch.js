@@ -262,9 +262,13 @@ Meteor.ServerMethods.define('providerDirectory.omniSearch', {
     return { q: q, totals: totals, lastUpdated: lastUpdated, results: [], searchMs: Date.now() - startedAt };
   }
 
+  // Postal facets (city/state/postalCode) never apply to the Endpoint band:
+  // FHIR Endpoint.address is a URL, not an Address, so any geographic facet
+  // would silence the band entirely (address.city can never match). Narrow
+  // the org/practitioner/location bands and let endpoints ride the free text.
   const results = await Promise.all(
     SEARCH_TARGETS.map(function(target) { return searchOneType(target, q, facets, limit); })
-      .concat([searchEndpointsUnified(q, facets, limit)])
+      .concat([searchEndpointsUnified(q, {}, limit)])
   );
 
   const searchMs = Date.now() - startedAt;
