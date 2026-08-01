@@ -340,6 +340,26 @@ function RecordDetail({ resourceName, hit, accent }) {
       {resourceName === 'Endpoint' && get(hit, '_connectable') ? (
         <EndpointFetchPanel endpointId={get(hit, '_id')} accent={accent} />
       ) : null}
+
+      {/* Linked organization → the same bridge via its tier-1-linked endpoint
+          (methods.linkage.js). Gated on patientLaunchable (user decision:
+          every CONNECT VIA chip must be a working connect). Tooltip carries
+          the linkage provenance so operators can see why the link exists. */}
+      {resourceName === 'Organization' && get(hit, '_linkage.patientLaunchable') ? (
+        <Box sx={{ mt: 2, pt: 1.5, borderTop: '1px dashed var(--hairline)' }}>
+          <Box sx={{
+            fontFamily: 'var(--mono)', fontSize: '9px', letterSpacing: '0.24em',
+            color: 'var(--ink-dim)', mb: 1
+          }}
+            title={'linked by ' + get(hit, '_linkage.method', '') +
+              ' (' + get(hit, '_linkage.evidence', '') +
+              ', confidence ' + get(hit, '_linkage.confidence', '') + ')'}
+          >
+            CONNECT VIA {String(get(hit, 'endpoint.0.display', get(hit, '_linkage.matchedName', ''))).toUpperCase()}
+          </Box>
+          <EndpointFetchPanel endpointId={get(hit, '_linkage.endpointId')} accent={accent} />
+        </Box>
+      ) : null}
     </Box>
   );
 }

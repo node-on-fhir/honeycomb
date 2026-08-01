@@ -543,16 +543,140 @@ function SearchIndexCard() {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Org ↔ Endpoint Linkage card — tier-1 exact-name linkage of NPPES orgs to
+// connectable endpoints (server/methods.linkage.js). Dry run first, always.
+
+function LinkageCard() {
+  const [stats, setStats] = useState(null);
+  const [starting, setStarting] = useState('');
+  const [error, setError] = useState(null);
+
+  const loadStats = useCallback(async function () {
+    try {
+      const result = await Meteor.rpc('providerDirectory.linkageStats', {});
+      setStats(result || {});
+      setError(null);
+    } catch (err) {
+      setError(get(err, 'reason', err.message));
+      setStats({});
+    }
+  }, []);
+
+  useEffect(function () { loadStats(); }, [loadStats]);
+
+  const running = !!get(stats, 'running', false) || !!get(stats, 'progress.running', false);
+  useEffect(function () {
+    if (!running) { return undefined; }
+    const timer = setInterval(loadStats, 2500);
+    return function () { clearInterval(timer); };
+  }, [running, loadStats]);
+
+  async function run(kind) {
+    setStarting(kind);
+    setError(null);
+    try {
+      if (kind === 'clear') {
+        await Meteor.rpc('providerDirectory.clearLinkage', {});
+      } else {
+        await Meteor.rpc('providerDirectory.linkEndpoints', { dryRun: kind === 'dry', prune: kind === 'link' });
+      }
+      await loadStats();
+    } catch (err) {
+      setError(get(err, 'reason', err.message));
+    } finally {
+      setStarting('');
+    }
+  }
+
+  const progress = get(stats, 'progress', null);
+  const samples = get(stats, 'samples', []);
+
+  return (
+    <Card sx={{ mt: 2 }}>
+      <CardHeader
+        avatar={<BusinessIcon />}
+        title="Org ↔ Endpoint Linkage"
+        subheader="Tier-1 exact-name links: NPPES organizations → connectable endpoints"
+      />
+      <CardContent>
+        {error ? <Alert severity="error" sx={{ mb: 2 }} onClose={function () { setError(null); }}>{error}</Alert> : null}
+        {running ? (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            Linkage running — {get(progress, 'phase', 'scan')} · {Number(get(progress, 'orgsScanned', 0)).toLocaleString()} orgs scanned
+            <LinearProgress sx={{ mt: 1 }} />
+          </Alert>
+        ) : null}
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          Linked organizations: <strong>{get(stats, 'linked', 0) < 0 ? '—' : Number(get(stats, 'linked', 0)).toLocaleString()}</strong>
+          {' · '}connectable (patient-launchable): <strong>{get(stats, 'launchableLinked', 0) < 0 ? '—' : Number(get(stats, 'launchableLinked', 0)).toLocaleString()}</strong>
+          {get(stats, 'lastRunAt', null) ? ' · last run ' + new Date(get(stats, 'lastRunAt')).toLocaleString() : ''}
+        </Typography>
+        {progress && !running ? (
+          <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 1 }}>
+            Last run: {Number(get(progress, 'orgsScanned', 0)).toLocaleString()} scanned ·{' '}
+            {Number(get(progress, 'linked', 0)).toLocaleString()} linked ({Number(get(progress, 'vendorLinked', 0)).toLocaleString()} vendor-name, {Number(get(progress, 'lanternLinked', 0)).toLocaleString()} lantern-list) ·{' '}
+            {Number(get(progress, 'refusedLocality', 0)).toLocaleString()} refused by locality guard
+            {get(progress, 'dryRun') ? ' · DRY RUN (nothing written)' : ''}
+          </Typography>
+        ) : null}
+        {samples.length ? (
+          <Box sx={{ maxHeight: 200, overflow: 'auto', mb: 1, p: 1, bgcolor: 'action.hover', borderRadius: 1 }}>
+            {samples.map(function (sample, index) {
+              return (
+                <Typography key={index} variant="caption" component="div" sx={{ fontFamily: 'monospace' }}>
+                  {sample.refused
+                    ? '✗ ' + sample.org + ' — refused: ' + sample.refused
+                    : '✓ ' + sample.org + ' → ' + sample.endpoint + ' [' + (sample.tag || sample.evidence) + ']'}
+                </Typography>
+              );
+            })}
+          </Box>
+        ) : null}
+      </CardContent>
+      <CardActions sx={{ px: 2, pb: 2 }}>
+        <Button
+          id="linkageDryRunButton"
+          variant="outlined"
+          onClick={function () { run('dry'); }}
+          disabled={!!starting || running}
+        >
+          Dry run
+        </Button>
+        <Button
+          id="linkageRunButton"
+          variant="contained"
+          startIcon={starting === 'link' || running ? <CircularProgress size={18} color="inherit" /> : <BusinessIcon />}
+          onClick={function () { run('link'); }}
+          disabled={!!starting || running}
+        >
+          Link endpoints
+        </Button>
+        <Button
+          id="linkageClearButton"
+          color="error"
+          onClick={function () { run('clear'); }}
+          disabled={!!starting || running}
+        >
+          Clear links
+        </Button>
+        <Button startIcon={<RefreshIcon />} onClick={loadStats}>Refresh</Button>
+      </CardActions>
+    </Card>
+  );
+}
+
 // The panel tab renders the National Directory import card plus the search
-// index card (and, when linkage ships, its card) as one column.
+// index and linkage cards as one column.
 function ProviderDirectoryPanel() {
   return (
     <Box>
       <ServerConfiguration />
       <SearchIndexCard />
+      <LinkageCard />
     </Box>
   );
 }
 
-export { SearchIndexCard };
+export { SearchIndexCard, LinkageCard };
 export default ProviderDirectoryPanel;

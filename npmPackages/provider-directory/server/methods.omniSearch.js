@@ -49,7 +49,8 @@ const SEARCH_TARGETS = [
   {
     resourceName: 'Organization',
     nameFields: ['name'],
-    projection: { name: 1, alias: 1, address: 1, telecom: 1, active: 1, id: 1 }
+    // endpoint + _linkage feed the console's "CONNECT VIA" chip (methods.linkage.js)
+    projection: { name: 1, alias: 1, address: 1, telecom: 1, active: 1, id: 1, endpoint: 1, _linkage: 1 }
   },
   {
     resourceName: 'Practitioner',
