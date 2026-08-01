@@ -32,8 +32,12 @@ import { backfillFilter } from '../lib/searchShadow.js';
 // against). We unify them at the READ layer here, tagging each hit with its
 // meta.source lineage so the console shows one logical directory.
 
-const RESULT_LIMIT_DEFAULT = 8;
-const RESULT_LIMIT_MAX = 25;
+// 200 per band by default (operator decision 2026-08-01): with the nameLower
+// indexes the query cost is trivial, and the console renders whole cohorts
+// (e.g. all 167 Deaconess-Evansville orgs) instead of an unreachable tail.
+// LOAD MORE pages the rest via {resourceName, skip}.
+const RESULT_LIMIT_DEFAULT = 200;
+const RESULT_LIMIT_MAX = 500;
 const COUNT_CAP = 1000;
 const PRIMARY_TIMEOUT_MS = 5000;
 const WIDEBAND_TIMEOUT_MS = 3000;
@@ -122,6 +126,14 @@ const shadowReadiness = new Map();   // cacheKey -> { ready, checkedAt }
 
 async function isShadowReady(rawCollection, resourceName, cacheKey) {
   const cached = shadowReadiness.get(cacheKey);
+  // STICKY once ready: proving "zero missing" is a full-collection scan
+  // (there is no index on field absence), so a ready verdict holds for the
+  // process lifetime. Safe because every writer stamps nameLower at write
+  // time — this probe only bridges the pre-backfill window. Not-ready
+  // verdicts recheck on the TTL so a finished backfill is picked up.
+  if (cached && cached.ready) {
+    return true;
+  }
   if (cached && (Date.now() - cached.checkedAt) < SHADOW_TTL_MS) {
     return cached.ready;
   }
@@ -138,6 +150,25 @@ async function isShadowReady(rawCollection, resourceName, cacheKey) {
   shadowReadiness.set(cacheKey, { ready: ready, checkedAt: Date.now() });
   return ready;
 }
+
+// Warm the readiness cache off the boot path so no user's first search pays
+// the proof-of-zero-missing collection scans (one-time per process).
+Meteor.startup(function() {
+  Meteor.setTimeout(async function() {
+    const warmTargets = [
+      { resourceName: 'Organization', cacheKey: 'Organization' },
+      { resourceName: 'Practitioner', cacheKey: 'Practitioner' },
+      { resourceName: 'Location', cacheKey: 'Location' },
+      { resourceName: 'Endpoint', cacheKey: 'Endpoint.core', raw: function() { return CoreEndpoints.rawCollection(); } },
+      { resourceName: 'Endpoint', cacheKey: 'Endpoint.directory', raw: function() { return getDirectoryCollection('Endpoint').rawCollection(); } }
+    ];
+    for (const target of warmTargets) {
+      const raw = target.raw ? target.raw() : getDirectoryCollection(target.resourceName).rawCollection();
+      await isShadowReady(raw, target.resourceName, target.cacheKey).catch(function() {});
+    }
+    console.log('[provider-directory] search shadow readiness warmed');
+  }, 20 * 1000);
+});
 
 // Selector builder that understands both modes. Endpoint keeps its address
 // branch (URLs are effectively lowercase already; queried as typed, anchored
@@ -178,12 +209,14 @@ function buildFacetSelector(params) {
   return extra;
 }
 
-async function searchOneType(target, q, facets, limit, rawOverride, cacheKey) {
+async function searchOneType(target, q, facets, limit, rawOverride, cacheKey, skip) {
   const raw = rawOverride || getDirectoryCollection(target.resourceName).rawCollection();
   const useShadow = await isShadowReady(raw, target.resourceName, cacheKey || target.resourceName);
   const prefixSelector = buildModeSelector(target, q, facets, { useShadow: useShadow, anchored: true });
+  const offset = skip > 0 ? skip : 0;
 
   let hits = await raw.find(prefixSelector, { projection: target.projection })
+    .skip(offset)
     .limit(limit)
     .maxTimeMS(PRIMARY_TIMEOUT_MS)
     .toArray()
@@ -196,8 +229,10 @@ async function searchOneType(target, q, facets, limit, rawOverride, cacheKey) {
 
   // Wide-band pass — mid-string matches when the prefix pass ran thin.
   // (Still a scan either way, but case-sensitive on nameLower is several
-  // times cheaper than $options:'i' over the raw name fields.)
-  if (hits.length < 3 && q.length >= WIDEBAND_MIN_QUERY) {
+  // times cheaper than $options:'i' over the raw name fields.) First page
+  // only — LOAD MORE pages walk the stable prefix selector, and the client
+  // dedupes by _id anyway.
+  if (offset === 0 && hits.length < 3 && q.length >= WIDEBAND_MIN_QUERY) {
     const wideSelector = buildModeSelector(target, q, facets, { useShadow: useShadow, anchored: false });
     const wideHits = await raw.find(wideSelector, { projection: target.projection })
       .limit(limit)
@@ -227,13 +262,16 @@ async function searchOneType(target, q, facets, limit, rawOverride, cacheKey) {
 // and the NPPES Directory.Endpoints mirror, tag each hit with its source +
 // connectability, and interleave with connectable (FHIR REST) results first so
 // the actionable endpoints surface at the top.
-async function searchEndpointsUnified(q, facets, limit) {
+async function searchEndpointsUnified(q, facets, limit, skip) {
   const coreRaw = CoreEndpoints.rawCollection();
   const directoryRaw = getDirectoryCollection('Endpoint').rawCollection();
 
+  // Pagination note: skip applies to BOTH collections, so a page can carry up
+  // to 2×limit candidates before the merge trims to limit — approximate but
+  // stable for console browsing, and the client dedupes appended pages by _id.
   const [core, directory] = await Promise.all([
-    searchOneType(ENDPOINT_TARGET, q, facets, limit, coreRaw, 'Endpoint.core'),
-    searchOneType(ENDPOINT_TARGET, q, facets, limit, directoryRaw, 'Endpoint.directory')
+    searchOneType(ENDPOINT_TARGET, q, facets, limit, coreRaw, 'Endpoint.core', skip),
+    searchOneType(ENDPOINT_TARGET, q, facets, limit, directoryRaw, 'Endpoint.directory', skip)
   ]);
 
   const coreHits = core.hits.map(function(hit) {
@@ -262,7 +300,7 @@ async function searchEndpointsUnified(q, facets, limit) {
 }
 
 Meteor.ServerMethods.define('providerDirectory.omniSearch', {
-  description: 'Free-text search across the National Directory (organizations, practitioners, locations, endpoints) with bounded counts and estimated totals.',
+  description: 'Free-text search across the National Directory (organizations, practitioners, locations, endpoints) with bounded counts and estimated totals. Pass resourceName + skip to page a single band (LOAD MORE).',
   requireAuth: false,
   positionalParams: ['q'],
   schemaObject: {
@@ -272,15 +310,34 @@ Meteor.ServerMethods.define('providerDirectory.omniSearch', {
       city: { type: 'string' },
       state: { type: 'string' },
       postalCode: { type: 'string' },
-      limit: { type: 'number' }
+      limit: { type: 'number' },
+      resourceName: { type: 'string', enum: ['Organization', 'Practitioner', 'Location', 'Endpoint'] },
+      skip: { type: 'number' }
     },
     required: ['q']
   }
 }, async function(params, context) {
   const q = (get(params, 'q', '') || '').trim();
   const limit = Math.min(Math.max(get(params, 'limit', RESULT_LIMIT_DEFAULT), 1), RESULT_LIMIT_MAX);
+  const skip = Math.max(get(params, 'skip', 0), 0);
+  const onlyResource = get(params, 'resourceName', null);
   const facets = buildFacetSelector(params);
   const startedAt = Date.now();
+
+  // Single-band page (LOAD MORE): skip the totals/lastUpdated ceremony and
+  // return just the requested band.
+  if (onlyResource && q.length >= 2) {
+    const band = onlyResource === 'Endpoint'
+      ? await searchEndpointsUnified(q, {}, limit, skip)
+      : await searchOneType(
+          SEARCH_TARGETS.find(function(t) { return t.resourceName === onlyResource; }),
+          q, facets, limit, null, onlyResource, skip
+        );
+    const pageMs = Date.now() - startedAt;
+    console.log('[provider-directory] omniSearch page "' + q + '" ' + onlyResource +
+      ' skip=' + skip + ' → ' + band.hits.length + ' in ' + pageMs + 'ms');
+    return { q: q, results: [band], searchMs: pageMs };
+  }
 
   // Last-updated signal for the masthead: the most recent endpoint-directory
   // sync (lantern/epic/cerner all stamp ServerConfiguration.lanternSync.lastSyncAt).

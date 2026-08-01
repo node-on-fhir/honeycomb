@@ -539,13 +539,16 @@ function StatusChip({ status }) {
   );
 }
 
-function ResultBand({ band, config, revealIndex }) {
+function ResultBand({ band, config, revealIndex, onLoadMore, loadingMore }) {
   const [expandedId, setExpandedId] = useState(null);
   const hitsById = {};
   (band.hits || []).forEach(function(hit) { hitsById[get(hit, '_id')] = hit; });
   const rows = (band.hits || []).map(function(hit) { return flattenHit(band.resourceName, hit); });
   const countLabel = band.matchCount >= 1000
     ? '1,000+' : band.matchCount.toLocaleString();
+  // Bands fetch 200 by default; the tail beyond the fetched page is reachable
+  // via LOAD MORE (single-band skip pages, deduped on append).
+  const hasMore = band.matchCount > rows.length;
 
   return (
     <Box className="gc-boot" sx={{ animationDelay: (revealIndex * 120) + 'ms', mb: 4 }}>
@@ -639,6 +642,25 @@ function ResultBand({ band, config, revealIndex }) {
           </Box>
         );
       })}
+
+      {hasMore && onLoadMore ? (
+        <button
+          type="button"
+          onClick={function() { onLoadMore(band.resourceName); }}
+          disabled={!!loadingMore}
+          style={{
+            display: 'block', width: '100%', background: 'transparent',
+            border: '1px dashed var(--hairline)', cursor: loadingMore ? 'wait' : 'pointer',
+            padding: '10px 0', marginTop: '6px',
+            fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.24em',
+            color: config.accent, opacity: loadingMore ? 0.5 : 0.9
+          }}
+        >
+          {loadingMore
+            ? 'ACQUIRING…'
+            : 'LOAD MORE ▸ SHOWING ' + rows.length.toLocaleString() + ' OF ' + countLabel + ' ' + config.unit}
+        </button>
+      ) : null}
     </Box>
   );
 }
@@ -687,6 +709,36 @@ export function DirectoryConsole() {
       if (seq === scanSeq.current) { setScanning(false); }
     }
   }, []);
+
+  // LOAD MORE: fetch the next single-band page (skip = rows already shown)
+  // and append, deduped by _id (page 0 may have carried wide-band extras).
+  const [loadingMoreBand, setLoadingMoreBand] = useState(null);
+  const loadMore = useCallback(async function(resourceName) {
+    const band = (bands || []).find(function(b) { return b.resourceName === resourceName; });
+    if (!band) { return; }
+    setLoadingMoreBand(resourceName);
+    try {
+      const result = await Meteor.rpc('providerDirectory.omniSearch', Object.assign(
+        { q: query, resourceName: resourceName, skip: band.hits.length },
+        facets
+      ));
+      const page = get(result, 'results.0', null);
+      if (page) {
+        setBands(function(current) {
+          return (current || []).map(function(b) {
+            if (b.resourceName !== resourceName) { return b; }
+            const seen = new Set(b.hits.map(function(h) { return String(h._id); }));
+            const appended = b.hits.concat(page.hits.filter(function(h) { return !seen.has(String(h._id)); }));
+            return Object.assign({}, b, { hits: appended });
+          });
+        });
+      }
+    } catch (error) {
+      log.error('loadMore failed', { resourceName: resourceName, error: get(error, 'reason', error.message) });
+    } finally {
+      setLoadingMoreBand(null);
+    }
+  }, [bands, query, facets]);
 
   // Census on boot.
   useEffect(function() {
@@ -957,6 +1009,8 @@ export function DirectoryConsole() {
                     band={band}
                     config={config}
                     revealIndex={index}
+                    onLoadMore={loadMore}
+                    loadingMore={loadingMoreBand === band.resourceName}
                   />
                 );
               })
