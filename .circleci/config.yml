@@ -648,6 +648,21 @@ jobs:
       - run:
           name: global.Collections contract audit
           command: npm run audit:collections
+      # ESM-subject unit tests (imports/lib, zero imports — bare-checkout
+      # safe). Subjects use `export` in .js, so the scripts carry
+      # --experimental-detect-module for this job's node 20 (default-on ≥22).
+      - run:
+          name: SMART launch builders (PKCE)
+          command: npm run test:smart-launch
+      - run:
+          name: Endpoint conformance probe
+          command: npm run test:conformance-probe
+      - run:
+          name: Analytics path scrubbing (PHI)
+          command: npm run test:analytics-scrub
+      - run:
+          name: Release-feed update check
+          command: npm run test:update-check
 
   # Dedicated RPC method-test job (Stage 1, docs/RPC-TESTING.md): boots the
   # app against its OWN ephemeral Mongo sidecar, then runs the JSON-RPC test
