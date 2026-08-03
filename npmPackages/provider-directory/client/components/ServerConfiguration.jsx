@@ -421,4 +421,262 @@ export function ServerConfiguration() {
   );
 }
 
-export default ServerConfiguration;
+// ---------------------------------------------------------------------------
+// Search Index card — nameLower shadow-field backfill for the directory
+// search (server/methods.searchIndex.js). The omniSearch console silently
+// falls back to unindexed scans until every collection reads ready.
+
+function SearchIndexCard() {
+  const [status, setStatus] = useState(null);    // null = loading
+  const [starting, setStarting] = useState(false);
+  const [error, setError] = useState(null);
+
+  const loadStatus = useCallback(async function () {
+    try {
+      const result = await Meteor.rpc('providerDirectory.searchIndexStatus', {});
+      setStatus(result || {});
+      setError(null);
+    } catch (err) {
+      setError(get(err, 'reason', err.message));
+      setStatus({});
+    }
+  }, []);
+
+  useEffect(function () {
+    loadStatus();
+  }, [loadStatus]);
+
+  // Poll while the backfill runs.
+  const running = !!get(status, 'running', false) || !!get(status, 'progress.running', false);
+  useEffect(function () {
+    if (!running) { return undefined; }
+    const timer = setInterval(loadStatus, 2500);
+    return function () { clearInterval(timer); };
+  }, [running, loadStatus]);
+
+  async function startBackfill() {
+    setStarting(true);
+    setError(null);
+    try {
+      await Meteor.rpc('providerDirectory.backfillSearchIndex', {});
+      await loadStatus();
+    } catch (err) {
+      setError(get(err, 'reason', err.message));
+    } finally {
+      setStarting(false);
+    }
+  }
+
+  const collections = get(status, 'collections', []);
+  const allReady = collections.length > 0 && collections.every(function (c) { return c.ready; });
+
+  return (
+    <Card sx={{ mt: 2 }}>
+      <CardHeader
+        avatar={<StorageIcon />}
+        title="Search Index"
+        subheader="nameLower shadow field — indexed prefix search for the directory console"
+      />
+      <CardContent>
+        {error ? <Alert severity="error" sx={{ mb: 2 }} onClose={function () { setError(null); }}>{error}</Alert> : null}
+        {status === null ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><CircularProgress size={24} /></Box>
+        ) : (
+          <Box>
+            {running ? (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Backfill running — {get(status, 'progress.phase', '…')}
+                <LinearProgress sx={{ mt: 1 }} />
+              </Alert>
+            ) : allReady ? (
+              <Alert severity="success" sx={{ mb: 2 }}>
+                Search index ready — omniSearch is using indexed prefix queries.
+              </Alert>
+            ) : (
+              <Alert severity="warning" sx={{ mb: 2 }}>
+                Some collections are missing the search shadow — directory search
+                falls back to slow unindexed scans until the backfill runs.
+              </Alert>
+            )}
+            <Table size="small" id="searchIndexStatusTable">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Collection</TableCell>
+                  <TableCell align="right">Documents</TableCell>
+                  <TableCell align="right">Missing shadow</TableCell>
+                  <TableCell align="right">Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {collections.map(function (row) {
+                  return (
+                    <TableRow key={row.collection}>
+                      <TableCell>{row.collection}</TableCell>
+                      <TableCell align="right">{Number(row.total || 0).toLocaleString()}</TableCell>
+                      <TableCell align="right">
+                        {row.missing < 0 ? '—' : (row.missingCapped ? '1,000+' : Number(row.missing).toLocaleString())}
+                      </TableCell>
+                      <TableCell align="right">
+                        <Chip size="small" label={row.ready ? 'ready' : 'pending'} color={row.ready ? 'success' : 'default'} />
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Box>
+        )}
+      </CardContent>
+      <CardActions sx={{ px: 2, pb: 2 }}>
+        <Button
+          id="buildSearchIndexButton"
+          variant="contained"
+          startIcon={(starting || running) ? <CircularProgress size={18} color="inherit" /> : <StorageIcon />}
+          onClick={startBackfill}
+          disabled={starting || running || allReady}
+        >
+          {running ? 'Building…' : 'Build search index'}
+        </Button>
+        <Button startIcon={<RefreshIcon />} onClick={loadStatus}>Refresh</Button>
+      </CardActions>
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Org ↔ Endpoint Linkage card — tier-1 exact-name linkage of NPPES orgs to
+// connectable endpoints (server/methods.linkage.js). Dry run first, always.
+
+function LinkageCard() {
+  const [stats, setStats] = useState(null);
+  const [starting, setStarting] = useState('');
+  const [error, setError] = useState(null);
+
+  const loadStats = useCallback(async function () {
+    try {
+      const result = await Meteor.rpc('providerDirectory.linkageStats', {});
+      setStats(result || {});
+      setError(null);
+    } catch (err) {
+      setError(get(err, 'reason', err.message));
+      setStats({});
+    }
+  }, []);
+
+  useEffect(function () { loadStats(); }, [loadStats]);
+
+  const running = !!get(stats, 'running', false) || !!get(stats, 'progress.running', false);
+  useEffect(function () {
+    if (!running) { return undefined; }
+    const timer = setInterval(loadStats, 2500);
+    return function () { clearInterval(timer); };
+  }, [running, loadStats]);
+
+  async function run(kind) {
+    setStarting(kind);
+    setError(null);
+    try {
+      if (kind === 'clear') {
+        await Meteor.rpc('providerDirectory.clearLinkage', {});
+      } else {
+        await Meteor.rpc('providerDirectory.linkEndpoints', { dryRun: kind === 'dry', prune: kind === 'link' });
+      }
+      await loadStats();
+    } catch (err) {
+      setError(get(err, 'reason', err.message));
+    } finally {
+      setStarting('');
+    }
+  }
+
+  const progress = get(stats, 'progress', null);
+  const samples = get(stats, 'samples', []);
+
+  return (
+    <Card sx={{ mt: 2 }}>
+      <CardHeader
+        avatar={<BusinessIcon />}
+        title="Org ↔ Endpoint Linkage"
+        subheader="Tier-1 exact-name links: NPPES organizations → connectable endpoints"
+      />
+      <CardContent>
+        {error ? <Alert severity="error" sx={{ mb: 2 }} onClose={function () { setError(null); }}>{error}</Alert> : null}
+        {running ? (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            Linkage running — {get(progress, 'phase', 'scan')} · {Number(get(progress, 'orgsScanned', 0)).toLocaleString()} orgs scanned
+            <LinearProgress sx={{ mt: 1 }} />
+          </Alert>
+        ) : null}
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          Linked organizations: <strong>{get(stats, 'linked', 0) < 0 ? '—' : Number(get(stats, 'linked', 0)).toLocaleString()}</strong>
+          {' · '}connectable (patient-launchable): <strong>{get(stats, 'launchableLinked', 0) < 0 ? '—' : Number(get(stats, 'launchableLinked', 0)).toLocaleString()}</strong>
+          {get(stats, 'lastRunAt', null) ? ' · last run ' + new Date(get(stats, 'lastRunAt')).toLocaleString() : ''}
+        </Typography>
+        {progress && !running ? (
+          <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 1 }}>
+            Last run: {Number(get(progress, 'orgsScanned', 0)).toLocaleString()} scanned ·{' '}
+            {Number(get(progress, 'linked', 0)).toLocaleString()} linked ({Number(get(progress, 'vendorLinked', 0)).toLocaleString()} vendor-name, {Number(get(progress, 'lanternLinked', 0)).toLocaleString()} lantern-list) ·{' '}
+            {Number(get(progress, 'refusedLocality', 0)).toLocaleString()} refused by locality guard
+            {get(progress, 'dryRun') ? ' · DRY RUN (nothing written)' : ''}
+          </Typography>
+        ) : null}
+        {samples.length ? (
+          <Box sx={{ maxHeight: 200, overflow: 'auto', mb: 1, p: 1, bgcolor: 'action.hover', borderRadius: 1 }}>
+            {samples.map(function (sample, index) {
+              return (
+                <Typography key={index} variant="caption" component="div" sx={{ fontFamily: 'monospace' }}>
+                  {sample.refused
+                    ? '✗ ' + sample.org + ' — refused: ' + sample.refused
+                    : '✓ ' + sample.org + ' → ' + sample.endpoint + ' [' + (sample.tag || sample.evidence) + ']'}
+                </Typography>
+              );
+            })}
+          </Box>
+        ) : null}
+      </CardContent>
+      <CardActions sx={{ px: 2, pb: 2 }}>
+        <Button
+          id="linkageDryRunButton"
+          variant="outlined"
+          onClick={function () { run('dry'); }}
+          disabled={!!starting || running}
+        >
+          Dry run
+        </Button>
+        <Button
+          id="linkageRunButton"
+          variant="contained"
+          startIcon={starting === 'link' || running ? <CircularProgress size={18} color="inherit" /> : <BusinessIcon />}
+          onClick={function () { run('link'); }}
+          disabled={!!starting || running}
+        >
+          Link endpoints
+        </Button>
+        <Button
+          id="linkageClearButton"
+          color="error"
+          onClick={function () { run('clear'); }}
+          disabled={!!starting || running}
+        >
+          Clear links
+        </Button>
+        <Button startIcon={<RefreshIcon />} onClick={loadStats}>Refresh</Button>
+      </CardActions>
+    </Card>
+  );
+}
+
+// The panel tab renders the National Directory import card plus the search
+// index and linkage cards as one column.
+function ProviderDirectoryPanel() {
+  return (
+    <Box>
+      <ServerConfiguration />
+      <SearchIndexCard />
+      <LinkageCard />
+    </Box>
+  );
+}
+
+export { SearchIndexCard, LinkageCard };
+export default ProviderDirectoryPanel;

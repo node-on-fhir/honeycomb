@@ -663,6 +663,12 @@ jobs:
       - run:
           name: Release-feed update check
           command: npm run test:update-check
+      - run:
+          name: Directory search shadow (nameLower)
+          command: npm run test:search-shadow
+      - run:
+          name: Org→Endpoint linkage matcher
+          command: npm run test:org-linkage
 
   # Dedicated RPC method-test job (Stage 1, docs/RPC-TESTING.md): boots the
   # app against its OWN ephemeral Mongo sidecar, then runs the JSON-RPC test
