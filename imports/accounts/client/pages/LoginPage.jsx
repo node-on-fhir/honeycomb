@@ -7,14 +7,25 @@ import { LoginForm } from '../components/LoginForm';
 import WorkflowNavigation from '/imports/lib/WorkflowNavigation.js';
 const { sanitizeReturnPath, appendReturnTo } = WorkflowNavigation;
 
-// Card placement as a 3×3 grid over the router area. ?align=left|center|right
-// and ?valign=top|center|bottom drop the card into one of nine cells; because
-// each cell is a 1fr third and the card is centered WITHIN its cell, placement
-// is "center-of-the-third" oriented — never jammed against a viewport edge.
-const ALIGN_COLUMN = { left: 1, center: 2, right: 3 };
-const VALIGN_ROW = { top: 1, center: 2, bottom: 3 };
+// Card placement over the router area. ?align=left|center|right centers the card
+// horizontally (⅙ / ½ / ⅚ of the width). ?valign=top|center|bottom sets the
+// card's TOP EDGE on a fixed line and lets it grow DOWNWARD, so the tabs and
+// inputs hold their position when the form gets taller (inline error, alert box,
+// changed button) — only the area below expands. That's what keeps the inputs
+// from jumping between steps.
+//
+// The line is a fixed % — never a height-dependent transform, which is what was
+// redrawing the inputs. `bottom` sits at 50%: the card floats in the lower half
+// with roughly the bottom ~20% of the window left open beneath a typical card,
+// then grows down into that space (raise the % to hug lower, lower it to float
+// higher). top/center sit near the top of their regions.
+//
+// Absolute, not grid: a 1fr grid row balloons to fit a tall card and reflows the
+// page. Vertical is a fixed top edge (no Y translate); horizontal is centered.
+const ALIGN_X = { left: '16.67%', center: '50%', right: '83.34%' };
+const VALIGN_Y = { top: '0%', center: '33.34%', bottom: '50%' };
 
-function resolveCell(value, map) {
+function resolvePlacement(value, map) {
   const key = String(value || '').toLowerCase();
   return map[key] || map.center;
 }
@@ -29,9 +40,9 @@ export function LoginPage() {
   // invalid/absent falls back to the home route).
   const returnTo = sanitizeReturnPath(searchParams.get('returnTo'));
 
-  // Placement (defaults to dead-center when absent/invalid).
-  const gridColumn = resolveCell(searchParams.get('align'), ALIGN_COLUMN);
-  const gridRow = resolveCell(searchParams.get('valign'), VALIGN_ROW);
+  // Placement anchor points (default to dead-center when absent/invalid).
+  const leftPct = resolvePlacement(searchParams.get('align'), ALIGN_X);
+  const topPct = resolvePlacement(searchParams.get('valign'), VALIGN_Y);
 
   const handleSuccess = function() {
     // Redirect to the originally requested page after successful login,
@@ -53,23 +64,24 @@ export function LoginPage() {
   return (
     // No page-level bgcolor here: StyledMainRouter paints background.default and
     // (with the ambiance axis) any background image. height:100% claims the
-    // router's bounded height (rules/ui/layout-patterns.md) so the 3×3 grid can
-    // vertically place the card; the card is centered within its 1fr cell, so
-    // e.g. align=left sits it in the middle of the left third, not at the edge.
-    <Box
-      sx={{
-        height: '100%',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gridTemplateRows: 'repeat(3, 1fr)',
-        overflow: 'auto',
-        p: 2
-      }}
-    >
-      {/* Fixed card width (not 1fr of the cell) so justifySelf centers it on
-          the third's center and lets it overflow into neighbors on narrow
-          screens — center-oriented, never shrunk-to-third or edge-anchored. */}
-      <Box sx={{ gridColumn: gridColumn, gridRow: gridRow, justifySelf: 'center', alignSelf: 'center', width: 'min(440px, calc(100vw - 32px))' }}>
+    // router's bounded height (rules/ui/layout-patterns.md); the card is
+    // absolutely placed and centered on the (leftPct, topPct) anchor so its
+    // position is independent of its own height — no grid-row reflow, and
+    // symmetric growth when the form gets taller.
+    <Box sx={{ position: 'relative', height: '100%', overflow: 'auto', p: 2 }}>
+      {/* Top-anchored vertically (top edge at topPct → grows downward),
+          center-anchored horizontally (translateX -50%). On narrow screens force
+          horizontal center so the card never runs off-edge; desktop uses the
+          requested third. Width caps at 440px (or the viewport minus padding). */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: topPct,
+          left: { xs: '50%', sm: leftPct },
+          transform: 'translateX(-50%)',
+          width: 'min(440px, calc(100vw - 32px))'
+        }}
+      >
         <LoginForm
           onSuccess={handleSuccess}
           onSignupClick={handleSignupClick}
