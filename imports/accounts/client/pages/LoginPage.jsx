@@ -1,7 +1,6 @@
 // imports/accounts/client/pages/LoginPage.jsx
 
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Container, Box } from '@mui/material';
 import { LoginForm } from '../components/LoginForm';
@@ -17,11 +16,6 @@ export function LoginPage() {
   // already decoded once — sanitize the decoded value (internal paths only;
   // invalid/absent falls back to the home route).
   const returnTo = sanitizeReturnPath(searchParams.get('returnTo'));
-
-  // Get Honeycomb theme for dark mode support
-  const useAppTheme = Meteor.useTheme;
-  const appTheme = useAppTheme ? useAppTheme() : { theme: 'light' };
-  const isDark = appTheme.theme === 'dark';
 
   const handleSuccess = function() {
     // Redirect to the originally requested page after successful login,
@@ -41,17 +35,17 @@ export function LoginPage() {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh' }}>
-      <Container maxWidth="sm">
-        <Box sx={{ pt: 8, pb: 4 }}>
-          <LoginForm
-            onSuccess={handleSuccess}
-            onSignupClick={handleSignupClick}
-            onForgotPasswordClick={handleForgotPasswordClick}
-            isDark={isDark}
-          />
-        </Box>
-      </Container>
-    </Box>
+    // No page-level bgcolor and no 100vh here: StyledMainRouter paints
+    // background.default and the router area is already viewport-minus-chrome
+    // (rules/ui/layout-patterns.md) — a 100vh child just forces page scroll.
+    <Container maxWidth="sm">
+      <Box sx={{ pt: 8, pb: 4 }}>
+        <LoginForm
+          onSuccess={handleSuccess}
+          onSignupClick={handleSignupClick}
+          onForgotPasswordClick={handleForgotPasswordClick}
+        />
+      </Box>
+    </Container>
   );
 }

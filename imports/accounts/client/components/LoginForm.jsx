@@ -19,12 +19,7 @@ import {
 import { logger } from '../../lib/AccountsLogger';
 import { useDevAutoLogin } from '../hooks/useDevAutoLogin';
 
-export function LoginForm({ onSuccess, onSignupClick, onForgotPasswordClick, isDark = false }) {
-  // Theme-aware colors
-  const cardBgColor = isDark ? '#2a2a2a' : '#ffffff';
-  const cardTextColor = isDark ? 'rgba(255, 255, 255, 0.87)' : 'rgba(0, 0, 0, 0.87)';
-  const inputBorderColor = isDark ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)';
-
+export function LoginForm({ onSuccess, onSignupClick, onForgotPasswordClick }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -330,23 +325,27 @@ export function LoginForm({ onSuccess, onSignupClick, onForgotPasswordClick, isD
   return (
     <Paper
       elevation={0}
-      sx={{
-        p: 5,
-        maxWidth: 440,
-        mx: 'auto',
-        backgroundColor: cardBgColor,
-        border: '1px solid',
-        borderColor: inputBorderColor,
-        borderRadius: 2,
-        '& .MuiTypography-root': { color: cardTextColor },
-        '& .MuiInputBase-root': { color: cardTextColor },
-        '& .MuiInputLabel-root': { color: cardTextColor },
-        '& .MuiOutlinedInput-notchedOutline': {
-          borderColor: inputBorderColor
-        },
-        '& .MuiFormHelperText-root': {
-          color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)'
-        }
+      sx={function(theme) {
+        return {
+          p: 5,
+          maxWidth: 440,
+          mx: 'auto',
+          bgcolor: 'background.paper',
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 2,
+          // Chrome autofill paints its own opaque blue over inputs; re-skin it
+          // from the LIVE theme so the filled tint tracks light/dark and the
+          // ThemeDialog presets. background.default keeps the fill subtly
+          // distinct from the paper card (the box-shadow inset trick needs an
+          // opaque color, so tokens are read from the theme object here).
+          '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus': {
+            WebkitBoxShadow: '0 0 0 1000px ' + theme.palette.background.default + ' inset',
+            WebkitTextFillColor: theme.palette.text.primary,
+            caretColor: theme.palette.text.primary,
+            borderRadius: 'inherit'
+          }
+        };
       }}
     >
       <Box sx={{ mb: 4 }}>
@@ -378,10 +377,10 @@ export function LoginForm({ onSuccess, onSignupClick, onForgotPasswordClick, isD
               fontSize: '0.875rem',
               letterSpacing: '0.5px',
               textTransform: 'none',
-              color: cardTextColor,
+              color: 'text.primary',
               '&.Mui-selected': {
                 backgroundColor: 'action.selected',
-                color: cardTextColor,
+                color: 'text.primary',
                 '&:hover': {
                   backgroundColor: 'action.hover',
                 }

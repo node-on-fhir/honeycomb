@@ -168,3 +168,13 @@ footer {
     display: none !important;
   }
 }
+/* RouteAnnouncer (imports/ui/a11y/RouteAnnouncer.jsx) programmatically focuses
+   #mainAppRouter on every navigation (WCAG 2.4.3). The focus itself is the
+   accessibility feature; the browser's default ring around the entire main
+   region is pure noise (2.4.7 applies to operable components, and a
+   tabindex="-1" container is not one) — it painted a full-page blue rectangle
+   on load until the first click. Suppress the ring, keep the focus. */
+#mainAppRouter:focus,
+#mainAppRouter:focus-visible {
+  outline: none;
+}
