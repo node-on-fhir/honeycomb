@@ -122,6 +122,10 @@ export function applyThemePreset(presetId, options) {
 
   Object.assign(theme.palette, preset.palette);
 
+  // A preset switch is a fresh base — drop any per-field overrides from the
+  // previous preset so e.g. a Tron appbar tweak doesn't bleed into Limestone.
+  saveThemeChoice({ paletteOverrides: null });
+
   const accentHue = get(options, 'accentHueOverride') || preset.accentHue;
   if (accentHue) {
     theme.palette.primaryColor = accentHue;
@@ -165,6 +169,25 @@ export function setAccentHue(hex) {
     theme.palette.appBarTextColorDark = hex;
   }
   saveThemeChoice({ accentHue: hex });
+  pokeRefresh();
+}
+
+// Live control: set one per-field palette override (from PaletteFieldEditor).
+// Writes the live settings AND persists into the choice's paletteOverrides map
+// so it survives reload (re-applied at boot after the preset). Empty value
+// clears that key's override.
+export function setPaletteOverride(fieldKey, value) {
+  const theme = ensureThemeSettings();
+  const choice = loadThemeChoice() || {};
+  const overrides = Object.assign({}, get(choice, 'paletteOverrides', {}));
+  if (value) {
+    theme.palette[fieldKey] = value;
+    overrides[fieldKey] = value;
+  } else {
+    delete theme.palette[fieldKey];
+    delete overrides[fieldKey];
+  }
+  saveThemeChoice({ paletteOverrides: overrides });
   pokeRefresh();
 }
 
@@ -220,5 +243,13 @@ export function applyThemeChoiceAtBoot() {
   }
   if ('backgroundImagePath' in choice) {
     set(theme, 'backgroundImagePath', choice.backgroundImagePath || '');
+  }
+
+  // Per-field overrides last, so they win over the preset + accent base
+  // (matches createDynamicTheme precedence). Set by PaletteFieldEditor via
+  // setPaletteOverride; cleared on preset switch.
+  const overrides = get(choice, 'paletteOverrides', null);
+  if (overrides && typeof overrides === 'object') {
+    Object.assign(theme.palette, overrides);
   }
 }
