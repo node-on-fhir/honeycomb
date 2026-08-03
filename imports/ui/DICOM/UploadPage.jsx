@@ -468,9 +468,11 @@ function UploadPage() {
       // Check if any conversions succeeded
       const successCount = results.filter(function(r) { return r.success; }).length;
       if (successCount > 0) {
-        // Navigate to studies page to see the new FHIR resources
+        // Return to the launch tab if one was requested (?next — e.g. the DICOM
+        // Files tab override); otherwise default to the Imaging Studies tab to
+        // show the new FHIR resources.
         if (navigate) {
-          navigate('/dicom/studies' + forwardParams, { state: { aggregationResult: aggregationResult } });
+          navigate(nextUrl || ('/dicom/studies' + forwardParams), { state: { aggregationResult: aggregationResult } });
         }
       }
     } catch (err) {
@@ -723,10 +725,10 @@ function UploadPage() {
                 <Button
                   variant="outlined"
                   startIcon={<BackIcon />}
-                  onClick={() => navigate('/dicom/studies' + forwardParams)}
+                  onClick={() => navigate(nextUrl || ('/dicom/studies' + forwardParams))}
                   sx={{ color: cardTextColor }}
                 >
-                  Back to Studies
+                  {nextUrl && nextUrl.indexOf('tab=files') !== -1 ? 'Back to Files' : 'Back to Studies'}
                 </Button>
               )
             }
