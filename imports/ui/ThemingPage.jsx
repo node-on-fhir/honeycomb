@@ -1,22 +1,20 @@
 // imports/ui/ThemingPage.jsx
 //
 // The /theming full editor. LEFT column = the SAME shared controls the Theme &
-// Palette dialog uses (<ThemeControls> + <PaletteFieldEditor>), so the two
-// surfaces are harmonized. RIGHT column = the live preview (independent
-// ThemeProvider built from the page's draft state). Field edits stage in local
-// state and drive the preview; "Load Theme Into Settings" writes them into
-// Meteor.settings AND persists the canonical per-field values as
-// paletteOverrides (survive reload, re-applied after the preset at boot).
+// Palette dialog uses (<ThemeControls> + <PaletteFieldEditor>) — everything
+// applies to the LIVE app and persists (setPaletteOverride), so the two
+// surfaces are fully harmonized (no draft/Load duality). RIGHT column = a
+// component gallery rendered from the LIVE palette, defaulting to the INVERSE
+// of the current app mode so you can tune the dark appbar while viewing it in
+// light (and vice-versa) without flipping the whole app.
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
 import "ace-builds";
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-json";
 import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/theme-monokai";
-
-import { useNavigate } from "react-router-dom";
 
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
@@ -29,54 +27,52 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Button from '@mui/material/Button';
-import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { get } from 'lodash';
 import { Meteor } from 'meteor/meteor';
-import { Session } from 'meteor/session';
 
-import { useTheme } from './App';
+import { getThemeSetting } from './CustomThemeProvider.jsx';
 import { ThemeControls } from './theme/ThemeControls.jsx';
-import { PaletteFieldEditor, PALETTE_FIELD_GROUPS } from './theme/PaletteFieldEditor.jsx';
-import { saveThemeChoice } from '/imports/lib/themePersistence.js';
+import { PaletteFieldEditor } from './theme/PaletteFieldEditor.jsx';
+import { setPaletteOverride } from './themePresets.js';
+
+// Live adapter (identical to the dialog): read the sanitized live value, write
+// a persisted per-field override.
+function liveGet(key) { return getThemeSetting('settings.public.theme.palette.' + key, ''); }
+function liveSet(key, value) { setPaletteOverride(key, value); }
+
+function validateColor(color, fallback) {
+  if (!color || String(color).trim() === '') return fallback;
+  const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+  if (color.startsWith('#') && !hexRegex.test(color)) { return fallback; }
+  const rgbRegex = /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+\s*)?\)$/;
+  if (color.startsWith('rgb') && !rgbRegex.test(color)) { return fallback; }
+  return color;
+}
 
 export function ThemingPage(){
-  const navigate = useNavigate();
-  const { theme: themeMode, toggleTheme } = useTheme();
+  // The live app theme. Its object identity changes on every provider rebuild
+  // (the themeRefreshCounter bumps on each edit) — so it's the reliable
+  // reactivity tick for the gallery. Its palette.mode is the live app mode.
   const muiTheme = useMuiTheme();
+  const appMode = muiTheme.palette.mode || 'light';
 
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [previewThemeMode, setPreviewThemeMode] = useState('light');
+  // Preview defaults to the INVERSE of the app mode; re-inverts whenever the
+  // app mode flips. The selector still lets you override in between.
+  const [previewMode, setPreviewMode] = useState(appMode === 'dark' ? 'light' : 'dark');
+  useEffect(function() {
+    setPreviewMode(appMode === 'dark' ? 'light' : 'dark');
+  }, [appMode]);
 
-  // Draft settings — edits stage here and feed the preview; nothing hits the
-  // live app until "Load Theme Into Settings".
-  const [settings, setSettings] = useState(() => {
-    const meteorSettings = JSON.parse(JSON.stringify(get(Meteor, 'settings', {})));
-    if (!meteorSettings.public) { meteorSettings.public = {}; }
-    if (!meteorSettings.public.theme) { meteorSettings.public.theme = {}; }
-    if (!meteorSettings.public.theme.palette) { meteorSettings.public.theme.palette = {}; }
-    return meteorSettings;
-  });
+  const isDark = previewMode === 'dark';
 
-  const isDark = previewThemeMode === 'dark';
-
-  const validateColor = (color, fallback) => {
-    if (!color || color.trim() === '') return fallback;
-    const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-    if (color.startsWith('#') && !hexRegex.test(color)) { return fallback; }
-    const rgbRegex = /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+\s*)?\)$/;
-    if (color.startsWith('rgb') && !rgbRegex.test(color)) { return fallback; }
-    return color;
-  };
-
-  // Live preview theme from draft state. Reads the CANONICAL surface keys the
-  // provider prefers (backgroundCanvas* / paperColor*Light|Dark), matching what
-  // PaletteFieldEditor writes — no shadowing.
-  const previewTheme = useMemo(() => {
-    const p = (k) => get(settings, 'public.theme.palette.' + k);
+  // Gallery theme built from the LIVE palette settings for previewMode, reading
+  // the same canonical keys (and precedence) the provider uses.
+  const previewTheme = useMemo(function() {
+    const p = (k) => getThemeSetting('settings.public.theme.palette.' + k, '');
     const primaryColor = validateColor(p('primaryColor'), 'rgb(108, 183, 110)');
     const secondaryColor = validateColor(p('secondaryColor'), '#fdb813');
     const errorColor = validateColor(p('errorColor'), 'rgb(128,20,60)');
@@ -91,16 +87,21 @@ export function ThemingPage(){
     const appBarColor = isDark ? appBarColorDark : appBarColorLight;
     const appBarTextColor = isDark ? appBarTextColorDark : appBarTextColorLight;
 
+    // Light branch must NOT fall back to the unsuffixed generics (canvasColor /
+    // paperColor): those belong to whichever mode the settings file was
+    // authored for (here dark, e.g. paperColor '#1e1e1e !important') and would
+    // leak dark surfaces into the light preview. Generics feed the dark branch
+    // only. (rules/ui/theming.md — unsuffixed generics are mode-oriented.)
     const canvas = isDark
-      ? validateColor(p('backgroundCanvasDark'), '#121212')
+      ? validateColor(p('backgroundCanvasDark') || p('canvasColor'), '#121212')
       : validateColor(p('backgroundCanvas'), '#fafafa');
     const paper = isDark
-      ? validateColor(p('paperColorDark'), '#424242')
+      ? validateColor(p('paperColorDark') || p('paperColor'), '#1e1e1e')
       : validateColor(p('paperColorLight'), '#ffffff');
 
     return createTheme({
       palette: {
-        mode: previewThemeMode,
+        mode: previewMode,
         primary: { main: primaryColor },
         secondary: { main: secondaryColor },
         error: { main: errorColor },
@@ -111,48 +112,9 @@ export function ThemingPage(){
         background: { default: canvas, paper: paper }
       }
     });
-  }, [previewThemeMode, isDark, settings]);
-
-  // Draft adapter for PaletteFieldEditor: bare key ↔ local settings state.
-  function updateSetting(path, value) {
-    const next = JSON.parse(JSON.stringify(settings));
-    const parts = path.split('.');
-    let cur = next;
-    for (let i = 0; i < parts.length - 1; i++) {
-      const part = parts[i];
-      if (part === '__proto__' || part === 'constructor' || part === 'prototype') { return; }
-      if (!cur[part]) { cur[part] = {}; }
-      cur = cur[part];
-    }
-    const last = parts[parts.length - 1];
-    if (last === '__proto__' || last === 'constructor' || last === 'prototype') { return; }
-    cur[last] = value;
-    setSettings(next);
-  }
-  const draftGet = (key) => get(settings, 'public.theme.palette.' + key, '') || '';
-  const draftSet = (key, value) => updateSetting('public.theme.palette.' + key, value);
-
-  function loadIntoSettings() {
-    if (Meteor.settings && Meteor.settings.public) {
-      if (!Meteor.settings.public.theme) { Meteor.settings.public.theme = {}; }
-      Object.assign(Meteor.settings.public.theme, get(settings, 'public.theme', {}));
-    }
-    // Persist the canonical per-field values the user set as paletteOverrides,
-    // so page edits survive reload like the dialog's do.
-    const paletteOverrides = {};
-    PALETTE_FIELD_GROUPS.forEach(function(group) {
-      group.fields.forEach(function(field) {
-        const v = get(settings, 'public.theme.palette.' + field.key);
-        if (v) { paletteOverrides[field.key] = v; }
-      });
-    });
-    saveThemeChoice({ paletteOverrides: paletteOverrides });
-
-    setShowSuccessMessage(true);
-    const settingsMode = get(settings, 'public.theme.mode', themeMode);
-    if (settingsMode !== themeMode) { toggleTheme(); }
-    Session.set('themeRefreshRequest', true);
-  }
+    // muiTheme identity changes on every live edit → recompute from fresh settings.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewMode, isDark, muiTheme]);
 
   return (
     <Box
@@ -161,38 +123,42 @@ export function ThemingPage(){
     >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4">Theme Settings</Typography>
-        <Button variant="contained" color="primary" onClick={loadIntoSettings}>
-          Load Theme Into Settings
-        </Button>
+        <Typography variant="caption" color="text.secondary">
+          Changes apply live &amp; persist — no save needed.
+        </Typography>
       </Box>
 
       <Grid container spacing={3}>
-        {/* LEFT — shared controls (identical to the Theme & Palette dialog) */}
+        {/* LEFT — shared controls (identical to the Theme & Palette dialog),
+            all live + persisted */}
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 3, height: '100%' }}>
             <Typography variant="h6" gutterBottom>Theme Configuration</Typography>
             <ThemeControls />
             <Divider sx={{ my: 2 }} />
             <Typography variant="subtitle2" gutterBottom>Per-field palette</Typography>
-            <PaletteFieldEditor getValue={draftGet} setValue={draftSet} />
+            <PaletteFieldEditor getValue={liveGet} setValue={liveSet} />
           </Paper>
         </Grid>
 
-        {/* RIGHT — live preview from draft state */}
+        {/* RIGHT — component gallery rendered from the LIVE palette, in the
+            INVERSE mode by default (tune dark while viewing light) */}
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 3, height: '100%', backgroundColor: previewTheme.palette.background?.default }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6" sx={{ color: previewThemeMode === 'dark' ? '#ffffff' : 'inherit' }}>Theme Preview</Typography>
-              <FormControl size="small" sx={{ minWidth: 120 }}>
-                <InputLabel sx={{ color: previewThemeMode === 'dark' ? '#ffffff' : 'inherit' }}>Preview Mode</InputLabel>
+              <Typography variant="h6" sx={{ color: isDark ? '#ffffff' : 'inherit' }}>
+                {previewMode === appMode ? 'Preview' : 'Preview — opposite mode'}
+              </Typography>
+              <FormControl size="small" sx={{ minWidth: 140 }}>
+                <InputLabel sx={{ color: isDark ? '#ffffff' : 'inherit' }}>Preview Mode</InputLabel>
                 <Select
-                  value={previewThemeMode}
-                  onChange={(e) => setPreviewThemeMode(e.target.value)}
+                  value={previewMode}
+                  onChange={(e) => setPreviewMode(e.target.value)}
                   label="Preview Mode"
                   sx={{
-                    color: previewThemeMode === 'dark' ? '#ffffff' : 'inherit',
-                    '& .MuiOutlinedInput-notchedOutline': { borderColor: previewThemeMode === 'dark' ? 'rgba(255,255,255,0.23)' : 'rgba(0,0,0,0.23)' },
-                    '& .MuiSvgIcon-root': { color: previewThemeMode === 'dark' ? '#ffffff' : 'inherit' }
+                    color: isDark ? '#ffffff' : 'inherit',
+                    '& .MuiOutlinedInput-notchedOutline': { borderColor: isDark ? 'rgba(255,255,255,0.23)' : 'rgba(0,0,0,0.23)' },
+                    '& .MuiSvgIcon-root': { color: isDark ? '#ffffff' : 'inherit' }
                   }}
                 >
                   <MenuItem value="light">Light</MenuItem>
@@ -253,9 +219,9 @@ export function ThemingPage(){
                       <Box sx={{ border: 1, borderColor: 'divider', borderRadius: 1 }}>
                         <AceEditor
                           mode="json"
-                          theme={previewThemeMode === 'dark' ? "monokai" : "github"}
+                          theme={isDark ? "monokai" : "github"}
                           name="settings-preview"
-                          value={JSON.stringify(get(settings, 'public.theme', {}), null, 2)}
+                          value={JSON.stringify(get(Meteor, 'settings.public.theme', {}), null, 2)}
                           width="100%"
                           height="200px"
                           readOnly={true}
@@ -274,17 +240,6 @@ export function ThemingPage(){
           </Paper>
         </Grid>
       </Grid>
-
-      <Snackbar
-        open={showSuccessMessage}
-        autoHideDuration={6000}
-        onClose={() => setShowSuccessMessage(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={() => setShowSuccessMessage(false)} severity="success" sx={{ width: '100%' }}>
-          Theme settings loaded successfully!
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }
