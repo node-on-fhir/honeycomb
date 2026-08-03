@@ -335,24 +335,20 @@ export function LoginForm({ onSuccess, onSignupClick, onForgotPasswordClick }) {
           border: '1px solid',
           borderColor: 'divider',
           borderRadius: 2,
-          // Chrome autofill paints its own opaque blue over inputs; re-skin it
-          // from the LIVE theme so the filled tint tracks light/dark and the
-          // ThemeDialog presets. background.default keeps the fill subtly
-          // distinct from the paper card (the box-shadow inset trick needs an
-          // opaque color, so tokens are read from the theme object here).
-          '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus': {
-            WebkitBoxShadow: '0 0 0 1000px ' + theme.palette.background.default + ' inset',
-            WebkitTextFillColor: theme.palette.text.primary,
-            caretColor: theme.palette.text.primary,
-            borderRadius: 'inherit'
-          },
-          // Assertiveness that TRACKS the accent: resting input outlines carry a
-          // faint wash of primary.main, brightening on hover/focus. In Limestone
+          // Assertiveness that TRACKS the accent: input FILL + outline carry a
+          // wash of primary.main, brightening on hover/focus. In Limestone
           // primary is desaturated stone (reads calm/neutral); in Tron it's the
           // dialed hue (reads cyan/assertive) — same code, the palette does the
-          // work. :not(.Mui-error) so validation red still wins.
+          // work. Fill is stronger than the disabled button's wash (0.14).
+          // :not(.Mui-error) so validation red still wins.
+          '& .MuiOutlinedInput-root:not(.Mui-error)': {
+            backgroundColor: alpha(theme.palette.primary.main, 0.18)
+          },
+          '& .MuiOutlinedInput-root:hover:not(.Mui-error), & .MuiOutlinedInput-root.Mui-focused:not(.Mui-error)': {
+            backgroundColor: alpha(theme.palette.primary.main, 0.26)
+          },
           '& .MuiOutlinedInput-root:not(.Mui-error) .MuiOutlinedInput-notchedOutline': {
-            borderColor: alpha(theme.palette.primary.main, 0.30)
+            borderColor: alpha(theme.palette.primary.main, 0.35)
           },
           '& .MuiOutlinedInput-root:hover:not(.Mui-error) .MuiOutlinedInput-notchedOutline': {
             borderColor: alpha(theme.palette.primary.main, 0.6)
@@ -360,6 +356,16 @@ export function LoginForm({ onSuccess, onSignupClick, onForgotPasswordClick }) {
           '& .MuiOutlinedInput-root.Mui-focused:not(.Mui-error) .MuiOutlinedInput-notchedOutline': {
             borderColor: theme.palette.primary.main,
             borderWidth: 2
+          },
+          // Chrome autofill paints its own opaque fill; re-skin it to an OPAQUE
+          // blend that matches the resting accent tint (box-shadow inset needs
+          // an opaque color, so mix the accent into the paper via color-mix —
+          // Chrome/Electron only, safe here).
+          '& input:-webkit-autofill, & input:-webkit-autofill:hover, & input:-webkit-autofill:focus': {
+            WebkitBoxShadow: '0 0 0 1000px color-mix(in srgb, ' + theme.palette.primary.main + ' 18%, ' + theme.palette.background.paper + ') inset',
+            WebkitTextFillColor: theme.palette.text.primary,
+            caretColor: theme.palette.text.primary,
+            borderRadius: 'inherit'
           },
           // The disabled SIGN IN button (empty form) gets a faint accent wash
           // instead of dead grey, so the form reads as "armed" in Tron.
