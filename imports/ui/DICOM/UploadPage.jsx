@@ -32,7 +32,7 @@ import SimpleDicomViewport from './components/SimpleDicomViewport';
 import moment from 'moment';
 
 // DICOM parsing imports (dcmjs with dicom-parser fallback)
-import { extractAllDicomMetadataFromArrayBuffer, flattenDicomMetadataForGridFS } from './utils/DcmjsMetadata';
+import { extractAllDicomMetadataFromArrayBufferStream, flattenDicomMetadataForGridFS } from './utils/DcmjsMetadata';
 
 // Video file detection
 function isVideoFile(file) {
@@ -353,7 +353,9 @@ function UploadPage() {
   const parseDicomFile = async function(file) {
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const metadata = extractAllDicomMetadataFromArrayBuffer(arrayBuffer);
+      // Parse via the dcmjs event stream (async; falls back to eager dcmjs →
+      // dicom-parser internally). Stamps parser: 'dcmjs-stream' on the result.
+      const metadata = await extractAllDicomMetadataFromArrayBufferStream(arrayBuffer);
       if (!metadata) {
         console.warn('[UploadPage] No metadata extracted from DICOM file:', file.name);
         return null;
