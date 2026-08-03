@@ -16,6 +16,7 @@ import {
   ToggleButtonGroup,
   ToggleButton
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import { logger } from '../../lib/AccountsLogger';
 import { useDevAutoLogin } from '../hooks/useDevAutoLogin';
 
@@ -344,6 +345,27 @@ export function LoginForm({ onSuccess, onSignupClick, onForgotPasswordClick }) {
             WebkitTextFillColor: theme.palette.text.primary,
             caretColor: theme.palette.text.primary,
             borderRadius: 'inherit'
+          },
+          // Assertiveness that TRACKS the accent: resting input outlines carry a
+          // faint wash of primary.main, brightening on hover/focus. In Limestone
+          // primary is desaturated stone (reads calm/neutral); in Tron it's the
+          // dialed hue (reads cyan/assertive) — same code, the palette does the
+          // work. :not(.Mui-error) so validation red still wins.
+          '& .MuiOutlinedInput-root:not(.Mui-error) .MuiOutlinedInput-notchedOutline': {
+            borderColor: alpha(theme.palette.primary.main, 0.30)
+          },
+          '& .MuiOutlinedInput-root:hover:not(.Mui-error) .MuiOutlinedInput-notchedOutline': {
+            borderColor: alpha(theme.palette.primary.main, 0.6)
+          },
+          '& .MuiOutlinedInput-root.Mui-focused:not(.Mui-error) .MuiOutlinedInput-notchedOutline': {
+            borderColor: theme.palette.primary.main,
+            borderWidth: 2
+          },
+          // The disabled SIGN IN button (empty form) gets a faint accent wash
+          // instead of dead grey, so the form reads as "armed" in Tron.
+          '& .MuiButton-contained.Mui-disabled': {
+            backgroundColor: alpha(theme.palette.primary.main, 0.14),
+            color: alpha(theme.palette.primary.main, 0.5)
           }
         };
       }}

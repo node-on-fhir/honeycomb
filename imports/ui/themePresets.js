@@ -56,6 +56,7 @@ export const THEME_PRESETS = [
     description: 'Grayscale + one accent hue. Dial the hue below.',
     mode: 'dark',
     accentHue: '#53e6ff',            // default cyan; user dials via HueSelector
+    appBarTracksAccent: true,        // header + footer text follow the dialed hue
     palette: {
       mode: 'dark',
       primaryColor: '#53e6ff',
@@ -74,6 +75,7 @@ export const THEME_PRESETS = [
     advanced: true,
     mode: 'dark',
     accentHue: '#ffb454',            // amber lead; green/cyan/magenta as secondaries
+    appBarTracksAccent: true,        // header + footer text follow the amber lead
     fontFamily: CHAKRA_FONT,
     displayFontFamily: CHAKRA_FONT,
     palette: {
@@ -123,6 +125,12 @@ export function applyThemePreset(presetId, options) {
   const accentHue = get(options, 'accentHueOverride') || preset.accentHue;
   if (accentHue) {
     theme.palette.primaryColor = accentHue;
+    // Accent presets (Tron/Vaporwave) carry the hue into the app chrome so the
+    // Header title/icons and Footer track it; Limestone keeps its neutral ink.
+    if (preset.appBarTracksAccent) {
+      theme.palette.appBarTextColor = accentHue;
+      theme.palette.appBarTextColorDark = accentHue;
+    }
   }
 
   const font = get(options, 'fontOverride') || preset.fontFamily || null;
@@ -144,10 +152,18 @@ export function applyThemePreset(presetId, options) {
   pokeRefresh();
 }
 
-// Live control: set only the accent hue (Tron/Limestone slider).
+// Live control: set only the accent hue (Tron/Limestone slider). When the
+// active preset tracks accent in its chrome (Tron/Vaporwave), the appbar text
+// follows too so Header + Footer restyle with the dial.
 export function setAccentHue(hex) {
   const theme = ensureThemeSettings();
   theme.palette.primaryColor = hex;
+  const choice = loadThemeChoice() || {};
+  const activePreset = getPreset(choice.presetId);
+  if (activePreset && activePreset.appBarTracksAccent) {
+    theme.palette.appBarTextColor = hex;
+    theme.palette.appBarTextColorDark = hex;
+  }
   saveThemeChoice({ accentHue: hex });
   pokeRefresh();
 }
@@ -186,7 +202,13 @@ export function applyThemeChoiceAtBoot() {
       theme.darkMode = preset.mode === 'dark';
     }
   }
-  if (choice.accentHue) { theme.palette.primaryColor = choice.accentHue; }
+  if (choice.accentHue) {
+    theme.palette.primaryColor = choice.accentHue;
+    if (preset && preset.appBarTracksAccent) {
+      theme.palette.appBarTextColor = choice.accentHue;
+      theme.palette.appBarTextColorDark = choice.accentHue;
+    }
+  }
   if (choice.mode) {
     theme.palette.mode = choice.mode;
     theme.darkMode = choice.mode === 'dark';

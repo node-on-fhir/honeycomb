@@ -1878,8 +1878,23 @@ function StyledMainRouter(props){
     overflowY: 'auto',
     overflowX: 'hidden',
     transition: 'padding-top 0.3s ease-in-out',
-    background: backgroundStyle, // Set background here so it's part of the object
+    backgroundColor: backgroundStyle, // longhand so the ambiance backgroundImage below can layer without a shorthand/longhand clash
     ...style // Merge the passed style prop
+  }
+
+  // Ambiance background (the decade-old themeBackgrounds axis; the ThemeDialog
+  // carousel writes settings.public.theme.backgroundImagePath). AppCanvas — the
+  // old renderer — is retired; the scroll region is now the single canvas, so
+  // the image layers over background.default here. Reactive: StyledMainRouter
+  // consumes useMuiTheme(), which regenerates on themeRefreshRequest, so
+  // setThemeBackground() repaints without reload. Cover + fixed so the photo
+  // sits behind the (opaque background.paper) content as ambiance.
+  const ambianceBackground = get(Meteor, 'settings.public.theme.backgroundImagePath', '');
+  if (ambianceBackground) {
+    mainAppStyle.backgroundImage = 'url(' + ambianceBackground + ')';
+    mainAppStyle.backgroundSize = 'cover';
+    mainAppStyle.backgroundPosition = 'center';
+    mainAppStyle.backgroundAttachment = 'fixed';
   }
 
   // NOTE: No paddingTop offset for the prominent header here. The #header Box is

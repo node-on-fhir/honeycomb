@@ -21,8 +21,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
+import { darken } from '@mui/material/styles';
 import Wheel from '@uiw/react-color-wheel';
-import { hsvaToHex } from '@uiw/color-convert';
+import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
 import { useNavigate } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
@@ -43,15 +44,58 @@ const FONT_OPTIONS = [
   { label: 'Martian Mono', value: MARTIAN_FONT }
 ];
 
+// The palette keys a tile previews, in swatch/hex order.
+const SWATCH_KEYS = ['primaryColor', 'secondaryColor', 'successColor', 'infoColor', 'errorColor'];
+
+// Resolve a preset's preview palette. For the ACTIVE accent-driven preset
+// (Tron/Limestone), the lead + secondary swatches reflect the LIVE dialed hue
+// so the tile tracks the wheel; fixed multi-hue presets (Vaporwave) and
+// inactive tiles show their declared palette.
+function previewPalette(preset, liveAccent) {
+  const base = Object.assign({}, preset.palette);
+  if (liveAccent && !preset.advanced) {
+    base.primaryColor = liveAccent;
+    base.secondaryColor = darken(liveAccent, 0.3);
+  }
+  return base;
+}
+
 // Swatch strip preview for a preset tile.
 function PresetSwatches({ palette }) {
-  const keys = ['primaryColor', 'secondaryColor', 'successColor', 'infoColor', 'errorColor'];
   return (
     <Box sx={{ display: 'flex', gap: 0.5, mt: 1 }}>
-      {keys.map(function(k) {
+      {SWATCH_KEYS.map(function(k) {
         const c = get(palette, k);
         if (!c) { return null; }
         return <Box key={k} sx={{ width: 20, height: 20, borderRadius: '3px', bgcolor: c, border: '1px solid rgba(255,255,255,0.15)' }} />;
+      })}
+    </Box>
+  );
+}
+
+// Vertical hex readout — replaces the opaque "Aa Bb Cc 0123" font sample with
+// the tile's actual palette values, so each preset is legible as color data.
+function PresetHexList({ palette }) {
+  const rows = [
+    ['accent', get(palette, 'primaryColor')],
+    ['second', get(palette, 'secondaryColor')],
+    ['canvas', get(palette, 'backgroundCanvasDark') || get(palette, 'canvasColor')],
+    ['paper', get(palette, 'paperColorDark') || get(palette, 'paperColor')]
+  ].filter(function(r) { return !!r[1]; });
+  return (
+    <Box sx={{ mt: 1.5, display: 'grid', gridTemplateColumns: 'auto 1fr', rowGap: 0.25, columnGap: 1 }}>
+      {rows.map(function(row) {
+        return (
+          <React.Fragment key={row[0]}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+              <Box sx={{ width: 11, height: 11, borderRadius: '2px', bgcolor: row[1], border: '1px solid rgba(255,255,255,0.15)' }} />
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: 10, letterSpacing: '0.06em' }}>{row[0]}</Typography>
+            </Box>
+            <Typography variant="caption" sx={{ fontFamily: 'monospace', fontSize: 11, color: 'text.primary' }}>
+              {String(row[1]).toLowerCase()}
+            </Typography>
+          </React.Fragment>
+        );
       })}
     </Box>
   );
@@ -69,8 +113,22 @@ export function ThemeDialog() {
   const activeFont = get(Meteor, 'settings.public.theme.typography.fontFamily', '') || '';
   const activeBg = get(Meteor, 'settings.public.theme.backgroundImagePath', '') || '';
 
-  // Hue wheel local state.
-  const [hsva, setHsva] = React.useState({ h: 40, s: 70, v: 100, a: 1 });
+  // Hue wheel local state, initialized from the current accent when the dialog
+  // opens (so the wheel + the active tile's live swatches start truthful, not
+  // at an arbitrary amber default).
+  const currentAccent = get(Meteor, 'settings.public.theme.palette.primaryColor', '#53e6ff');
+  const [hsva, setHsva] = React.useState(function() {
+    try { return Object.assign({ a: 1 }, hexToHsva(currentAccent)); }
+    catch (e) { return { h: 40, s: 70, v: 100, a: 1 }; }
+  });
+  React.useEffect(function() {
+    if (open) {
+      try { setHsva(Object.assign({ a: 1 }, hexToHsva(currentAccent))); } catch (e) { /* keep prior */ }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const liveAccent = hsvaToHex(hsva);
 
   function handleClose() {
     Session.set(THEME_DIALOG_OPEN, false);
@@ -123,10 +181,8 @@ export function ThemeDialog() {
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, minHeight: 32 }}>
                   {preset.description}
                 </Typography>
-                <PresetSwatches palette={preset.palette} />
-                <Typography sx={{ mt: 1, fontFamily: preset.fontFamily || 'inherit', fontSize: 15 }}>
-                  Aa Bb Cc 0123
-                </Typography>
+                <PresetSwatches palette={previewPalette(preset, selected ? liveAccent : null)} />
+                <PresetHexList palette={previewPalette(preset, selected ? liveAccent : null)} />
               </ButtonBase>
             );
           })}
@@ -186,8 +242,8 @@ export function ThemeDialog() {
                 height={120}
               />
               <Box>
-                <Box sx={{ width: 40, height: 40, borderRadius: '4px', bgcolor: hsvaToHex(hsva), border: '1px solid var(--divider, rgba(0,0,0,0.2))' }} />
-                <Typography variant="caption" sx={{ fontFamily: 'monospace' }}>{hsvaToHex(hsva)}</Typography>
+                <Box sx={{ width: 40, height: 40, borderRadius: '4px', bgcolor: liveAccent, border: '1px solid var(--divider, rgba(0,0,0,0.2))' }} />
+                <Typography variant="caption" sx={{ fontFamily: 'monospace' }}>{liveAccent}</Typography>
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                   Desaturate → Limestone · saturate → Tron
                 </Typography>
