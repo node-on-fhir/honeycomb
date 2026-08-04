@@ -14,6 +14,8 @@ import {
   Box, Typography, Button, ButtonBase, Chip, Divider, Select, MenuItem,
   FormControl, InputLabel, Stack, Tooltip
 } from '@mui/material';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { darken } from '@mui/material/styles';
@@ -26,9 +28,12 @@ import { get } from 'lodash';
 import { useTheme } from '../CustomThemeProvider.jsx';
 import {
   THEME_PRESETS, CHAKRA_FONT, MARTIAN_FONT,
-  applyThemePreset, setAccentHue, setThemeFont, setThemeBackground
+  applyThemePreset, setAccentHue, setThemeFont, setThemeBackground,
+  setPageMode, setCardSurface
 } from '../themePresets.js';
-import { getBackgroundLibrary } from '../themeBackgrounds.js';
+import { getBackgroundLibrary, EARTH_TONES } from '../themeBackgrounds.js';
+import { colorFromBackground } from './backgroundValue.js';
+import { PAGE_MODE, CARD_SURFACE } from '/imports/lib/SessionKeys.js';
 import { loadThemeChoice } from '/imports/lib/themePersistence.js';
 
 const FONT_OPTIONS = [
@@ -94,6 +99,8 @@ function PresetHexList({ palette }) {
 
 export function ThemeControls({ compact = false }) {
   const mode = useTracker(function() { return Session.get('theme') || 'light'; }, []);
+  const pageMode = useTracker(function() { return Session.get(PAGE_MODE); }, []);
+  const cardSurface = useTracker(function() { return Session.get(CARD_SURFACE) || 'solid'; }, []);
   const themeCtx = useTheme() || {};
 
   const choice = loadThemeChoice() || {};
@@ -149,10 +156,60 @@ export function ThemeControls({ compact = false }) {
         })}
       </Box>
 
+      {/* Ambiance background — images row + earth-tone solids row */}
+      <Typography variant="overline" color="text.secondary">Ambiance background</Typography>
+      <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto', pb: 1, mt: 1 }}>
+        <ButtonBase
+          onClick={function() { setThemeBackground(''); }}
+          sx={{
+            flex: '0 0 auto', width: 96, height: 60, borderRadius: '6px',
+            border: '2px solid', borderColor: !activeBg ? 'primary.main' : 'divider',
+            bgcolor: 'background.default', fontSize: 11, color: 'text.secondary'
+          }}
+        >
+          None
+        </ButtonBase>
+        {getBackgroundLibrary().map(function(bg) {
+          const selected = activeBg === bg.src;
+          return (
+            <Tooltip key={bg.src} title={bg.name}>
+              <ButtonBase
+                onClick={function() { setThemeBackground(bg.src); }}
+                sx={{
+                  flex: '0 0 auto', width: 96, height: 60, borderRadius: '6px', overflow: 'hidden',
+                  border: '2px solid', borderColor: selected ? 'primary.main' : 'divider',
+                  backgroundImage: 'url(' + bg.src + ')', backgroundSize: 'cover', backgroundPosition: 'center',
+                  transition: 'transform 0.15s ease', '&:hover': { transform: 'scale(1.04)' }
+                }}
+              />
+            </Tooltip>
+          );
+        })}
+      </Box>
+      <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto', pb: 1, mt: 1, mb: 3 }}>
+        {EARTH_TONES.map(function(tone) {
+          const selected = activeBg === tone.value;
+          return (
+            <Tooltip key={tone.value} title={tone.name}>
+              <ButtonBase
+                id={'themeEarthTone-' + tone.name.toLowerCase()}
+                onClick={function() { setThemeBackground(tone.value); }}
+                sx={{
+                  flex: '0 0 auto', width: 96, height: 36, borderRadius: '6px',
+                  border: '2px solid', borderColor: selected ? 'primary.main' : 'divider',
+                  bgcolor: colorFromBackground(tone.value)
+                }}
+              />
+            </Tooltip>
+          );
+        })}
+      </Box>
+
       <Divider sx={{ mb: 3 }} />
 
-      {/* Font + mode + hue row */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mb: 3 }}>
+      {/* Basic theme controls: font, mode(s), accent hue, card surface */}
+      <Typography variant="overline" color="text.secondary">Basic theme controls</Typography>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mb: 3, mt: 1 }}>
         <Stack spacing={2}>
           <FormControl fullWidth size="small">
             <InputLabel id="themeFontLabel">Font</InputLabel>
@@ -188,6 +245,24 @@ export function ThemeControls({ compact = false }) {
               </Tooltip>
             </Box>
           </Box>
+
+          {activeBg ? (
+            <Box>
+              <Typography variant="overline" color="text.secondary">Page mode</Typography>
+              <Box>
+                <Tooltip title="Content ink over the ambiance background (chrome keeps the app mode)">
+                  <Button
+                    id="themePageModeToggle"
+                    variant="outlined" size="small"
+                    startIcon={pageMode === 'dark' ? <DarkModeIcon /> : <LightModeIcon />}
+                    onClick={function() { setPageMode(pageMode === 'dark' ? 'light' : 'dark'); }}
+                  >
+                    {pageMode ? (pageMode === 'dark' ? 'Dark' : 'Light') : 'Auto'}
+                  </Button>
+                </Tooltip>
+              </Box>
+            </Box>
+          ) : null}
         </Stack>
 
         <Box>
@@ -211,39 +286,24 @@ export function ThemeControls({ compact = false }) {
             </Box>
           </Box>
         </Box>
-      </Box>
 
-      <Divider sx={{ mb: 2 }} />
-
-      {/* Ambiance background carousel */}
-      <Typography variant="overline" color="text.secondary">Ambiance background</Typography>
-      <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto', pb: 1, mt: 1 }}>
-        <ButtonBase
-          onClick={function() { setThemeBackground(''); }}
-          sx={{
-            flex: '0 0 auto', width: 96, height: 60, borderRadius: '6px',
-            border: '2px solid', borderColor: !activeBg ? 'primary.main' : 'divider',
-            bgcolor: 'background.default', fontSize: 11, color: 'text.secondary'
-          }}
-        >
-          None
-        </ButtonBase>
-        {getBackgroundLibrary().map(function(bg) {
-          const selected = activeBg === bg.src;
-          return (
-            <Tooltip key={bg.src} title={bg.name}>
-              <ButtonBase
-                onClick={function() { setThemeBackground(bg.src); }}
-                sx={{
-                  flex: '0 0 auto', width: 96, height: 60, borderRadius: '6px', overflow: 'hidden',
-                  border: '2px solid', borderColor: selected ? 'primary.main' : 'divider',
-                  backgroundImage: 'url(' + bg.src + ')', backgroundSize: 'cover', backgroundPosition: 'center',
-                  transition: 'transform 0.15s ease', '&:hover': { transform: 'scale(1.04)' }
-                }}
-              />
-            </Tooltip>
-          );
-        })}
+        <Box>
+          <Typography variant="overline" color="text.secondary">Card surface</Typography>
+          <Box sx={{ mt: 1 }}>
+            <ToggleButtonGroup
+              id="themeCardSurfaceGroup"
+              exclusive size="small" value={cardSurface}
+              onChange={function(event, next) { if (next) { setCardSurface(next); } }}
+            >
+              <ToggleButton id="themeCardSurface-solid" value="solid">Solid</ToggleButton>
+              <ToggleButton id="themeCardSurface-glass" value="glass">Glass</ToggleButton>
+              <ToggleButton id="themeCardSurface-flat" value="flat">Flat</ToggleButton>
+            </ToggleButtonGroup>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+              Applies on ambiance/fluid pages (rolling out per page).
+            </Typography>
+          </Box>
+        </Box>
       </Box>
     </Box>
   );
