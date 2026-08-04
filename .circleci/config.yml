@@ -667,6 +667,9 @@ jobs:
           name: Logger PHI redaction walker (bounded on arbitrary graphs)
           command: npm run test:logger-redact
       - run:
+          name: Ambiance background-value helpers
+          command: npm run test:background-value
+      - run:
           name: Directory search shadow (nameLower)
           command: npm run test:search-shadow
       - run:
