@@ -50,6 +50,23 @@ module.exports = {
     });
     browser.pause(500);
     browser.expect.element('#themePageModeToggle').to.not.be.present;
+    browser.execute(function() {
+      return JSON.parse(localStorage.getItem('honeycomb.theme') || '{}').backgroundImagePath;
+    }, [], function(result) {
+      browser.assert.ok(!result.value, 'background axis cleared by None');
+    });
+  },
+
+  '05. Teardown: reset theme state': function(browser) {
+    browser.execute(function() {
+      var cur = JSON.parse(localStorage.getItem('honeycomb.theme') || '{}');
+      delete cur.backgroundImagePath; delete cur.pageMode; delete cur.cardSurface;
+      localStorage.setItem('honeycomb.theme', JSON.stringify(cur));
+      Session.set('pageMode', undefined);
+      Session.set('cardSurface', undefined);
+      return true;
+    });
+    browser.pause(300);
     browser.end();
   }
 };

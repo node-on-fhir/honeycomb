@@ -695,17 +695,13 @@ export function DirectoryConsole() {
   const pageThemeParam = (searchParams.get('page-theme') || '').toLowerCase();
   const persistedPageMode = useTracker(function() { return Session.get(PAGE_MODE); }, []);
   const paramMode = (pageThemeParam === 'light' || pageThemeParam === 'dark') ? pageThemeParam : null;
-  const forcedMode = paramMode || persistedPageMode || null;
-  const theme = useMemo(function() {
-    return buildPageModeTheme(appMuiTheme, forcedMode);
-  }, [appMuiTheme, forcedMode]);
 
-  const consoleVars = buildConsoleVars(theme);
+  // Plain read each render: theme changes rebuild the MUI theme via
+  // CustomThemeProvider (themeRefreshRequest), which re-renders us — same
+  // access pattern as ThemeControls. Do NOT wrap in useTracker (no reactive deps).
+  const activeBg = get(Meteor, 'settings.public.theme.backgroundImagePath', '');
 
   // Curation record for the active ambiance (scrim strength + focus).
-  const activeBg = useTracker(function() {
-    return get(Meteor, 'settings.public.theme.backgroundImagePath', '');
-  }, []);
   const bgEntry = getBackgroundEntry(activeBg);
   const scrimStrength = get(bgEntry, 'scrimStrength', 0.55);
 
@@ -717,6 +713,19 @@ export function DirectoryConsole() {
   const bodyAlign = focus === 'left' ? { ml: 0, mr: 'auto' }
     : focus === 'right' ? { ml: 'auto', mr: 0 }
     : { mx: 'auto' };
+
+  // Content-ink precedence: ?page-theme param (dev override) → the user's
+  // persisted Page Mode → the image's curated recommendedPageMode — the
+  // latter two only while a background is active (no background, no forced ink).
+  const forcedMode = paramMode
+    || (activeBg ? persistedPageMode : null)
+    || (activeBg ? get(bgEntry, 'recommendedPageMode', null) : null)
+    || null;
+  const theme = useMemo(function() {
+    return buildPageModeTheme(appMuiTheme, forcedMode);
+  }, [appMuiTheme, forcedMode]);
+
+  const consoleVars = buildConsoleVars(theme);
 
   const [query, setQuery] = useState('');
   const [facets, setFacets] = useState({ city: '', state: '', postalCode: '' });

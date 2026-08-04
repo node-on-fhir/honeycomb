@@ -270,7 +270,7 @@ export function applyThemeChoiceAtBoot() {
   if (choice.pageMode === 'light' || choice.pageMode === 'dark') {
     Session.set(PAGE_MODE, choice.pageMode);
   }
-  if (['solid', 'glass', 'flat'].indexOf(choice.cardSurface) !== -1) {
+  if (CARD_SURFACES.indexOf(choice.cardSurface) !== -1) {
     Session.set(CARD_SURFACE, choice.cardSurface);
   }
 

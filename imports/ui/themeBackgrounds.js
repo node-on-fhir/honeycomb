@@ -3,12 +3,8 @@
 // The ambiance-background library backing the ThemeDialog carousel. This is a
 // SEPARATE axis from the palette/font presets — a background layers over
 // whichever preset is active, applied via the theme's existing
-// backgroundImagePath key.
-//
-// Entries are CURATION RECORDS: beyond name/src, optional focus (where the
-// image's neutral space is: left|center|right), recommendedPageMode (which
-// ink family survives it), and scrimStrength (0-1 content-column scrim).
-// See docs/superpowers/specs/2026-08-03-ambiance-experience-zone-design.md.
+// backgroundImagePath key. Entries are curation records (focus, scrim, ink) —
+// see docs/superpowers/specs/2026-08-03-ambiance-experience-zone-design.md.
 //
 // The list is settings-driven: settings.public.theme.backgroundLibrary = [{name,
 // src}] overrides the default set below. That's the seam for a future

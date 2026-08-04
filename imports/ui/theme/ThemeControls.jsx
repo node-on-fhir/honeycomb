@@ -1,11 +1,11 @@
 // imports/ui/theme/ThemeControls.jsx
 //
 // Shared theme-control surface: preset tiles (Limestone / Tron / Vaporwave),
-// font, mode toggle, accent-hue wheel, and the ambiance-background carousel.
-// Extracted from ThemeDialog so BOTH the Theme & Palette dialog and the
-// /theming page render the identical controls (harmonization). Drives the
-// themePresets helpers, which apply live + persist (localStorage) — so this
-// component owns no persistence itself.
+// ambiance backgrounds + earth tones, font, mode, page mode, accent hue, and
+// card surface. Extracted from ThemeDialog so BOTH the Theme & Palette
+// dialog and the /theming page render the identical controls
+// (harmonization). Drives the themePresets helpers, which apply live +
+// persist (localStorage) — so this component owns no persistence itself.
 //
 // Prop: compact — denser layout for the dialog; roomier for the page column.
 
@@ -255,7 +255,10 @@ export function ThemeControls({ compact = false }) {
                     id="themePageModeToggle"
                     variant="outlined" size="small"
                     startIcon={pageMode === 'dark' ? <DarkModeIcon /> : <LightModeIcon />}
-                    onClick={function() { setPageMode(pageMode === 'dark' ? 'light' : 'dark'); }}
+                    onClick={function() {
+                      const next = !pageMode ? 'light' : (pageMode === 'light' ? 'dark' : null);
+                      setPageMode(next);
+                    }}
                   >
                     {pageMode ? (pageMode === 'dark' ? 'Dark' : 'Light') : 'Auto'}
                   </Button>
