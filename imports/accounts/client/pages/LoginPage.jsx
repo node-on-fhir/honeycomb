@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Box } from '@mui/material';
+import { Box, useMediaQuery } from '@mui/material';
 import { LoginForm } from '../components/LoginForm';
 import WorkflowNavigation from '/imports/lib/WorkflowNavigation.js';
 const { sanitizeReturnPath, appendReturnTo } = WorkflowNavigation;
@@ -61,32 +61,56 @@ export function LoginPage() {
     navigate('/forgot-password');
   };
 
+  const formEl = (
+    <LoginForm
+      onSuccess={handleSuccess}
+      onSignupClick={handleSignupClick}
+      onForgotPasswordClick={handleForgotPasswordClick}
+    />
+  );
+
+  // The absolute align/valign placement is a big-desktop affordance. On a short
+  // OR narrow viewport a bottom/right-anchored tall card runs off-screen (the
+  // error state especially) — so we gate on BOTH width and height (valign=bottom
+  // is fundamentally a height problem) and, below the threshold, fall back to a
+  // plain centered card. align/valign are intentionally ignored when compact.
+  const roomy = useMediaQuery('(min-width:1200px) and (min-height:900px)');
+
+  // Compact / mobile: centered and scroll-safe. The minHeight:100% flex wrapper
+  // (rather than height:100% + justifyContent) avoids the classic flex-centering
+  // clip — when the card is taller than the viewport the wrapper grows and the
+  // outer box scrolls, keeping the top of the card reachable.
+  if (!roomy) {
+    return (
+      <Box sx={{ height: '100%', overflow: 'auto' }}>
+        <Box sx={{
+          minHeight: '100%', display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', p: 2
+        }}>
+          <Box sx={{ width: 'min(440px, calc(100vw - 32px))' }}>
+            {formEl}
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
+
+  // Roomy desktop: absolute placement on the (leftPct, topPct) anchor — top-
+  // anchored vertically (grows downward, no reflow), center-anchored
+  // horizontally (translateX -50%). No page-level bgcolor: StyledMainRouter
+  // paints background.default + the ambiance image (rules/ui/layout-patterns.md).
   return (
-    // No page-level bgcolor here: StyledMainRouter paints background.default and
-    // (with the ambiance axis) any background image. height:100% claims the
-    // router's bounded height (rules/ui/layout-patterns.md); the card is
-    // absolutely placed and centered on the (leftPct, topPct) anchor so its
-    // position is independent of its own height — no grid-row reflow, and
-    // symmetric growth when the form gets taller.
     <Box sx={{ position: 'relative', height: '100%', overflow: 'auto', p: 2 }}>
-      {/* Top-anchored vertically (top edge at topPct → grows downward),
-          center-anchored horizontally (translateX -50%). On narrow screens force
-          horizontal center so the card never runs off-edge; desktop uses the
-          requested third. Width caps at 440px (or the viewport minus padding). */}
       <Box
         sx={{
           position: 'absolute',
           top: topPct,
-          left: { xs: '50%', sm: leftPct },
+          left: leftPct,
           transform: 'translateX(-50%)',
           width: 'min(440px, calc(100vw - 32px))'
         }}
       >
-        <LoginForm
-          onSuccess={handleSuccess}
-          onSignupClick={handleSignupClick}
-          onForgotPasswordClick={handleForgotPasswordClick}
-        />
+        {formEl}
       </Box>
     </Box>
   );
