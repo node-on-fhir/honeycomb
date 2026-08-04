@@ -53,18 +53,37 @@ Timeline** — form the *patient-experience zone* where ambiance renders.
 
 ## Core semantics
 
-### `allowAmbiance` — a capability gate, not a preference
+### Design thesis: constraint puts the best face forward
 
-Route entries declare `allowAmbiance: true` (workflow.json → client.js route
-mapper → route object → `StyledMainRouter`), riding the exact pipeline
-`requireAuth`/`requirePatient` already use. The flag means *"this page's
-layout stays legible over an arbitrary photo"* — a developer statement of
-competence. It never turns ambiance on.
+The ambiance system builds on a decade of background attempts by
+*constraining* the existing background functionality: it renders only on
+pages that have been vetted for it. When ambiance looks good it looks
+great; unvetted it goes wonky and out of alignment fast. Less is more — the
+flags below are the constraint mechanism.
+
+### Two capability flags — `enableAmbiance` and `enableFluidInterface`
+
+Route entries declare capabilities (workflow.json → client.js route mapper →
+route object → `StyledMainRouter`), riding the exact pipeline
+`requireAuth`/`requirePatient` already use. Neither flag turns anything on —
+they are developer statements of page competence.
+
+- **`enableFluidInterface: true`** — the Card Surface axis is active on this
+  route: Glass/Flat toggles work, the AmbianceZone theme-override net
+  applies, shared surface tokens are maintained. The router does **not**
+  paint any ambiance background — the page supplies its own backdrop (video,
+  animation, canvas render, game engine, or nothing).
+- **`enableAmbiance: true`** — everything `enableFluidInterface` grants,
+  **plus** the router paints the globally-selected ambiance background
+  (image or solid), Page Mode applies, and the background's focus metadata
+  is exposed. `enableAmbiance` implies `enableFluidInterface`; declaring
+  both is redundant but harmless.
 
 |                          | Background = None | Background = image/solid |
 |--------------------------|-------------------|--------------------------|
-| **Route not flagged**    | normal page       | normal page — opaque canvas suppresses the ambiance |
-| **Route flagged**        | normal page       | ambiance visible; Page Mode + Card Surface active |
+| **No flags**             | normal page       | normal page — opaque canvas suppresses the ambiance |
+| **`enableFluidInterface`** | Card Surface active; page paints its own backdrop | same — global ambiance still suppressed |
+| **`enableAmbiance`**     | normal page       | ambiance visible; Page Mode + Card Surface + focus active |
 
 This *tightens* current behavior: unflagged routes stop leaking the photo
 through canvas gaps. The user/org choice of background (Theme & Palette
@@ -72,7 +91,28 @@ dialog / `settings.public.theme.backgroundImagePath` seed) remains the actual
 on-switch and stays global.
 
 Initial flag list: Provider Directory (`/provider-directory`), Vertical
-Timeline. Package-specific ambiance pages opt in via their own workflow.json.
+Timeline — both `enableAmbiance`. Package-specific pages opt in via their
+own workflow.json.
+
+### Focus — curated imagery declares its neutral space
+
+Every ambiance image has a subject and a neutral zone; content must render
+in the neutral zone or legibility dies (the yoga shot's neutral space is
+left of the figure; the zen stones' is right of the stones). Focus is
+therefore **a property of the curated image, not a user preference**:
+
+- Background library entries (`themeBackgrounds.js` /
+  `settings.public.theme.backgroundLibrary`) gain a `focus` field:
+  `'left' | 'center' | 'right'` (v1). Solid colors and None have no focus
+  (treated as `center`). Future values reserved for multi-panel layouts
+  (`'split-2'`, `'split-3'`) — the library shape allows them; v1 pages may
+  treat unknown values as `center`.
+- `AmbianceZone` exposes the active focus to the page (React context hook +
+  a `--ambiance-focus` CSS var) so both bespoke pages and shared components
+  can align their content column into the neutral space.
+- DirectoryConsole maps focus to its column alignment (the `?align`
+  prototype, generalized). The `?align` URL param survives as a dev/demo
+  override that wins over library metadata.
 
 ### Three persisted theme axes (new + extended)
 
@@ -118,11 +158,14 @@ A new wrapper composing exactly like the existing guards:
 AuthGuard > PatientGuard > AmbianceZone > ErrorBoundary > page
 ```
 
-When the route is flagged AND a background is active, `AmbianceZone`:
+On an `enableFluidInterface` route (directly declared, or implied by
+`enableAmbiance`), `AmbianceZone`:
 
 1. Wraps the page in a **Page-Mode-derived `ThemeProvider`** (the shared
    helper promoted from DirectoryConsole: rebuild with the app's accent
-   palette + typography, flip only mode-dependent tokens).
+   palette + typography, flip only mode-dependent tokens). Page Mode applies
+   only on `enableAmbiance` routes with an active background; on plain
+   `enableFluidInterface` routes the app mode stands.
 2. Carries **MuiCard/MuiPaper component overrides** implementing the active
    `cardSurface` — so even a raw MUI `<Card>` in the zone renders legible
    glass/flat treatment with correct ink. Enforcement that depends on
@@ -130,18 +173,20 @@ When the route is flagged AND a background is active, `AmbianceZone`:
    be forgotten.
 3. Maintains the shared CSS vars (`--panel`, `--panel-hard`, `--ink`,
    `--hairline`, scrim gradients) that bespoke pages consume directly.
+4. On `enableAmbiance` routes with an active image background, exposes the
+   background's `focus` via context hook + `--ambiance-focus` CSS var.
 
-When the route is unflagged or background is None, AmbianceZone renders
-children unchanged (zero cost, zero behavior change).
+When the route declares neither flag, AmbianceZone renders children
+unchanged (zero cost, zero behavior change).
 
 ### StyledMainRouter changes
 
 - Match the active route (`useLocation` + `matchPath` against `allRoutes`)
   and include the ambiance `backgroundImage`/solid `backgroundColor` in
-  `mainAppStyle` **only when the active route is flagged**. One decision
-  point, in the file that already owns both the background and the route
-  table.
-- Compose `AmbianceZone` into the guard chain per route flag.
+  `mainAppStyle` **only when the active route declares `enableAmbiance`**.
+  One decision point, in the file that already owns both the background and
+  the route table.
+- Compose `AmbianceZone` into the guard chain when either flag is present.
 
 ### `Meteor.StyledCard` — the premium surface component
 
@@ -203,10 +248,13 @@ New section order (both dialog and `/theming`, via shared `ThemeControls`):
 2. **DirectoryConsole polish** — `xl` padding, scrim/legibility pass,
    `pageMode` consumption (replacing its inline override with the shared
    helper when Phase 3 lands, inline until then).
-3. **Zone plumbing** — `allowAmbiance` flag through the route pipeline,
-   StyledMainRouter conditional painting, `AmbianceZone` wrapper with theme
-   override net, shared glass/flat tokens extracted from DirectoryConsole,
-   `Meteor.StyledCard`, Ctrl+Shift+L graduation, flag the two initial routes.
+3. **Zone plumbing** — `enableAmbiance` + `enableFluidInterface` flags
+   through the route pipeline, StyledMainRouter conditional painting,
+   `AmbianceZone` wrapper with theme-override net, `focus` metadata on the
+   background library + context/CSS-var exposure, shared glass/flat tokens
+   extracted from DirectoryConsole, `Meteor.StyledCard`, Ctrl+Shift+L
+   graduation, flag the two initial routes. **Acceptance: Glass and Flat
+   toggles visibly work on cards on the `enableAmbiance` routes.**
 4. **Theme packs (future — seams only)** — a pack is a named macro over the
    axes above: `{ preset palette, font, ambiance background, cardSurface
    default, pageMode default }`, delivered via `settings.public.theme.packs`
