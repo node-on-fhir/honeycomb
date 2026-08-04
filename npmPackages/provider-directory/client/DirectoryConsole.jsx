@@ -23,11 +23,16 @@
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Box, Collapse, Button, CircularProgress } from '@mui/material';
-import { useTheme, alpha, darken, lighten, createTheme } from '@mui/material/styles';
+import { useTheme, alpha, darken, lighten } from '@mui/material/styles';
 import { useSearchParams } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
+import { Session } from 'meteor/session';
+import { useTracker } from 'meteor/react-meteor-data';
 import { get } from 'lodash';
 import { SpiderScanLine, useSpiderScanning, withSpiderScanning } from '/imports/ui/components/SpiderScanLine.jsx';
+import { buildPageModeTheme } from '/imports/ui/theme/pageModeTheme.js';
+import { PAGE_MODE } from '/imports/lib/SessionKeys.js';
+import { getBackgroundEntry } from '/imports/ui/themeBackgrounds.js';
 
 const log = (Meteor.Logger ? Meteor.Logger.for('DirectoryConsole') : console);
 
@@ -115,9 +120,19 @@ const CONSOLE_STATIC_CSS = `
   white-space: nowrap;
 }
 
+/* Result rows get a panel backing so org names never sit naked on the photo.
+   Combined-class selector (.gc-row-btn.gc-row) beats the plain .gc-row-btn
+   background rule above regardless of stylesheet order. */
+.gc-row-btn.gc-row { background: color-mix(in srgb, var(--panel-hard) 45%, transparent); }
+.gc-row-btn.gc-row:hover {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--amber) 7%, transparent), color-mix(in srgb, var(--stone) 3%, transparent) 60%, transparent),
+    color-mix(in srgb, var(--panel-hard) 70%, transparent);
+}
+
 .gc-chip-btn {
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
-  color: var(--stone); background: transparent; border: 1px solid var(--stone-dim);
+  color: var(--stone); background: color-mix(in srgb, var(--panel-hard) 60%, transparent); border: 1px solid var(--stone-dim);
   padding: 6px 14px; cursor: pointer; transition: all 0.18s ease;
 }
 .gc-chip-btn:hover { border-color: var(--amber); color: var(--amber); background: color-mix(in srgb, var(--amber) 6%, transparent); }
@@ -532,6 +547,7 @@ function StatusChip({ status }) {
       fontFamily: 'var(--mono)', fontSize: '9px', letterSpacing: '0.2em',
       px: 1, py: 0.4, whiteSpace: 'nowrap',
       color: live ? 'var(--green)' : 'var(--ink-dim)',
+      background: 'color-mix(in srgb, var(--panel-hard) 60%, transparent)',
       border: '1px solid ' + (live ? 'color-mix(in srgb, var(--green) 40%, transparent)' : 'color-mix(in srgb, var(--ink-dim) 40%, transparent)'),
       animation: live ? 'gcPulse 3s ease-in-out infinite' : 'none'
     }}>
@@ -564,7 +580,7 @@ function ResultBand({ band, config, revealIndex, onLoadMore, loadingMore }) {
         </Box>
         <Box component="span" sx={{
           fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.18em',
-          color: band.matchCount ? config.accent : 'var(--ink-dim)'
+          color: band.matchCount ? config.accent : 'var(--ink)'
         }}>
           — {band.matchCount ? (countLabel + ' ' + config.unit) : 'BAND SILENT'}
         </Box>
@@ -674,40 +690,33 @@ export function DirectoryConsole() {
   const appMuiTheme = useTheme();
   const [searchParams] = useSearchParams();
 
-  // ?align=left|center|right — horizontal placement of the console body within
-  // the router area (defaults to centered).
-  const alignParam = (searchParams.get('align') || 'center').toLowerCase();
-  const bodyAlign = alignParam === 'left' ? { ml: 0, mr: 'auto' }
-    : alignParam === 'right' ? { ml: 'auto', mr: 0 }
-    : { mx: 'auto' };
-
-  // ?page-theme=light|dark — override ONLY this page's palette (the CSS-var
-  // block that drives all console text/surfaces/borders), NOT the global app
-  // theme. Rationale: the ambiance background can read visually "dark" yet
-  // average light (e.g. black stones on pale water), so the theme-default text
-  // color may be unreadable over it. This flips the console's ink/panels to
-  // suit the chosen background while the header/footer keep the user's real
-  // mode. Rebuilt with the app's accent palette + fonts, only the mode-
-  // dependent tokens (text/background/divider) change.
+  // Content-ink override: URL param (dev/demo) wins over the persisted
+  // Page Mode choice (Theme & Palette dialog). Falsy → app mode stands.
   const pageThemeParam = (searchParams.get('page-theme') || '').toLowerCase();
-  const forcedMode = (pageThemeParam === 'light' || pageThemeParam === 'dark') ? pageThemeParam : null;
+  const persistedPageMode = useTracker(function() { return Session.get(PAGE_MODE); }, []);
+  const paramMode = (pageThemeParam === 'light' || pageThemeParam === 'dark') ? pageThemeParam : null;
+  const forcedMode = paramMode || persistedPageMode || null;
   const theme = useMemo(function() {
-    if (!forcedMode || forcedMode === appMuiTheme.palette.mode) { return appMuiTheme; }
-    return createTheme({
-      palette: {
-        mode: forcedMode,
-        primary: appMuiTheme.palette.primary,
-        secondary: appMuiTheme.palette.secondary,
-        error: appMuiTheme.palette.error,
-        warning: appMuiTheme.palette.warning,
-        info: appMuiTheme.palette.info,
-        success: appMuiTheme.palette.success
-      },
-      typography: appMuiTheme.typography
-    });
+    return buildPageModeTheme(appMuiTheme, forcedMode);
   }, [appMuiTheme, forcedMode]);
 
   const consoleVars = buildConsoleVars(theme);
+
+  // Curation record for the active ambiance (scrim strength + focus).
+  const activeBg = useTracker(function() {
+    return get(Meteor, 'settings.public.theme.backgroundImagePath', '');
+  }, []);
+  const bgEntry = getBackgroundEntry(activeBg);
+  const scrimStrength = get(bgEntry, 'scrimStrength', 0.55);
+
+  // ?align param wins; otherwise the image's curated focus; otherwise center.
+  const alignParam = (searchParams.get('align') || '').toLowerCase();
+  const focus = ['left', 'center', 'right'].indexOf(alignParam) !== -1
+    ? alignParam
+    : (get(bgEntry, 'focus') || 'center');
+  const bodyAlign = focus === 'left' ? { ml: 0, mr: 'auto' }
+    : focus === 'right' ? { ml: 'auto', mr: 0 }
+    : { mx: 'auto' };
 
   const [query, setQuery] = useState('');
   const [facets, setFacets] = useState({ city: '', state: '', postalCode: '' });
@@ -849,8 +858,22 @@ export function DirectoryConsole() {
       <SpiderScanLine active={scanning || spiderScanning} zIndex={1} />
 
       {/* scrollable console body */}
-      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', position: 'relative', zIndex: 2 }}>
-        <Box sx={{ maxWidth: '1180px', ...bodyAlign, px: { xs: 2.5, md: 5 }, pt: { xs: 3, md: 5 }, pb: 8 }}>
+      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', position: 'relative', zIndex: 2, px: { xl: '200px' } }}>
+        <Box sx={{
+          maxWidth: '1180px', ...bodyAlign,
+          px: { xs: 2.5, md: 5 },
+          pt: { xs: 3, md: 5 }, pb: 8,
+          // Column scrim: a soft canvas-tinted backdrop so content survives
+          // bright photos. Strength comes from the image's curation record.
+          // Gated on an active background — no gray slab over a plain canvas.
+          background: activeBg
+            ? `linear-gradient(180deg,
+                ${alpha(theme.palette.background.default, scrimStrength)} 0%,
+                ${alpha(theme.palette.background.default, scrimStrength * 0.85)} 100%)`
+            : 'transparent',
+          backdropFilter: activeBg ? 'blur(2px)' : 'none',
+          borderRadius: '4px'
+        }}>
 
           {/* ---- masthead ---- */}
           <Box className="gc-boot" sx={{
@@ -875,7 +898,7 @@ export function DirectoryConsole() {
             </Box>
             <Box sx={{
               fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.16em',
-              color: 'var(--ink-dim)', textAlign: 'right', lineHeight: 2
+              color: 'var(--ink)', textAlign: 'right', lineHeight: 2
             }}>
               <Box><LastUpdated iso={lastUpdated} /></Box>
               <Box>
@@ -965,7 +988,7 @@ export function DirectoryConsole() {
             <Box sx={{
               display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1,
               fontFamily: 'var(--mono)', fontSize: '9.5px', letterSpacing: '0.2em',
-              color: 'var(--ink-dim)', mt: 1, px: 0.5
+              color: 'var(--ink)', mt: 1, px: 0.5
             }}>
               <Box>
                 {scanning
