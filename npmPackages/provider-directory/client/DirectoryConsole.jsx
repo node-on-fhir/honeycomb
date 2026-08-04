@@ -21,9 +21,10 @@
 // public/workflows/provider-directory/. The classic facet page remains at
 // /provider-directory-classic.
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Box, Collapse, Button, CircularProgress } from '@mui/material';
-import { useTheme, alpha, darken, lighten } from '@mui/material/styles';
+import { useTheme, alpha, darken, lighten, createTheme } from '@mui/material/styles';
+import { useSearchParams } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
 import { get } from 'lodash';
 import { SpiderScanLine, useSpiderScanning, withSpiderScanning } from '/imports/ui/components/SpiderScanLine.jsx';
@@ -670,8 +671,44 @@ function ResultBand({ band, config, revealIndex, onLoadMore, loadingMore }) {
 // ---------------------------------------------------------------------------
 
 export function DirectoryConsole() {
-  const theme = useTheme();
+  const appMuiTheme = useTheme();
+  const [searchParams] = useSearchParams();
+
+  // ?align=left|center|right — horizontal placement of the console body within
+  // the router area (defaults to centered).
+  const alignParam = (searchParams.get('align') || 'center').toLowerCase();
+  const bodyAlign = alignParam === 'left' ? { ml: 0, mr: 'auto' }
+    : alignParam === 'right' ? { ml: 'auto', mr: 0 }
+    : { mx: 'auto' };
+
+  // ?page-theme=light|dark — override ONLY this page's palette (the CSS-var
+  // block that drives all console text/surfaces/borders), NOT the global app
+  // theme. Rationale: the ambiance background can read visually "dark" yet
+  // average light (e.g. black stones on pale water), so the theme-default text
+  // color may be unreadable over it. This flips the console's ink/panels to
+  // suit the chosen background while the header/footer keep the user's real
+  // mode. Rebuilt with the app's accent palette + fonts, only the mode-
+  // dependent tokens (text/background/divider) change.
+  const pageThemeParam = (searchParams.get('page-theme') || '').toLowerCase();
+  const forcedMode = (pageThemeParam === 'light' || pageThemeParam === 'dark') ? pageThemeParam : null;
+  const theme = useMemo(function() {
+    if (!forcedMode || forcedMode === appMuiTheme.palette.mode) { return appMuiTheme; }
+    return createTheme({
+      palette: {
+        mode: forcedMode,
+        primary: appMuiTheme.palette.primary,
+        secondary: appMuiTheme.palette.secondary,
+        error: appMuiTheme.palette.error,
+        warning: appMuiTheme.palette.warning,
+        info: appMuiTheme.palette.info,
+        success: appMuiTheme.palette.success
+      },
+      typography: appMuiTheme.typography
+    });
+  }, [appMuiTheme, forcedMode]);
+
   const consoleVars = buildConsoleVars(theme);
+
   const [query, setQuery] = useState('');
   const [facets, setFacets] = useState({ city: '', state: '', postalCode: '' });
   const [showFacets, setShowFacets] = useState(false);
@@ -783,12 +820,15 @@ export function DirectoryConsole() {
   return (
     <Box className="grid-console" sx={{
       height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden',
-      background: 'var(--void)', position: 'relative',
+      // Transparent root: defer to StyledMainRouter's background.default + the
+      // ambiance image (rules/ui/theming.md — root containers don't paint their
+      // own page bgcolor). The translucent panels/overlays below keep content
+      // readable over whatever app background shows through.
+      background: 'transparent', position: 'relative',
       // atmosphere layers
       '&::before': {
         content: '""', position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
         background: `
-          linear-gradient(160deg, var(--void-hi) 0%, var(--void) 45%, var(--void-lo) 100%),
           radial-gradient(120% 90% at 15% -10%, color-mix(in srgb, var(--ink) 6%, transparent), transparent 55%),
           radial-gradient(90% 70% at 95% 110%, color-mix(in srgb, var(--ink) 3%, transparent), transparent 60%),
           repeating-linear-gradient(0deg, color-mix(in srgb, var(--ink) 2%, transparent) 0px, color-mix(in srgb, var(--ink) 2%, transparent) 1px, transparent 1px, transparent 3px)
@@ -810,7 +850,7 @@ export function DirectoryConsole() {
 
       {/* scrollable console body */}
       <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', position: 'relative', zIndex: 2 }}>
-        <Box sx={{ maxWidth: '1180px', mx: 'auto', px: { xs: 2.5, md: 5 }, pt: { xs: 3, md: 5 }, pb: 8 }}>
+        <Box sx={{ maxWidth: '1180px', ...bodyAlign, px: { xs: 2.5, md: 5 }, pt: { xs: 3, md: 5 }, pb: 8 }}>
 
           {/* ---- masthead ---- */}
           <Box className="gc-boot" sx={{
@@ -828,9 +868,7 @@ export function DirectoryConsole() {
                 m: 0, fontFamily: 'var(--display)', fontWeight: 700,
                 fontSize: 'clamp(40px, 6.5vw, 76px)', lineHeight: 0.95,
                 letterSpacing: '0.06em', textTransform: 'uppercase',
-                background: 'linear-gradient(100deg, var(--amber) 10%, color-mix(in srgb, var(--amber) 55%, white) 38%, var(--stone) 90%)',
-                WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
-                filter: 'drop-shadow(0 0 26px color-mix(in srgb, var(--amber) 18%, transparent))'
+                color: 'var(--ink)'
               }}>
                 Directory
               </Box>
@@ -850,12 +888,18 @@ export function DirectoryConsole() {
 
           {/* ---- census ticker ---- */}
           <Box className="gc-boot" sx={{
-            display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(4, 1fr)' },
+            display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(3, 1fr)' },
             gap: '1px', background: 'var(--hairline)', border: '1px solid var(--hairline)',
             mb: 5, position: 'relative', animationDelay: '120ms'
           }}>
             <Brackets />
-            {Object.keys(BAND_CONFIG).map(function(resourceName, index) {
+            {/* Practitioner ("Clinicians") is hidden from the census until that
+                directory is populated — Practitioners and InsurancePlans return
+                in a future update. BAND_CONFIG keeps its definition for the
+                search result bands. */}
+            {Object.keys(BAND_CONFIG).filter(function(resourceName) {
+              return resourceName !== 'Practitioner';
+            }).map(function(resourceName, index) {
               const config = BAND_CONFIG[resourceName];
               return (
                 <Box key={resourceName} sx={{ background: 'var(--panel)', px: 2.5, py: 2 }}>
