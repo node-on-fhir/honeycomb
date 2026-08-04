@@ -674,6 +674,9 @@ jobs:
           name: Ambiance image analysis (focus/ink/scrim/palette)
           command: npm run test:ambiance-analysis
       - run:
+          name: Ambiance composition contract
+          command: npm run test:ambiance-composition
+      - run:
           name: Directory search shadow (nameLower)
           command: npm run test:search-shadow
       - run:
