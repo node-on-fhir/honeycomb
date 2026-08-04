@@ -102,11 +102,25 @@ left of the figure; the zen stones' is right of the stones). Focus is
 therefore **a property of the curated image, not a user preference**:
 
 - Background library entries (`themeBackgrounds.js` /
-  `settings.public.theme.backgroundLibrary`) gain a `focus` field:
-  `'left' | 'center' | 'right'` (v1). Solid colors and None have no focus
-  (treated as `center`). Future values reserved for multi-panel layouts
-  (`'split-2'`, `'split-3'`) — the library shape allows them; v1 pages may
-  treat unknown values as `center`.
+  `settings.public.theme.backgroundLibrary`) grow from `{ name, src }` into
+  **curation records**:
+
+  ```js
+  {
+    name: 'Yoga Ocean',
+    src: '/backgrounds/ambiance/Yoga-Ocean.jpg',
+    focus: 'left',                    // neutral-space placement (v1: left|center|right)
+    recommendedPageMode: 'light',     // ink that survives this image
+    scrimStrength: 0.55,              // 0–1, content-column scrim opacity
+    palette: ['#e8a54b', '#c2703e', '#7a5a8c']  // extracted dominant hues (accent candidates)
+  }
+  ```
+
+  All fields beyond `name`/`src` are optional — uncurated entries behave as
+  today (focus `center`, defaults for the rest). Solid colors and None have
+  no focus (treated as `center`). Future focus values reserved for
+  multi-panel layouts (`'split-2'`, `'split-3'`) — the library shape allows
+  them; v1 pages treat unknown values as `center`.
 - `AmbianceZone` exposes the active focus to the page (React context hook +
   a `--ambiance-focus` CSS var) so both bespoke pages and shared components
   can align their content column into the neutral space.
@@ -205,6 +219,63 @@ override above is the **net** underneath it. The private
 `AutoDashboard.jsx` StyledCard migrates to (or is superseded by) the shared
 one opportunistically.
 
+### `Meteor.StyledContainer` — focus-aware layout primitive
+
+Sibling of StyledCard, same Meteor-object distribution. A Container/Box that
+reads `--ambiance-focus` (context hook under the hood) and places its
+content column into the image's neutral space — `left | center | right`,
+with the `xl`-breakpoint 200px side easement built in and `split-2` /
+`split-3` reserved. Pages stop hand-rolling `ml: 'auto'` math;
+DirectoryConsole's `?align` logic becomes this component's shared
+implementation. "Align with the photo" becomes a prop (auto from the
+library's focus metadata; overridable per instance).
+
+## Curation toolkit
+
+The gaps observed while hand-tuning page × background × mode combinations
+(inverted ink over bright photos, no palette tweaking, no focus alignment)
+are all steps of one **curation loop**. These tools make polishing a layout
+repeatable instead of lucky.
+
+### Palette extraction + neutral-space analysis (Phase 1 foundation)
+
+A small client-side analysis module (`imports/ui/theme/ambianceAnalysis.js`):
+downsample an image to a canvas, compute dominant colors and a luminance
+histogram **per horizontal third**. Outputs a draft curation record:
+
+- lowest-variance third → suggested `focus` (neutral-space detection)
+- overall/per-third luminance → suggested `recommendedPageMode`
+- dominant hues → `palette` accent candidates
+- luminance behind the content column → suggested `scrimStrength`
+
+Deterministic, dependency-free, runs once per image (results cached in the
+library entry — curated values always win over computed ones).
+
+### Ambiance Tuning HUD (Cmd/Ctrl+Shift+E)
+
+A dev overlay in the Session Inspector tradition, available on zone routes:
+live sliders for **scrim opacity · panel alpha · blur radius · ink mode ·
+focus · accent hue**, writing the zone CSS vars in real time so tuning
+happens against the actual photo on the actual page. A **Copy as JSON**
+button emits the curation record for the background library / settings
+file. This replaces the edit-reload-screenshot loop with direct
+manipulation; every future theme pack is authored with it. Dev-tool
+posture: no PHI, no persistence of its own (clipboard out only), hidden
+from end users behind the hotkey.
+
+### Phase 3.5 — runtime net + review harness (deferred, designed-for)
+
+- **Adaptive scrim**: run the analysis module at background load for
+  operator-supplied images that arrive uncurated; auto-scale scrim/ink for
+  the content column specifically. Curated values always win. This
+  structurally prevents the ghost-text failure class (dark-mode ink over a
+  light illustration) instead of fixing it per page.
+- **Screenshot matrix**: a Playwright script capturing routes × backgrounds
+  × mode/pageMode into a contact sheet — one command instead of hand-made
+  screenshot sweeps.
+- **Contrast auditor**: samples rendered text vs. effective backdrop on
+  zone pages, flags WCAG failures — `/audit-theme`'s runtime sibling.
+
 ## Theme & Palette dialog restructure
 
 New section order (both dialog and `/theming`, via shared `ThemeControls`):
@@ -243,24 +314,32 @@ New section order (both dialog and `/theming`, via shared `ThemeControls`):
 
 1. **Theme & Palette dialog restructure + persistence axes** — dialog
    reorder, earth-tone row, Page Mode + Card Surface controls, `pageMode` /
-   `cardSurface` / solid-background persistence. No page consumes the new
-   axes yet beyond what already exists.
+   `cardSurface` / solid-background persistence. Includes the
+   **curation-record library shape** and the **palette extraction /
+   neutral-space analysis module** (used at curation time; its suggestions
+   seed the default library's records). No page consumes the new axes yet
+   beyond what already exists.
 2. **DirectoryConsole polish** — `xl` padding, scrim/legibility pass,
    `pageMode` consumption (replacing its inline override with the shared
    helper when Phase 3 lands, inline until then).
 3. **Zone plumbing** — `enableAmbiance` + `enableFluidInterface` flags
    through the route pipeline, StyledMainRouter conditional painting,
-   `AmbianceZone` wrapper with theme-override net, `focus` metadata on the
-   background library + context/CSS-var exposure, shared glass/flat tokens
-   extracted from DirectoryConsole, `Meteor.StyledCard`, Ctrl+Shift+L
-   graduation, flag the two initial routes. **Acceptance: Glass and Flat
-   toggles visibly work on cards on the `enableAmbiance` routes.**
+   `AmbianceZone` wrapper with theme-override net, `focus` metadata
+   context/CSS-var exposure, shared glass/flat tokens extracted from
+   DirectoryConsole, `Meteor.StyledCard` + `Meteor.StyledContainer`, the
+   **Ambiance Tuning HUD** (Cmd/Ctrl+Shift+E), Ctrl+Shift+L graduation,
+   flag the two initial routes. **Acceptance: Glass and Flat toggles
+   visibly work on cards on the `enableAmbiance` routes.**
+3.5. **Runtime net + review harness (deferred, designed-for)** — adaptive
+   scrim for uncurated images, Playwright screenshot matrix, contrast
+   auditor (see Curation toolkit).
 4. **Theme packs (future — seams only)** — a pack is a named macro over the
    axes above: `{ preset palette, font, ambiance background, cardSurface
    default, pageMode default }`, delivered via `settings.public.theme.packs`
    (the settings-driven `backgroundLibrary` proves the pattern), selectable
    per patient later. Medical illustration and patient-education content
-   integration follow the same seam. Nothing in Phases 1–3 blocks this.
+   integration follow the same seam. Packs are authored with the Tuning
+   HUD + analysis module. Nothing in Phases 1–3 blocks this.
 
 ## Scope guardrails
 
