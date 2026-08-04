@@ -670,6 +670,9 @@ jobs:
           name: Ambiance background-value helpers
           command: npm run test:background-value
       - run:
+          name: Ambiance image analysis (focus/ink/scrim/palette)
+          command: npm run test:ambiance-analysis
+      - run:
           name: Directory search shadow (nameLower)
           command: npm run test:search-shadow
       - run:
