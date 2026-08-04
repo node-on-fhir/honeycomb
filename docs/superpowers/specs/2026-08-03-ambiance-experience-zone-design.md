@@ -91,8 +91,10 @@ dialog / `settings.public.theme.backgroundImagePath` seed) remains the actual
 on-switch and stays global.
 
 Initial flag list: Provider Directory (`/provider-directory`), Vertical
-Timeline — both `enableAmbiance`. Package-specific pages opt in via their
-own workflow.json.
+Timeline, and Patient Chart (`/patient-chart` — right components already,
+needs the zone to land right-aligned like the directory) — all
+`enableAmbiance`. Package-specific pages opt in via their own
+workflow.json.
 
 ### Focus — curated imagery declares its neutral space
 
@@ -121,9 +123,20 @@ therefore **a property of the curated image, not a user preference**:
   no focus (treated as `center`). Future focus values reserved for
   multi-panel layouts (`'split-2'`, `'split-3'`) — the library shape allows
   them; v1 pages treat unknown values as `center`.
-- `AmbianceZone` exposes the active focus to the page (React context hook +
-  a `--ambiance-focus` CSS var) so both bespoke pages and shared components
-  can align their content column into the neutral space.
+- `AmbianceZone` assembles the **composition object** — the zone's single
+  layout contract, resolved from the active curation record + persisted
+  axes with defaults filling every gap (a background choice never arrives
+  "blank"):
+
+  ```js
+  { background, focus, scrimStrength, pageMode, cardSurface }
+  ```
+
+  Exposed to pages via a `useAmbiance()` context hook + CSS vars
+  (`--ambiance-focus`, `--ambiance-scrim`). This is the "param object"
+  every `enableAmbiance` route receives; `Meteor.StyledContainer` is its
+  default consumer, so pages currently using vanilla `<Container>` swap one
+  import and inherit placement/easement/scrim without bespoke code.
 - DirectoryConsole maps focus to its column alignment (the `?align`
   prototype, generalized). The `?align` URL param survives as a dev/demo
   override that wins over library metadata.
