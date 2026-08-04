@@ -677,6 +677,9 @@ jobs:
           name: Ambiance composition contract
           command: npm run test:ambiance-composition
       - run:
+          name: Ambiance surface styles
+          command: npm run test:surface-styles
+      - run:
           name: Directory search shadow (nameLower)
           command: npm run test:search-shadow
       - run:
