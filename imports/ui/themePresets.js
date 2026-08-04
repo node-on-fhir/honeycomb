@@ -18,6 +18,7 @@ import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { get, set } from 'lodash';
 import { saveThemeChoice, loadThemeChoice } from '/imports/lib/themePersistence.js';
+import { PAGE_MODE, CARD_SURFACE } from '/imports/lib/SessionKeys.js';
 
 // Self-hosted display pairing (client/main.css @font-face; /fonts/*.woff2).
 export const CHAKRA_FONT = "'Chakra Petch', 'Avenir Next Condensed', sans-serif";
@@ -208,6 +209,25 @@ export function setThemeBackground(src) {
   pokeRefresh();
 }
 
+const CARD_SURFACES = ['solid', 'glass', 'flat'];
+
+// Live control: content-ink mode for ambiance-enabled pages ('light'|'dark');
+// null/undefined clears the override (app mode stands). Chrome keeps Session('theme').
+export function setPageMode(mode) {
+  const next = (mode === 'light' || mode === 'dark') ? mode : null;
+  Session.set(PAGE_MODE, next || undefined);
+  saveThemeChoice({ pageMode: next });
+  pokeRefresh();
+}
+
+// Live control: card surface state. Unknown values coerce to 'solid'.
+export function setCardSurface(surface) {
+  const next = CARD_SURFACES.indexOf(surface) !== -1 ? surface : 'solid';
+  Session.set(CARD_SURFACE, next);
+  saveThemeChoice({ cardSurface: next });
+  pokeRefresh();
+}
+
 // Boot: re-apply the persisted choice into Meteor.settings BEFORE the
 // CustomThemeProvider mounts, so createDynamicTheme reads correct values on
 // first render (no flash). Deliberately does NOT save or poke refresh — the
@@ -243,6 +263,15 @@ export function applyThemeChoiceAtBoot() {
   }
   if ('backgroundImagePath' in choice) {
     set(theme, 'backgroundImagePath', choice.backgroundImagePath || '');
+  }
+
+  // Ambiance axes — unknown persisted values are treated as unset
+  // (forward/backward compat per the ambiance spec).
+  if (choice.pageMode === 'light' || choice.pageMode === 'dark') {
+    Session.set(PAGE_MODE, choice.pageMode);
+  }
+  if (['solid', 'glass', 'flat'].indexOf(choice.cardSurface) !== -1) {
+    Session.set(CARD_SURFACE, choice.cardSurface);
   }
 
   // Per-field overrides last, so they win over the preset + accent base

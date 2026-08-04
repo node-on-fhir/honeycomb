@@ -5,10 +5,14 @@
 //
 // Shape (all optional, merge-written):
 //   { presetId, accentHue, fontFamily, mode, backgroundImagePath,
+//     pageMode, cardSurface,
 //     paletteOverrides: { <paletteKey>: <hex> } }
 // paletteOverrides are per-field colors set in the PaletteFieldEditor; they
 // re-apply at boot AFTER the preset (so they win) and are cleared when a new
 // preset is chosen. Passing paletteOverrides: null in a patch clears them.
+// pageMode ('light'|'dark') is the ambiance content-ink override; cardSurface
+// ('solid'|'glass'|'flat') is the card surface state. Both consumed only by
+// ambiance/fluid routes (see the 2026-08-03 ambiance spec).
 //
 // Follow-up (documented, not built): a per-user MongoDB sink so the choice
 // follows the account across devices — saveThemeChoice() gains a second write
