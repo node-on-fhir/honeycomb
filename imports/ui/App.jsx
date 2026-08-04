@@ -1494,6 +1494,7 @@ export function SlideOutCards(props){
 
 import { CustomThemeProvider, useTheme, getThemeSetting } from './CustomThemeProvider.jsx';
 export { CustomThemeProvider, useTheme, getThemeSetting };
+import { isColorBackground, colorFromBackground } from './theme/backgroundValue.js';
 
 
 
@@ -1889,12 +1890,18 @@ function StyledMainRouter(props){
   // consumes useMuiTheme(), which regenerates on themeRefreshRequest, so
   // setThemeBackground() repaints without reload. Cover + fixed so the photo
   // sits behind the (opaque background.paper) content as ambiance.
+  // Solid 'color:' entries (themeBackgrounds EARTH_TONES) paint backgroundColor instead.
   const ambianceBackground = get(Meteor, 'settings.public.theme.backgroundImagePath', '');
   if (ambianceBackground) {
-    mainAppStyle.backgroundImage = 'url(' + ambianceBackground + ')';
-    mainAppStyle.backgroundSize = 'cover';
-    mainAppStyle.backgroundPosition = 'center';
-    mainAppStyle.backgroundAttachment = 'fixed';
+    if (isColorBackground(ambianceBackground)) {
+      // Solid ambiance: override the canvas color, no image layer.
+      mainAppStyle.backgroundColor = colorFromBackground(ambianceBackground);
+    } else {
+      mainAppStyle.backgroundImage = 'url(' + ambianceBackground + ')';
+      mainAppStyle.backgroundSize = 'cover';
+      mainAppStyle.backgroundPosition = 'center';
+      mainAppStyle.backgroundAttachment = 'fixed';
+    }
   }
 
   // NOTE: No paddingTop offset for the prominent header here. The #header Box is
