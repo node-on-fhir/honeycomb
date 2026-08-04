@@ -162,6 +162,31 @@ persisted `cardSurface` (solid → glass → flat → solid).
 `LifeSupportDashboard` and `NotFoundPage` migrate from the event listener to
 reading the setting.
 
+### Card ↔ full-height toggle (`onePageLayout` revival)
+
+Heritage: the Meteor-2 app had a per-page toggle (icon button + hotkey)
+flipping a list between a bounded Card and a full-height panel. Its fossils
+survive — per-page `<Page>.onePageLayout` Session keys (`setDefault(true)`,
+read but never flipped) and `LayoutHelpers.getCardLayoutIcon()`
+(`ic_filter_1`/`ic_filter_2`, zero callers) — but the trigger stayed behind
+in the v2 upstream during the reseed. Phase 3 revives the behavior on the
+new axis instead of resurrecting those keys:
+
+- **Flat implies one-page.** On zone routes, `cardSurface: 'flat'` renders
+  the page's primary list/panel as the greedy-height treatment
+  (`.claude/rules/ui/layout-patterns.md` flex cascade — full height minus
+  chrome), with `Meteor.StyledCard` animating the melt between bounded card
+  and full-height panel.
+- **Cmd/Ctrl+Shift+K** — per-page card ↔ full-height toggle (K is
+  unclaimed in `hotkeys.js`). Scoped to the ACTIVE route: flips that page
+  between `solid` and `flat` without touching the global `cardSurface`
+  choice. Persisted as a per-route override map in the theme choice
+  (`pageSurfaceOverrides: { [routePath]: 'solid' | 'flat' }`); route
+  override wins over the global axis on that page. Global Ctrl+Shift+L
+  cycling remains the app-wide control.
+- Legacy `*.onePageLayout` Session keys and `getCardLayoutIcon` retire
+  opportunistically as pages adopt StyledCard (no dedicated cleanup PR).
+
 ## Architecture
 
 ### AmbianceZone route wrapper — correctness by construction
@@ -328,8 +353,10 @@ New section order (both dialog and `/theming`, via shared `ThemeControls`):
    context/CSS-var exposure, shared glass/flat tokens extracted from
    DirectoryConsole, `Meteor.StyledCard` + `Meteor.StyledContainer`, the
    **Ambiance Tuning HUD** (Cmd/Ctrl+Shift+E), Ctrl+Shift+L graduation,
-   flag the two initial routes. **Acceptance: Glass and Flat toggles
-   visibly work on cards on the `enableAmbiance` routes.**
+   the **card ↔ full-height revival** (flat-implies-one-page +
+   Cmd/Ctrl+Shift+K per-route override), flag the two initial routes.
+   **Acceptance: Glass and Flat toggles visibly work on cards on the
+   `enableAmbiance` routes.**
 3.5. **Runtime net + review harness (deferred, designed-for)** — adaptive
    scrim for uncurated images, Playwright screenshot matrix, contrast
    auditor (see Curation toolkit).
