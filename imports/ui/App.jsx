@@ -53,6 +53,7 @@ import WelcomeDialog from './components/WelcomeDialog.jsx';
 import SessionInspectorDialog from './SessionInspectorDialog.jsx';
 import AboutDialog from './AboutDialog.jsx';
 import ThemeDialog from './ThemeDialog.jsx';
+import AmbianceTuningHud from './theme/AmbianceTuningHud.jsx';
 import AppSnackbar from './AppSnackbar.jsx';
 import ExtensiblePage from './extensible/ExtensiblePage.jsx';
 import ErrorPage from './extensible/ErrorPage.jsx';
@@ -1804,6 +1805,7 @@ export function App(props){
             <WelcomeDialog />
             <SessionInspectorDialog />
             <ThemeDialog />
+            <AmbianceTuningHud />
             <AboutDialog />
             <AppSnackbar />
             <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
