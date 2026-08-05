@@ -68,10 +68,16 @@ export function initializeKeyboardShortcuts() {
       window.dispatchEvent(new CustomEvent('toggleAdminLinks'));
     }
 
-    // Cmd/Ctrl + Shift + L — Toggle flat card mode (Life Support dashboard)
+    // Cmd/Ctrl + Shift + L — Cycle card surface (solid → glass → flat)
     if ((event.metaKey || event.ctrlKey) && event.shiftKey && (event.key === 'L' || event.key === 'l')) {
       event.preventDefault();
-      window.dispatchEvent(new CustomEvent('toggleFlatCards'));
+      import('/imports/ui/themePresets.js').then(function(tp) { tp.cycleCardSurface(); });
+    }
+
+    // Cmd/Ctrl + Shift + K — Toggle this route between card and full-height (flat) layout
+    if ((event.metaKey || event.ctrlKey) && event.shiftKey && (event.key === 'K' || event.key === 'k')) {
+      event.preventDefault();
+      import('/imports/ui/themePresets.js').then(function(tp) { tp.togglePageSurfaceOverride(window.location.pathname); });
     }
 
     // Cmd/Ctrl + Shift + B — Toggle lunar background image

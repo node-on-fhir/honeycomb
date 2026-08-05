@@ -18,7 +18,7 @@ import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { get, set } from 'lodash';
 import { saveThemeChoice, loadThemeChoice } from '/imports/lib/themePersistence.js';
-import { PAGE_MODE, CARD_SURFACE } from '/imports/lib/SessionKeys.js';
+import { PAGE_MODE, CARD_SURFACE, PAGE_SURFACE_OVERRIDES } from '/imports/lib/SessionKeys.js';
 
 // Self-hosted display pairing (client/main.css @font-face; /fonts/*.woff2).
 export const CHAKRA_FONT = "'Chakra Petch', 'Avenir Next Condensed', sans-serif";
@@ -228,6 +228,29 @@ export function setCardSurface(surface) {
   pokeRefresh();
 }
 
+// Live control: advance the card surface one step (Ctrl+Shift+L).
+export function cycleCardSurface() {
+  const current = Session.get(CARD_SURFACE) || 'solid';
+  const next = CARD_SURFACES[(CARD_SURFACES.indexOf(current) + 1) % CARD_SURFACES.length];
+  setCardSurface(next);
+}
+
+// Live control: per-route card <-> full-height override (Ctrl+Shift+K).
+// Toggles the active pathname between 'flat' (one-page/full-height) and no
+// override (global cardSurface stands). Spec: onePageLayout revival.
+export function togglePageSurfaceOverride(pathname) {
+  if (!pathname) { return; }
+  const overrides = Object.assign({}, Session.get(PAGE_SURFACE_OVERRIDES) || {});
+  if (overrides[pathname]) {
+    delete overrides[pathname];
+  } else {
+    overrides[pathname] = 'flat';
+  }
+  Session.set(PAGE_SURFACE_OVERRIDES, overrides);
+  saveThemeChoice({ pageSurfaceOverrides: overrides });
+  pokeRefresh();
+}
+
 // Boot: re-apply the persisted choice into Meteor.settings BEFORE the
 // CustomThemeProvider mounts, so createDynamicTheme reads correct values on
 // first render (no flash). Deliberately does NOT save or poke refresh — the
@@ -272,6 +295,16 @@ export function applyThemeChoiceAtBoot() {
   }
   if (CARD_SURFACES.indexOf(choice.cardSurface) !== -1) {
     Session.set(CARD_SURFACE, choice.cardSurface);
+  }
+
+  // Per-route surface overrides — keep only well-formed entries.
+  const rawOverrides = choice.pageSurfaceOverrides;
+  if (rawOverrides && typeof rawOverrides === 'object' && !Array.isArray(rawOverrides)) {
+    const clean = {};
+    Object.keys(rawOverrides).forEach(function(path) {
+      if (rawOverrides[path] === 'flat' || rawOverrides[path] === 'solid') { clean[path] = rawOverrides[path]; }
+    });
+    if (Object.keys(clean).length) { Session.set(PAGE_SURFACE_OVERRIDES, clean); }
   }
 
   // Per-field overrides last, so they win over the preset + accent base
