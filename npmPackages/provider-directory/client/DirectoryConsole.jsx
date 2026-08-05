@@ -694,6 +694,12 @@ export function DirectoryConsole() {
   // Page Mode choice (Theme & Palette dialog). Falsy → app mode stands.
   const pageThemeParam = (searchParams.get('page-theme') || '').toLowerCase();
   const persistedPageMode = useTracker(function() { return Session.get(PAGE_MODE); }, []);
+
+  // Ctrl+Shift+N retracts the app chrome (Session 'displayNavbars'; undefined
+  // counts as visible — same convention as Header/Footer/App.jsx). With chrome
+  // up the console floats 40px below the header; with chrome retracted the
+  // gap collapses and the card runs the full page height.
+  const navbarsVisible = useTracker(function() { return Session.get('displayNavbars') !== false; }, []);
   const paramMode = (pageThemeParam === 'light' || pageThemeParam === 'dark') ? pageThemeParam : null;
 
   // Plain read each render: theme changes rebuild the MUI theme via
@@ -838,6 +844,12 @@ export function DirectoryConsole() {
   return (
     <Box className="grid-console" sx={{
       height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+      // Breathing room below the Header/ProminentHeader while chrome is up;
+      // Ctrl+Shift+N collapses it (the flex cascade already reclaims the
+      // header/footer rows, so 40px → 0 is the only page-side move). Matches
+      // the header's own 0.3s retract animation.
+      pt: navbarsVisible ? '40px' : 0,
+      transition: 'padding-top 0.3s ease-in-out',
       // Transparent root: defer to StyledMainRouter's background.default + the
       // ambiance image (rules/ui/theming.md — root containers don't paint their
       // own page bgcolor). The translucent panels/overlays below keep content
@@ -872,6 +884,11 @@ export function DirectoryConsole() {
           maxWidth: '1180px', ...bodyAlign,
           px: { xs: 2.5, md: 5 },
           pt: { xs: 3, md: 5 }, pb: 8,
+          // Chrome retracted → the card runs the full page height to the
+          // (hidden) footer edge; chrome up → content-height floating card.
+          minHeight: navbarsVisible ? '0%' : '100%',
+          boxSizing: 'border-box',
+          transition: 'min-height 0.3s ease-in-out',
           // Column scrim: a soft canvas-tinted backdrop so content survives
           // bright photos. Strength comes from the image's curation record.
           // Gated on an active background — no gray slab over a plain canvas.
