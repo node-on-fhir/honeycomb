@@ -881,7 +881,8 @@ export function DirectoryConsole() {
                 ${alpha(theme.palette.background.default, scrimStrength * 0.85)} 100%)`
             : 'transparent',
           backdropFilter: activeBg ? 'blur(2px)' : 'none',
-          borderRadius: '4px'
+          borderRadius: '4px',
+          '@media print': { background: 'transparent', backdropFilter: 'none' }
         }}>
 
           {/* ---- masthead ---- */}
