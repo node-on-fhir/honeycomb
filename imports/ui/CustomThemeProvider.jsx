@@ -8,6 +8,9 @@ import * as ReactRouterDOM from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
+import StyledCard from './components/StyledCard.jsx';
+import StyledContainer from './components/StyledContainer.jsx';
+
 //===============================================================================================================
 // Theming
 
@@ -16,6 +19,8 @@ const ThemeContext = createContext();
 
 export const useTheme = () => useContext(ThemeContext);
 Meteor.useTheme = useTheme;
+Meteor.StyledCard = StyledCard;           // surface-aware Card (solid|glass|flat)
+Meteor.StyledContainer = StyledContainer; // focus-aware content column
 
 // Export React Router hooks via Meteor object for use in packages
 Meteor.useLocation = ReactRouterDOM.useLocation;
