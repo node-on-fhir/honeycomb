@@ -703,7 +703,8 @@ let dynamicRoutes = [
     element: <OAuthPatientPickerPage />
   }, {
     path: "/patient-chart",
-    element: <PatientChart />
+    element: <PatientChart />,
+    enableAmbiance: true
   }, {
     path: "/biomarkers-charting",
     element: <BiomarkerChartingPage />

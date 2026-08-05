@@ -975,10 +975,13 @@ export function AutoDashboard(props){
     ) : <EmptyState message="No diagnostic reports found" />;
 
 
-    // Main dashboard layout
+    // Main dashboard layout — the chart column lands in the ambiance image's
+    // neutral space via Meteor.StyledContainer (degrades to vanilla Container
+    // when the host hasn't registered it).
+    const AmbientColumn = Meteor.StyledContainer || Container;
     let patientChartLayout = (
         <Fade in={true} timeout={800}>
-            <Container maxWidth="lg" sx={{ mt: 4, mb: 10, pb: '100px' }}>
+            <AmbientColumn maxWidth="lg" sx={{ mt: 4, mb: 10, pb: '100px' }}>
                 {/* Patient Header */}
                 <Box sx={{ mb: 4 }}>
                     <PatientCard 
@@ -1576,7 +1579,7 @@ export function AutoDashboard(props){
                         </>
                     )}
                 </Stack>
-            </Container>
+            </AmbientColumn>
         </Fade>
     );
 
