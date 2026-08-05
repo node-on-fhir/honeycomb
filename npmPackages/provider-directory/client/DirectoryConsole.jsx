@@ -31,7 +31,7 @@ import { useTracker } from 'meteor/react-meteor-data';
 import { get } from 'lodash';
 import { SpiderScanLine, useSpiderScanning, withSpiderScanning } from '/imports/ui/components/SpiderScanLine.jsx';
 import { buildPageModeTheme } from '/imports/ui/theme/pageModeTheme.js';
-import { PAGE_MODE } from '/imports/lib/SessionKeys.js';
+import { PAGE_MODE, SANDBOX_ENDPOINTS } from '/imports/lib/SessionKeys.js';
 import { getBackgroundEntry } from '/imports/ui/themeBackgrounds.js';
 
 const log = (Meteor.Logger ? Meteor.Logger.for('DirectoryConsole') : console);
@@ -278,6 +278,12 @@ const BAND_CONFIG = {
   Location:      { label: 'LOCATIONS',     unit: 'SITES',      sigil: '◬', accent: 'var(--magenta)' },
   Endpoint:      { label: 'ENDPOINTS',     unit: 'UPLINKS',    sigil: '⌁', accent: 'var(--green)' }
 };
+
+// Seeded vendor-sandbox band (session-fed, not part of the unified search).
+// Rendered above ORGANIZATIONS whenever the SANDBOX_ENDPOINTS session array
+// holds records — see the SessionKeys contract; @orbital/lantern's config
+// panel seeds/clears it.
+const SANDBOX_BAND_CONFIG = { label: 'SANDBOXES', unit: 'SEEDED', sigil: '⚗', accent: 'var(--green)' };
 
 // Directory records live in the Directory.* collections, not the core resource
 // collections — so there is no detail page to navigate to. Instead each row
@@ -700,6 +706,31 @@ export function DirectoryConsole() {
   // up the console floats 40px below the header; with chrome retracted the
   // gap collapses and the card runs the full page height.
   const navbarsVisible = useTracker(function() { return Session.get('displayNavbars') !== false; }, []);
+
+  // Seeded vendor sandboxes (lantern config panel writes the session array).
+  // Shaped into Endpoint-band hits so ResultBand / RecordDetail /
+  // EndpointFetchPanel (probe → Connect & Fetch) work unchanged; the band
+  // renders only while records exist (count > 0).
+  const sandboxes = useTracker(function() { return Session.get(SANDBOX_ENDPOINTS) || []; }, []);
+  const sandboxBand = useMemo(function() {
+    if (!sandboxes.length) { return null; }
+    return {
+      resourceName: 'Endpoint',
+      matchCount: sandboxes.length,
+      hits: sandboxes.map(function(s) {
+        return {
+          _id: get(s, 'endpointId'),
+          id: get(s, 'endpointId'),
+          name: get(s, 'name', '(unnamed sandbox)'),
+          address: get(s, 'address', ''),
+          status: 'active',
+          _source: get(s, 'vendor') === 'cerner' ? 'cerner'
+            : (get(s, 'vendor') === 'epic' ? 'epic' : 'other'),
+          _connectable: !!get(s, 'patientLaunchable')
+        };
+      })
+    };
+  }, [sandboxes]);
   const paramMode = (pageThemeParam === 'light' || pageThemeParam === 'dark') ? pageThemeParam : null;
 
   // Plain read each render: theme changes rebuild the MUI theme via
@@ -1075,6 +1106,16 @@ export function DirectoryConsole() {
 
           {/* ---- results / idle state ---- */}
           <Box sx={{ mt: 4 }}>
+            {/* Seeded sandboxes ride above the search bands (and above the
+                idle state) whenever the session array holds records. */}
+            {sandboxBand ? (
+              <ResultBand
+                key={'sandboxes-' + sandboxBand.matchCount}
+                band={sandboxBand}
+                config={SANDBOX_BAND_CONFIG}
+                revealIndex={0}
+              />
+            ) : null}
             {bands === null ? (
               <Box className="gc-boot" sx={{ animationDelay: '360ms', textAlign: 'center', py: 6 }}>
                 <Box sx={{
