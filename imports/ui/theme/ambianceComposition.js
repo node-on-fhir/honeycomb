@@ -1,3 +1,4 @@
+// imports/ui/theme/ambianceComposition.js
 //
 // The zone composition contract: resolve the active background + curation
 // record + persisted axes into the single layout object every enableAmbiance

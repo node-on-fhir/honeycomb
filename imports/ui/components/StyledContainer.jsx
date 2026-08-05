@@ -36,7 +36,8 @@ export const StyledContainer = React.forwardRef(function StyledContainer(props, 
   return (
     <Box ref={ref} {...rest} sx={Object.assign({
       width: '100%',
-      maxWidth: WIDTHS[maxWidth || 'lg'] || WIDTHS.lg,
+      // maxWidth={false} means full-bleed (MUI Container contract).
+      maxWidth: maxWidth === false ? 'none' : (WIDTHS[maxWidth || 'lg'] || WIDTHS.lg),
       px: { xs: 2, md: 3, xl: '200px' },
       boxSizing: 'content-box'
     }, align, showScrim ? {

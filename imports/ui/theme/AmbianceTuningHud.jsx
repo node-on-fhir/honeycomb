@@ -59,6 +59,7 @@ export function AmbianceTuningHud() {
       await navigator.clipboard.writeText(JSON.stringify(curationRecord(), null, 2));
       setCopied(true);
     } catch (error) {
+      console.warn('[AmbianceTuningHud] Clipboard write failed:', error && error.message);
       setCopied(false);
     }
   }
