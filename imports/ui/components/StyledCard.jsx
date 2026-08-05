@@ -19,7 +19,9 @@ import { useAmbiance } from '../theme/AmbianceContext.js';
 import { buildSurfaceStyles } from '../theme/surfaceStyles.js';
 import { CARD_SURFACE } from '/imports/lib/SessionKeys.js';
 
-export function StyledCard(props) {
+// forwardRef so MUI transitions (Fade/Grow/Collapse around cards) can attach
+// their ref to the underlying Card.
+export const StyledCard = React.forwardRef(function StyledCard(props, ref) {
   const { surface, sx, children, ...rest } = props;
   const theme = useTheme();
   const composition = useAmbiance();
@@ -33,10 +35,10 @@ export function StyledCard(props) {
   });
 
   return (
-    <Card {...rest} sx={Object.assign({}, styles.root, sx)}>
+    <Card ref={ref} {...rest} sx={Object.assign({}, styles.root, sx)}>
       {children}
     </Card>
   );
-}
+});
 
 export default StyledCard;

@@ -18,7 +18,9 @@ import { useAmbiance } from '../theme/AmbianceContext.js';
 
 const WIDTHS = { xs: '444px', sm: '600px', md: '900px', lg: '1200px', xl: '1536px' };
 
-export function StyledContainer(props) {
+// forwardRef so MUI transitions (Fade/Grow around page columns — e.g.
+// AutoDashboard) can attach their ref to the underlying Box.
+export const StyledContainer = React.forwardRef(function StyledContainer(props, ref) {
   const { focus, scrim, maxWidth, sx, children, ...rest } = props;
   const theme = useTheme();
   const composition = useAmbiance();
@@ -32,7 +34,7 @@ export function StyledContainer(props) {
   const showScrim = !!scrim && !!get(composition, 'background');
 
   return (
-    <Box {...rest} sx={Object.assign({
+    <Box ref={ref} {...rest} sx={Object.assign({
       width: '100%',
       maxWidth: WIDTHS[maxWidth || 'lg'] || WIDTHS.lg,
       px: { xs: 2, md: 3, xl: '200px' },
@@ -45,6 +47,6 @@ export function StyledContainer(props) {
       {children}
     </Box>
   );
-}
+});
 
 export default StyledContainer;
