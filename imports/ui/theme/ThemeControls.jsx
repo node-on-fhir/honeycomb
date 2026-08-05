@@ -18,7 +18,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
-import { darken } from '@mui/material/styles';
+import { darken, useTheme as useMuiTheme } from '@mui/material/styles';
 import Wheel from '@uiw/react-color-wheel';
 import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
 import { Meteor } from 'meteor/meteor';
@@ -33,6 +33,7 @@ import {
 } from '../themePresets.js';
 import { getBackgroundLibrary, EARTH_TONES } from '../themeBackgrounds.js';
 import { colorFromBackground } from './backgroundValue.js';
+import { buildSurfaceStyles } from './surfaceStyles.js';
 import { PAGE_MODE, CARD_SURFACE } from '/imports/lib/SessionKeys.js';
 import { loadThemeChoice } from '/imports/lib/themePersistence.js';
 
@@ -102,6 +103,7 @@ export function ThemeControls({ compact = false }) {
   const pageMode = useTracker(function() { return Session.get(PAGE_MODE); }, []);
   const cardSurface = useTracker(function() { return Session.get(CARD_SURFACE) || 'solid'; }, []);
   const themeCtx = useTheme() || {};
+  const muiTheme = useMuiTheme();
 
   const choice = loadThemeChoice() || {};
   const activePreset = choice.presetId || get(Meteor, 'settings.public.theme.defaultPreset', 'limestone');
@@ -302,6 +304,27 @@ export function ThemeControls({ compact = false }) {
               <ToggleButton id="themeCardSurface-glass" value="glass">Glass</ToggleButton>
               <ToggleButton id="themeCardSurface-flat" value="flat">Flat</ToggleButton>
             </ToggleButtonGroup>
+            <Box id="themeCardSurfacePreview" sx={{ display: 'flex', gap: 1, mt: 1 }}>
+              {['solid', 'glass', 'flat'].map(function(s) {
+                const preview = buildSurfaceStyles({
+                  surface: s,
+                  paperColor: muiTheme.palette.background.paper,
+                  dividerColor: muiTheme.palette.divider
+                });
+                return (
+                  <Box key={s} sx={Object.assign({
+                    width: 72, height: 44, borderRadius: '6px', display: 'flex',
+                    alignItems: 'center', justifyContent: 'center', fontSize: 10,
+                    color: 'text.secondary', bgcolor: 'background.paper',
+                    border: '1px solid', borderColor: 'divider',
+                    outline: cardSurface === s ? '2px solid' : 'none',
+                    outlineColor: 'primary.main'
+                  }, preview.root)}>
+                    {s}
+                  </Box>
+                );
+              })}
+            </Box>
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
               Applies on ambiance/fluid pages (rolling out per page).
             </Typography>
