@@ -617,6 +617,12 @@ function InternationalPatientSummaryPage(props) {
 
   // Single column responsive layout
   function renderSingleColumnLayout() {
+    // Focus-aware column (ambiance content focus: left | center | right).
+    // StyledContainer supplies the alignment from the zone composition; the
+    // sx below overrides its width/padding scheme with this page's animated
+    // maxWidth. Plain Box fallback keeps the old centered behavior.
+    const FocusColumn = Meteor.StyledContainer || Box;
+    const focusAware = !!Meteor.StyledContainer;
     return (
       <Box sx={{
         height: '100%',
@@ -629,7 +635,7 @@ function InternationalPatientSummaryPage(props) {
         pb: 3,
         overflow: 'hidden'
       }}>
-        <Box sx={{
+        <FocusColumn maxWidth={false} sx={{
           // Tabbed view goes full-bleed (20px gutters); accordion/editor keep
           // the constrained portrait column. maxWidth stays a length in both
           // states so the width change animates instead of jumping.
@@ -637,7 +643,8 @@ function InternationalPatientSummaryPage(props) {
             ? '100%'
             : (isPanelOpen && isDesktop ? 1600 : 1200),
           width: '100%',
-          mx: 'auto',
+          boxSizing: 'border-box',
+          ...(focusAware ? {} : { mx: 'auto' }),
           px: viewMode === 'tabbed' ? '20px' : { xs: 2, sm: 3 },
           display: 'flex',
           gap: 3,
@@ -817,7 +824,7 @@ function InternationalPatientSummaryPage(props) {
               )}
             </Box>
           )}
-        </Box>
+        </FocusColumn>
       </Box>
     );
   }
