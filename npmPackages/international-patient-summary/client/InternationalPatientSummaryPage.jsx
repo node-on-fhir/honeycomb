@@ -637,15 +637,20 @@ function InternationalPatientSummaryPage(props) {
       }}>
         <FocusColumn maxWidth={false} sx={{
           // Tabbed view goes full-bleed (20px gutters); accordion/editor keep
-          // the constrained portrait column. maxWidth stays a length in both
-          // states so the width change animates instead of jumping.
+          // the constrained portrait column with StyledContainer's own gutter
+          // scheme (xs 2 / md 3 / xl 200px easement) so the padding matches
+          // the other ambiance pages (/patient-chart, /timeline-vertical).
+          // maxWidth stays a length in both states so the width change
+          // animates instead of jumping.
           maxWidth: viewMode === 'tabbed'
             ? '100%'
             : (isPanelOpen && isDesktop ? 1600 : 1200),
-          width: '100%',
-          boxSizing: 'border-box',
-          ...(focusAware ? {} : { mx: 'auto' }),
-          px: viewMode === 'tabbed' ? '20px' : { xs: 2, sm: 3 },
+          ...(viewMode === 'tabbed' ? { px: '20px', boxSizing: 'border-box' } : {}),
+          ...(focusAware ? {} : {
+            width: '100%',
+            mx: 'auto',
+            px: viewMode === 'tabbed' ? '20px' : { xs: 2, sm: 3 }
+          }),
           display: 'flex',
           gap: 3,
           flex: 1,
