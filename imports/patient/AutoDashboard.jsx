@@ -123,6 +123,7 @@ import { DiagnosticReports } from '../lib/schemas/SimpleSchemas/DiagnosticReport
 import { get } from 'lodash';
 
 import PatientCard from './PatientCard';
+import AmbianceInk from '../ui/theme/AmbianceInk.jsx';
 import FhirUtilities from '../FhirUtilities';
 
 const log = (Meteor.Logger ? Meteor.Logger.for('AutoDashboard') : console);
@@ -224,15 +225,6 @@ export function AutoDashboard(props){
     const theme = useTheme();
     const client = useContext(FhirClientContext);
     const navigate = useNavigate();
-
-    // Get Honeycomb theme for dark mode support
-    const useAppTheme = Meteor.useTheme;
-    const appTheme = useAppTheme ? useAppTheme() : { theme: 'light' };
-    const isDark = appTheme.theme === 'dark';
-
-    // Theme-aware colors for cards
-    const cardBgColor = isDark ? '#1e1e1e' : '#ffffff';
-    const cardTextColor = isDark ? 'rgba(255, 255, 255, 0.87)' : 'rgba(0, 0, 0, 0.87)';
 
     const autoSubscribeEnabled = get(Meteor, 'settings.public.defaults.autoSubscribe', false);
 
@@ -993,7 +985,9 @@ export function AutoDashboard(props){
                     />
                 </Box>
 
-                {/* Sticky Action Controls */}
+                {/* Sticky Action Controls — sit on the ambiance background,
+                    so AmbianceInk keeps them legible against it */}
+                <AmbianceInk>
                 <Box
                     sx={{
                         position: 'sticky',
@@ -1141,11 +1135,12 @@ export function AutoDashboard(props){
                         </Button>
                     </ButtonGroup>
                 </Box>
+                </AmbianceInk>
 
                 {/* Clinical Data Sections */}
                 <Stack spacing={0}>
                     {/* Primary Clinical Data */}
-                    <Box sx={{ mb: 2 }}>
+                    <AmbianceInk><Box sx={{ mb: 2 }}>
                         <Typography
                             variant="overline"
                             color="text.secondary"
@@ -1153,18 +1148,12 @@ export function AutoDashboard(props){
                         >
                             Clinical History
                         </Typography>
-                    </Box>
+                    </Box></AmbianceInk>
 
                     {autoSubscribeEnabled === false && (
                         <Alert
                             severity="warning"
-                            sx={{
-                                mb: 3,
-                                bgcolor: isDark ? 'rgba(237, 108, 2, 0.15)' : 'rgba(237, 108, 2, 0.1)',
-                                color: cardTextColor,
-                                '& .MuiAlert-icon': { color: isDark ? '#ff9800' : '#ed6c02' },
-                                '& .MuiAlertTitle-root': { color: cardTextColor }
-                            }}
+                            sx={{ mb: 3 }}
                         >
                             <AlertTitle>Clinical Subscriptions Disabled</AlertTitle>
                             Clinical data subscriptions are not active. Contact your administrator
@@ -1224,7 +1213,7 @@ export function AutoDashboard(props){
                     {/* Treatments & Interventions */}
                     {(data.immunizations.length > 0 || data.procedures.length > 0 || data.medicationAdministrations.length > 0 || data.medicationRequests.length > 0 || data.serviceRequests.length > 0) && (
                         <>
-                            <Box sx={{ mb: 2, mt: 4 }}>
+                            <AmbianceInk><Box sx={{ mb: 2, mt: 4 }}>
                                 <Typography 
                                     variant="overline" 
                                     color="text.secondary" 
@@ -1232,7 +1221,7 @@ export function AutoDashboard(props){
                                 >
                                     Treatments & Interventions
                                 </Typography>
-                            </Box>
+                            </Box></AmbianceInk>
 
                             {data.immunizations.length > 0 && (
                                 <StyledCard
@@ -1299,7 +1288,7 @@ export function AutoDashboard(props){
                     {/* Measurements & Assessments */}
                     {(data.observations.length > 0 || data.questionnaireResponses.length > 0 || data.nutritionIntakes.length > 0) && (
                         <>
-                            <Box sx={{ mb: 2, mt: 4 }}>
+                            <AmbianceInk><Box sx={{ mb: 2, mt: 4 }}>
                                 <Typography 
                                     variant="overline" 
                                     color="text.secondary" 
@@ -1307,7 +1296,7 @@ export function AutoDashboard(props){
                                 >
                                     Measurements & Assessments
                                 </Typography>
-                            </Box>
+                            </Box></AmbianceInk>
 
                             {data.observations.length > 0 && (
                                 <StyledCard
@@ -1350,7 +1339,7 @@ export function AutoDashboard(props){
                     {/* Diagnostics & Imaging */}
                     {(data.diagnosticReports.length > 0 || data.imagingStudies.length > 0) && (
                         <>
-                            <Box sx={{ mb: 2, mt: 4 }}>
+                            <AmbianceInk><Box sx={{ mb: 2, mt: 4 }}>
                                 <Typography
                                     variant="overline"
                                     color="text.secondary"
@@ -1358,7 +1347,7 @@ export function AutoDashboard(props){
                                 >
                                     Diagnostics & Imaging
                                 </Typography>
-                            </Box>
+                            </Box></AmbianceInk>
 
                             {data.diagnosticReports.length > 0 && (
                                 <StyledCard
@@ -1389,7 +1378,7 @@ export function AutoDashboard(props){
                     {/* Care Coordination */}
                     {(data.careTeams.length > 0 || data.carePlans.length > 0 || data.consents.length > 0) && (
                         <>
-                            <Box sx={{ mb: 2, mt: 4 }}>
+                            <AmbianceInk><Box sx={{ mb: 2, mt: 4 }}>
                                 <Typography 
                                     variant="overline" 
                                     color="text.secondary" 
@@ -1397,7 +1386,7 @@ export function AutoDashboard(props){
                                 >
                                     Care Coordination
                                 </Typography>
-                            </Box>
+                            </Box></AmbianceInk>
 
                             {data.careTeams.length > 0 && (
                                 <StyledCard
@@ -1441,7 +1430,7 @@ export function AutoDashboard(props){
                     {/* Care Planning */}
                     {data.goals.length > 0 && (
                         <>
-                            <Box sx={{ mb: 2, mt: 4 }}>
+                            <AmbianceInk><Box sx={{ mb: 2, mt: 4 }}>
                                 <Typography 
                                     variant="overline" 
                                     color="text.secondary" 
@@ -1449,7 +1438,7 @@ export function AutoDashboard(props){
                                 >
                                     Care Planning
                                 </Typography>
-                            </Box>
+                            </Box></AmbianceInk>
 
                             <StyledCard
                                 icon={<FlagIcon />}
@@ -1467,7 +1456,7 @@ export function AutoDashboard(props){
                     {/* Clinical Documentation */}
                     {(data.documentReferences.length > 0 || data.communications.length > 0 || data.compositions.length > 0) && (
                         <>
-                            <Box sx={{ mb: 2, mt: 4 }}>
+                            <AmbianceInk><Box sx={{ mb: 2, mt: 4 }}>
                                 <Typography 
                                     variant="overline" 
                                     color="text.secondary" 
@@ -1475,7 +1464,7 @@ export function AutoDashboard(props){
                                 >
                                     Clinical Documentation
                                 </Typography>
-                            </Box>
+                            </Box></AmbianceInk>
 
                             {data.documentReferences.length > 0 && (
                                 <StyledCard
@@ -1518,7 +1507,7 @@ export function AutoDashboard(props){
                     {/* Locations */}
                     {data.locations.length > 0 && (
                         <>
-                            <Box sx={{ mb: 2, mt: 4 }}>
+                            <AmbianceInk><Box sx={{ mb: 2, mt: 4 }}>
                                 <Typography 
                                     variant="overline" 
                                     color="text.secondary" 
@@ -1526,7 +1515,7 @@ export function AutoDashboard(props){
                                 >
                                     Locations
                                 </Typography>
-                            </Box>
+                            </Box></AmbianceInk>
 
                             <StyledCard
                                 icon={<PlaceIcon />}
@@ -1543,7 +1532,7 @@ export function AutoDashboard(props){
                     {/* Genomics & Specimens */}
                     {(data.molecularSequences.length > 0 || data.specimens.length > 0) && (
                         <>
-                            <Box sx={{ mb: 2, mt: 4 }}>
+                            <AmbianceInk><Box sx={{ mb: 2, mt: 4 }}>
                                 <Typography
                                     variant="overline"
                                     color="text.secondary"
@@ -1551,7 +1540,7 @@ export function AutoDashboard(props){
                                 >
                                     Genomics & Specimens
                                 </Typography>
-                            </Box>
+                            </Box></AmbianceInk>
 
                             {data.molecularSequences.length > 0 && (
                                 <StyledCard
@@ -1617,15 +1606,7 @@ export function AutoDashboard(props){
                             borderRadius: 3,
                             boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                             border: '1px solid',
-                            borderColor: 'divider',
-                            bgcolor: cardBgColor,
-                            color: cardTextColor,
-                            '& .MuiTypography-root': {
-                                color: cardTextColor
-                            },
-                            '& .MuiTypography-body1': {
-                                color: isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)'
-                            }
+                            borderColor: 'divider'
                         }}
                     >
                         <CardContent sx={{ p: 6 }}>

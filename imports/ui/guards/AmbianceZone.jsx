@@ -11,7 +11,7 @@
 // it renders children unchanged. Spec:
 // docs/superpowers/specs/2026-08-03-ambiance-experience-zone-design.md
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ThemeProvider, useTheme, createTheme } from '@mui/material/styles';
 import { Meteor } from 'meteor/meteor';
@@ -24,13 +24,22 @@ import { buildSurfaceStyles } from '../theme/surfaceStyles.js';
 import { buildPageModeTheme } from '../theme/pageModeTheme.js';
 import { getBackgroundEntry } from '../themeBackgrounds.js';
 import { AmbianceContext } from '../theme/AmbianceContext.js';
+import { registerRouteSurfaceDefault } from '../themePresets.js';
+import { readableAccent } from '../theme/contrastInk.js';
 import { PAGE_MODE, CARD_SURFACE, PAGE_SURFACE_OVERRIDES } from '/imports/lib/SessionKeys.js';
 
 export function AmbianceZone(props) {
   const ambiance = !!props.ambiance;
   const fluid = !!props.fluid || ambiance;   // enableAmbiance implies fluid
+  const defaultSurface = props.defaultSurface;   // route-declared baseline ('flat' etc.)
   const appTheme = useTheme();
   const location = useLocation();
+
+  // Let the Ctrl+Shift+K toggle know this route's baseline, so it flips
+  // flat-by-default routes to solid cards (and back) instead of no-op'ing.
+  useEffect(function() {
+    registerRouteSurfaceDefault(location.pathname, defaultSurface);
+  }, [location.pathname, defaultSurface]);
 
   // Reactive axes (Session); background is a PLAIN read — the provider
   // rebuild re-renders us (never useTracker a bare settings read).
@@ -48,11 +57,39 @@ export function AmbianceZone(props) {
     entry: ambiance ? getBackgroundEntry(activeBg) : null,
     pageMode: pageMode,
     cardSurface: cardSurface,
-    surfaceOverride: surfaceOverride
+    surfaceOverride: surfaceOverride,
+    surfaceDefault: defaultSurface
   });
 
   const zoneTheme = useMemo(function() {
-    const base = buildPageModeTheme(appTheme, composition.pageMode) || appTheme;
+    // Cards follow the APP mode: the forced page-mode ink (the AUTO
+    // adjust-to-background behavior) applies only to the 'flat' surface,
+    // where content sits directly on the ambiance background. Solid and
+    // glass cards keep app-mode paper + ink — otherwise app-mode surfaces
+    // meet page-mode text and the card interiors read inverted/washed out.
+    let base = composition.cardSurface === 'flat'
+      ? (buildPageModeTheme(appTheme, composition.pageMode) || appTheme)
+      : appTheme;
+
+    // Accent legibility (ambiance pages only): invert an accent's brightness
+    // — hue preserved — when it matches the zone's surface polarity, so e.g.
+    // Tron cyan reads as deep teal on a light canvas but stays bright cyan on
+    // dark. Self-styled consoles that derive CSS vars from palette.primary
+    // (DirectoryConsole) pick this up automatically.
+    const zoneMode = base.palette.mode;
+    const primaryMain = get(base, 'palette.primary.main', '');
+    const secondaryMain = get(base, 'palette.secondary.main', '');
+    const readablePrimary = readableAccent(primaryMain, zoneMode);
+    const readableSecondary = readableAccent(secondaryMain, zoneMode);
+    if (readablePrimary !== primaryMain || readableSecondary !== secondaryMain) {
+      base = createTheme(base, {
+        palette: {
+          primary: base.palette.augmentColor({ color: { main: readablePrimary } }),
+          secondary: base.palette.augmentColor({ color: { main: readableSecondary } })
+        }
+      });
+    }
+
     if (composition.cardSurface === 'solid') { return base; }
     const surface = buildSurfaceStyles({
       surface: composition.cardSurface,

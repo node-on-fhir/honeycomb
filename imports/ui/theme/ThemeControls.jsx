@@ -11,29 +11,26 @@
 
 import React from 'react';
 import {
-  Box, Typography, Button, ButtonBase, Chip, Divider, Select, MenuItem,
+  Box, Typography, ButtonBase, Chip, Divider, Select, MenuItem,
   FormControl, InputLabel, Stack, Tooltip
 } from '@mui/material';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
-import { darken, useTheme as useMuiTheme } from '@mui/material/styles';
-import Wheel from '@uiw/react-color-wheel';
-import { hsvaToHex, hexToHsva } from '@uiw/color-convert';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { useTracker } from 'meteor/react-meteor-data';
 import { get } from 'lodash';
-import { useTheme } from '../CustomThemeProvider.jsx';
 import {
   THEME_PRESETS, CHAKRA_FONT, MARTIAN_FONT,
-  applyThemePreset, setAccentHue, setThemeFont, setThemeBackground,
-  setPageMode, setCardSurface
+  applyThemePreset, setThemeFont, setThemeBackground,
+  setThemeMode, setPageMode, setCardSurface
 } from '../themePresets.js';
-import { getBackgroundLibrary, EARTH_TONES } from '../themeBackgrounds.js';
+import { getBackgroundLibrary, getBackgroundEntry, EARTH_TONES } from '../themeBackgrounds.js';
 import { colorFromBackground } from './backgroundValue.js';
-import { buildSurfaceStyles } from './surfaceStyles.js';
 import { PAGE_MODE, CARD_SURFACE } from '/imports/lib/SessionKeys.js';
 import { loadThemeChoice } from '/imports/lib/themePersistence.js';
 
@@ -46,15 +43,22 @@ const FONT_OPTIONS = [
 // The palette keys a tile previews, in swatch/hex order.
 const SWATCH_KEYS = ['primaryColor', 'secondaryColor', 'successColor', 'infoColor', 'errorColor'];
 
-// Resolve a preset's preview palette. For the ACTIVE accent-driven preset
-// (Tron/Limestone), the lead + secondary swatches reflect the LIVE dialed hue
-// so the tile tracks the wheel; fixed multi-hue presets (Vaporwave) and
-// inactive tiles show their declared palette.
-export function previewPalette(preset, liveAccent) {
+// The palette keys a tile previews (swatch row + hex list).
+const PREVIEW_KEYS = [
+  'primaryColor', 'secondaryColor', 'successColor', 'infoColor', 'errorColor',
+  'backgroundCanvasDark', 'canvasColor', 'paperColorDark', 'paperColor'
+];
+
+// Resolve a preset's preview palette. The ACTIVE tile overlays the LIVE
+// settings palette (accent dial, Advanced per-field edits — Vaporwave
+// included) so its swatches/hex track what's actually applied; inactive
+// tiles show their declared palette.
+export function previewPalette(preset, livePalette) {
   const base = Object.assign({}, preset.palette);
-  if (liveAccent && !preset.advanced) {
-    base.primaryColor = liveAccent;
-    base.secondaryColor = darken(liveAccent, 0.3);
+  if (livePalette) {
+    PREVIEW_KEYS.forEach(function(k) {
+      if (livePalette[k]) { base[k] = livePalette[k]; }
+    });
   }
   return base;
 }
@@ -99,30 +103,32 @@ function PresetHexList({ palette }) {
 }
 
 export function ThemeControls({ compact = false }) {
+  // Session('theme') is the canonical app mode — CustomThemeProvider mirrors
+  // it, so this control and the header Sun/Moon icon always agree.
   const mode = useTracker(function() { return Session.get('theme') || 'light'; }, []);
   const pageMode = useTracker(function() { return Session.get(PAGE_MODE); }, []);
   const cardSurface = useTracker(function() { return Session.get(CARD_SURFACE) || 'solid'; }, []);
-  const themeCtx = useTheme() || {};
-  const muiTheme = useMuiTheme();
+
+  // Subscribe to the live MUI theme: its identity changes on every
+  // pokeRefresh (preset apply, accent edit, background change), which is what
+  // re-renders this component so the non-reactive reads below — persisted
+  // choice, settings palette, tile highlight — stay current. Do not remove:
+  // without a theme subscription a preset click that doesn't change
+  // mode/pageMode/cardSurface leaves the tiles stale.
+  useMuiTheme();
 
   const choice = loadThemeChoice() || {};
   const activePreset = choice.presetId || get(Meteor, 'settings.public.theme.defaultPreset', 'limestone');
   const activeFont = get(Meteor, 'settings.public.theme.typography.fontFamily', '') || '';
   const activeBg = get(Meteor, 'settings.public.theme.backgroundImagePath', '') || '';
 
-  // Hue wheel initialized from the current accent on mount (the dialog remounts
-  // this each open; the page mounts it once — both start truthful).
-  const currentAccent = get(Meteor, 'settings.public.theme.palette.primaryColor', '#53e6ff');
-  const [hsva, setHsva] = React.useState(function() {
-    try { return Object.assign({ a: 1 }, hexToHsva(currentAccent)); }
-    catch (e) { return { h: 40, s: 70, v: 100, a: 1 }; }
-  });
-  const liveAccent = hsvaToHex(hsva);
+  // The active tile previews the LIVE palette (accent + Advanced edits);
+  // settings updates re-render this component via the theme subscription.
+  const livePalette = get(Meteor, 'settings.public.theme.palette', null);
 
-  function handleMode() {
-    if (themeCtx.toggleTheme) { themeCtx.toggleTheme(); }
-    else { Session.set('theme', mode === 'light' ? 'dark' : 'light'); }
-  }
+  // What PAGE TEXT "Auto" resolves to for the active background (curation).
+  const activeEntry = getBackgroundEntry(activeBg);
+  const autoResolvedInk = get(activeEntry, 'recommendedPageMode', '');
 
   return (
     <Box>
@@ -151,8 +157,8 @@ export function ThemeControls({ compact = false }) {
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, minHeight: 32 }}>
                 {preset.description}
               </Typography>
-              <PresetSwatches palette={previewPalette(preset, selected ? liveAccent : null)} />
-              <PresetHexList palette={previewPalette(preset, selected ? liveAccent : null)} />
+              <PresetSwatches palette={previewPalette(preset, selected ? livePalette : null)} />
+              <PresetHexList palette={previewPalette(preset, selected ? livePalette : null)} />
             </ButtonBase>
           );
         })}
@@ -209,127 +215,100 @@ export function ThemeControls({ compact = false }) {
 
       <Divider sx={{ mb: 3 }} />
 
-      {/* Basic theme controls: font, mode(s), accent hue, card surface */}
+      {/* Basic theme controls — two columns: MODE + PAGE TEXT left,
+          FONT + CARD SURFACE right. (Accent hue lives in Advanced.) */}
       <Typography variant="overline" color="text.secondary">Basic theme controls</Typography>
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mb: 3, mt: 1 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3, mb: 3, mt: 1 }}>
         <Stack spacing={2}>
-          <FormControl fullWidth size="small">
-            <InputLabel id="themeFontLabel">Font</InputLabel>
-            <Select
-              labelId="themeFontLabel"
-              id="themeFontSelect"
-              label="Font"
-              value={activeFont}
-              onChange={function(e) { setThemeFont(e.target.value); }}
-            >
-              {FONT_OPTIONS.map(function(opt) {
-                return (
-                  <MenuItem key={opt.value} value={opt.value} sx={{ fontFamily: opt.value || 'inherit' }}>
-                    {opt.label}
-                  </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>
-
           <Box>
             <Typography variant="overline" color="text.secondary">Mode</Typography>
-            <Box>
-              <Tooltip title={mode === 'light' ? 'Switch to dark' : 'Switch to light'}>
-                <Button
-                  id="themeModeToggle"
-                  variant="outlined" size="small"
-                  startIcon={mode === 'light' ? <LightModeIcon /> : <DarkModeIcon />}
-                  onClick={handleMode}
-                >
-                  {mode === 'light' ? 'Light' : 'Dark'}
-                </Button>
-              </Tooltip>
+            <Box sx={{ mt: 1 }}>
+              <ToggleButtonGroup
+                id="themeModeToggle"
+                exclusive size="small" value={mode}
+                onChange={function(event, next) { if (next) { setThemeMode(next); } }}
+              >
+                <ToggleButton id="themeMode-light" value="light">
+                  <LightModeIcon sx={{ fontSize: 16, mr: 0.75 }} /> Light
+                </ToggleButton>
+                <ToggleButton id="themeMode-dark" value="dark">
+                  <DarkModeIcon sx={{ fontSize: 16, mr: 0.75 }} /> Dark
+                </ToggleButton>
+              </ToggleButtonGroup>
             </Box>
           </Box>
 
           {activeBg ? (
             <Box>
-              <Typography variant="overline" color="text.secondary">Page mode</Typography>
-              <Box>
-                <Tooltip title="Content ink over the ambiance background (chrome keeps the app mode)">
-                  <Button
+              <Typography variant="overline" color="text.secondary">Page text</Typography>
+              <Box sx={{ mt: 1 }}>
+                <Tooltip title="Ink for text sitting on the ambiance background (cards and chrome keep the app mode)">
+                  <ToggleButtonGroup
                     id="themePageModeToggle"
-                    variant="outlined" size="small"
-                    startIcon={pageMode === 'dark' ? <DarkModeIcon /> : <LightModeIcon />}
-                    onClick={function() {
-                      const next = !pageMode ? 'light' : (pageMode === 'light' ? 'dark' : null);
-                      setPageMode(next);
+                    exclusive size="small" value={pageMode || 'auto'}
+                    onChange={function(event, next) {
+                      if (next) { setPageMode(next === 'auto' ? null : next); }
                     }}
                   >
-                    {pageMode ? (pageMode === 'dark' ? 'Dark' : 'Light') : 'Auto'}
-                  </Button>
+                    <ToggleButton id="themePageText-auto" value="auto">
+                      <AutoAwesomeIcon sx={{ fontSize: 16, mr: 0.75 }} /> Auto
+                    </ToggleButton>
+                    <ToggleButton id="themePageText-light" value="light">
+                      <LightModeIcon sx={{ fontSize: 16, mr: 0.75 }} /> Light
+                    </ToggleButton>
+                    <ToggleButton id="themePageText-dark" value="dark">
+                      <DarkModeIcon sx={{ fontSize: 16, mr: 0.75 }} /> Dark
+                    </ToggleButton>
+                  </ToggleButtonGroup>
                 </Tooltip>
+                {!pageMode && autoResolvedInk ? (
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                    Auto → {autoResolvedInk === 'light' ? 'dark text (bright background)' : 'light text (dark background)'}
+                  </Typography>
+                ) : null}
               </Box>
             </Box>
           ) : null}
         </Stack>
 
-        <Box>
-          <Typography variant="overline" color="text.secondary">Accent hue</Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
-            <Wheel
-              color={hsva}
-              onChange={function(color) {
-                setHsva(color.hsva);
-                setAccentHue(hsvaToHex(color.hsva));
-              }}
-              width={compact ? 120 : 140}
-              height={compact ? 120 : 140}
-            />
-            <Box>
-              <Box sx={{ width: 40, height: 40, borderRadius: '4px', bgcolor: liveAccent, border: '1px solid var(--divider, rgba(0,0,0,0.2))' }} />
-              <Typography variant="caption" sx={{ fontFamily: 'monospace' }}>{liveAccent}</Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                Desaturate → Limestone · saturate → Tron
-              </Typography>
-            </Box>
+        <Stack spacing={2}>
+          <Box>
+            <Typography variant="overline" color="text.secondary">Font</Typography>
+            <FormControl fullWidth size="small" sx={{ mt: 1 }}>
+              <InputLabel id="themeFontLabel">Font</InputLabel>
+              <Select
+                labelId="themeFontLabel"
+                id="themeFontSelect"
+                label="Font"
+                value={activeFont}
+                onChange={function(e) { setThemeFont(e.target.value); }}
+              >
+                {FONT_OPTIONS.map(function(opt) {
+                  return (
+                    <MenuItem key={opt.value} value={opt.value} sx={{ fontFamily: opt.value || 'inherit' }}>
+                      {opt.label}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
           </Box>
-        </Box>
 
-        <Box>
-          <Typography variant="overline" color="text.secondary">Card surface</Typography>
-          <Box sx={{ mt: 1 }}>
-            <ToggleButtonGroup
-              id="themeCardSurfaceGroup"
-              exclusive size="small" value={cardSurface}
-              onChange={function(event, next) { if (next) { setCardSurface(next); } }}
-            >
-              <ToggleButton id="themeCardSurface-solid" value="solid">Solid</ToggleButton>
-              <ToggleButton id="themeCardSurface-glass" value="glass">Glass</ToggleButton>
-              <ToggleButton id="themeCardSurface-flat" value="flat">Flat</ToggleButton>
-            </ToggleButtonGroup>
-            <Box id="themeCardSurfacePreview" sx={{ display: 'flex', gap: 1, mt: 1 }}>
-              {['solid', 'glass', 'flat'].map(function(s) {
-                const preview = buildSurfaceStyles({
-                  surface: s,
-                  paperColor: muiTheme.palette.background.paper,
-                  dividerColor: muiTheme.palette.divider
-                });
-                return (
-                  <Box key={s} sx={Object.assign({
-                    width: 72, height: 44, borderRadius: '6px', display: 'flex',
-                    alignItems: 'center', justifyContent: 'center', fontSize: 10,
-                    color: 'text.secondary', bgcolor: 'background.paper',
-                    border: '1px solid', borderColor: 'divider',
-                    outline: cardSurface === s ? '2px solid' : 'none',
-                    outlineColor: 'primary.main'
-                  }, preview.root)}>
-                    {s}
-                  </Box>
-                );
-              })}
+          <Box>
+            <Typography variant="overline" color="text.secondary">Card surface</Typography>
+            <Box sx={{ mt: 1 }}>
+              <ToggleButtonGroup
+                id="themeCardSurfaceGroup"
+                exclusive size="small" value={cardSurface}
+                onChange={function(event, next) { if (next) { setCardSurface(next); } }}
+              >
+                <ToggleButton id="themeCardSurface-solid" value="solid">Solid</ToggleButton>
+                <ToggleButton id="themeCardSurface-glass" value="glass">Glass</ToggleButton>
+                <ToggleButton id="themeCardSurface-flat" value="flat">Flat</ToggleButton>
+              </ToggleButtonGroup>
             </Box>
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-              Applies on ambiance/fluid pages (rolling out per page).
-            </Typography>
           </Box>
-        </Box>
+        </Stack>
       </Box>
     </Box>
   );

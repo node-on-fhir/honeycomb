@@ -35,8 +35,11 @@ export function resolveComposition(options) {
   }
   if (kind === 'none') { pageMode = null; }
 
+  // Precedence: per-route user override (Ctrl+Shift+K) > route-declared
+  // baseline (route.defaultSurface) > global cardSurface > 'solid'.
   let cardSurface = SURFACE_VALUES.indexOf(opts.surfaceOverride) !== -1 ? opts.surfaceOverride
-    : (SURFACE_VALUES.indexOf(opts.cardSurface) !== -1 ? opts.cardSurface : 'solid');
+    : (SURFACE_VALUES.indexOf(opts.surfaceDefault) !== -1 ? opts.surfaceDefault
+      : (SURFACE_VALUES.indexOf(opts.cardSurface) !== -1 ? opts.cardSurface : 'solid'));
 
   return {
     background: background,

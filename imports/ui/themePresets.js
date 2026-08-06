@@ -121,6 +121,15 @@ export function applyThemePreset(presetId, options) {
   if (!preset) { return; }
   const theme = ensureThemeSettings();
 
+  // A preset apply is a fresh chrome base: clear the light-mode app-bar
+  // color/text carried over from the settings file or a previous apply
+  // (presets only declare *Dark chrome). Deleted BEFORE the assign so a
+  // preset that explicitly defines them still wins. Absent, the bar falls
+  // back to the accent and the provider auto-contrasts the ink from the
+  // bar's own brightness (contrastInk.js).
+  delete theme.palette.appBarColor;
+  delete theme.palette.appBarTextColor;
+
   Object.assign(theme.palette, preset.palette);
 
   // A preset switch is a fresh base — drop any per-field overrides from the
@@ -130,10 +139,10 @@ export function applyThemePreset(presetId, options) {
   const accentHue = get(options, 'accentHueOverride') || preset.accentHue;
   if (accentHue) {
     theme.palette.primaryColor = accentHue;
-    // Accent presets (Tron/Vaporwave) carry the hue into the app chrome so the
-    // Header title/icons and Footer track it; Limestone keeps its neutral ink.
+    // Accent presets (Tron/Vaporwave) carry the hue into the DARK app chrome
+    // (bar is near-black there, so accent text reads). Light mode leaves the
+    // text unset — the provider auto-contrasts it from the bar's brightness.
     if (preset.appBarTracksAccent) {
-      theme.palette.appBarTextColor = accentHue;
       theme.palette.appBarTextColorDark = accentHue;
     }
   }
@@ -166,8 +175,10 @@ export function setAccentHue(hex) {
   const choice = loadThemeChoice() || {};
   const activePreset = getPreset(choice.presetId);
   if (activePreset && activePreset.appBarTracksAccent) {
-    theme.palette.appBarTextColor = hex;
+    // Dark chrome only — the light-mode bar's background IS the accent
+    // (appBarColor defaults to primaryColor), so accent text would vanish.
     theme.palette.appBarTextColorDark = hex;
+    delete theme.palette.appBarTextColor;
   }
   saveThemeChoice({ accentHue: hex });
   pokeRefresh();
@@ -211,6 +222,15 @@ export function setThemeBackground(src) {
 
 const CARD_SURFACES = ['solid', 'glass', 'flat'];
 
+// Live control: app-wide light/dark mode. Session('theme') is canonical —
+// CustomThemeProvider mirrors it into its React state, so the header
+// Sun/Moon icon, the Theme & Palette MODE control, and presets all agree.
+export function setThemeMode(mode) {
+  const next = mode === 'dark' ? 'dark' : 'light';
+  Session.set('theme', next);
+  saveThemeChoice({ mode: next });
+}
+
 // Live control: content-ink mode for ambiance-enabled pages ('light'|'dark');
 // null/undefined clears the override (app mode stands). Chrome keeps Session('theme').
 export function setPageMode(mode) {
@@ -235,16 +255,32 @@ export function cycleCardSurface() {
   setCardSurface(next);
 }
 
+// Per-route baseline card surface, from route-level `defaultSurface`
+// declarations (e.g. /patient-chart is flat-by-default). AmbianceZone
+// registers the active route's baseline at render time so the Ctrl+Shift+K
+// toggle knows which way to flip.
+const routeSurfaceDefaults = {};
+export function registerRouteSurfaceDefault(pathname, surface) {
+  if (!pathname) { return; }
+  if (CARD_SURFACES.indexOf(surface) !== -1) {
+    routeSurfaceDefaults[pathname] = surface;
+  } else {
+    delete routeSurfaceDefaults[pathname];
+  }
+}
+
 // Live control: per-route card <-> full-height override (Ctrl+Shift+K).
-// Toggles the active pathname between 'flat' (one-page/full-height) and no
-// override (global cardSurface stands). Spec: onePageLayout revival.
+// Toggles the active pathname between its baseline and the opposite surface:
+// normal routes flip to 'flat' (one-page/full-height); flat-by-default routes
+// (route defaultSurface: 'flat') flip to 'solid' cards. Removing the override
+// returns to the baseline. Spec: onePageLayout revival.
 export function togglePageSurfaceOverride(pathname) {
   if (!pathname) { return; }
   const overrides = Object.assign({}, Session.get(PAGE_SURFACE_OVERRIDES) || {});
   if (overrides[pathname]) {
     delete overrides[pathname];
   } else {
-    overrides[pathname] = 'flat';
+    overrides[pathname] = routeSurfaceDefaults[pathname] === 'flat' ? 'solid' : 'flat';
   }
   Session.set(PAGE_SURFACE_OVERRIDES, overrides);
   saveThemeChoice({ pageSurfaceOverrides: overrides });
@@ -271,8 +307,10 @@ export function applyThemeChoiceAtBoot() {
   if (choice.accentHue) {
     theme.palette.primaryColor = choice.accentHue;
     if (preset && preset.appBarTracksAccent) {
-      theme.palette.appBarTextColor = choice.accentHue;
+      // Dark chrome only — light-mode bar background defaults to the accent,
+      // so accent text there is invisible (matches applyThemePreset).
       theme.palette.appBarTextColorDark = choice.accentHue;
+      delete theme.palette.appBarTextColor;
     }
   }
   if (choice.mode) {

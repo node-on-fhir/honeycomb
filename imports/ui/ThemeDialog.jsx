@@ -2,9 +2,10 @@
 //
 // The theme palette dialog — a modal overlay (open via the Header palette icon
 // or Ctrl/Cmd+Shift+T) that restyles the app live over whatever page is
-// underneath. The controls (preset tiles, font, mode, accent hue, ambiance)
-// are the shared <ThemeControls>; an "Advanced — per-field palette" collapsible
-// holds the shared <PaletteFieldEditor> (live adapter → per-field overrides
+// underneath. The controls (preset tiles, ambiance, font, mode, page text,
+// card surface) are the shared <ThemeControls>; an "Advanced — palette &
+// accent" collapsible holds the shared <PaletteFieldEditor> (accordion field
+// groups + the field-bound color wheel; live adapter → per-field overrides
 // that persist via setPaletteOverride). "Open full editor" hands off to
 // /theming, which mounts the SAME two components in its left column.
 //
@@ -75,7 +76,7 @@ export function ThemeDialog() {
           startIcon={advancedOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           sx={{ textTransform: 'none' }}
         >
-          Advanced — per-field palette
+          Advanced — palette &amp; accent
         </Button>
         <Collapse in={advancedOpen} unmountOnExit>
           <Box sx={{ mt: 2 }}>

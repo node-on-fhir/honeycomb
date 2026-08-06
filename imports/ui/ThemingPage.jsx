@@ -136,7 +136,7 @@ export function ThemingPage(){
             <Typography variant="h6" gutterBottom>Theme Configuration</Typography>
             <ThemeControls />
             <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle2" gutterBottom>Per-field palette</Typography>
+            <Typography variant="subtitle2" gutterBottom>Palette &amp; accent</Typography>
             <PaletteFieldEditor getValue={liveGet} setValue={liveSet} />
           </Paper>
         </Grid>

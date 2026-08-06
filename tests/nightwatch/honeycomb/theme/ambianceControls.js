@@ -18,9 +18,9 @@ module.exports = {
     });
   },
 
-  '02. Page-mode toggle appears with a background and persists': function(browser) {
+  '02. Page-text toggle appears with a background and persists': function(browser) {
     browser.expect.element('#themePageModeToggle').to.be.present;
-    browser.execute(function() { document.querySelector('#themePageModeToggle').click(); });
+    browser.execute(function() { document.querySelector('#themePageText-light').click(); });
     browser.pause(500);
     browser.execute(function() {
       return JSON.parse(localStorage.getItem('honeycomb.theme') || '{}').pageMode;
