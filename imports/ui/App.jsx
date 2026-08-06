@@ -688,7 +688,8 @@ let dynamicRoutes = [
     element: <CdsHooksDebugger />
   }, {
     path: "/patient-quickchart",
-    element: <PatientQuickChart />
+    element: <PatientQuickChart />,
+    requirePatient: true
   }, {
     path: "/server-configuration",
     element: <ServerConfigurationPage />
@@ -705,7 +706,9 @@ let dynamicRoutes = [
   }, {
     path: "/patient-chart",
     element: <PatientChart />,
-    enableAmbiance: true
+    requirePatient: true,
+    enableAmbiance: true,
+    defaultSurface: "flat"
   }, {
     path: "/biomarkers-charting",
     element: <BiomarkerChartingPage />
@@ -1960,7 +1963,7 @@ function StyledMainRouter(props){
         );
         if (route.enableAmbiance || route.enableFluidInterface) {
           element = (
-            <AmbianceZone ambiance={!!route.enableAmbiance} fluid={!!route.enableFluidInterface}>
+            <AmbianceZone ambiance={!!route.enableAmbiance} fluid={!!route.enableFluidInterface} defaultSurface={route.defaultSurface}>
               {element}
             </AmbianceZone>
           );
