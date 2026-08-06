@@ -190,7 +190,6 @@ function InternationalPatientSummaryPage(props) {
   // Theme-aware colors
   const cardBgColor = isDark ? '#1e1e1e' : '#ffffff';
   const cardTextColor = isDark ? 'rgba(255, 255, 255, 0.87)' : 'rgba(0, 0, 0, 0.87)';
-  const pageBgColor = isDark ? '#121212' : '#f5f5f5';
 
   function handleResourceClick(resource) {
     setSelectedResource(resource);
@@ -623,7 +622,9 @@ function InternationalPatientSummaryPage(props) {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: pageBgColor,
+        // No page-level bgcolor: StyledMainRouter paints background.default,
+        // and on enableAmbiance routes the ambiance background must show
+        // through — an opaque wash here was hiding it.
         pt: 3,
         pb: 3,
         overflow: 'hidden'
