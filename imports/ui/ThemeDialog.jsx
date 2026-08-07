@@ -1,84 +1,51 @@
 // imports/ui/ThemeDialog.jsx
 //
 // The theme palette dialog — a modal overlay (open via the Header palette icon
-// or Ctrl/Cmd+Shift+T) that lets you restyle the app live over whatever page is
-// underneath. Four independent axes: a primary preset (Limestone / Tron /
-// Vaporwave), a font, an accent hue (the mono→single-hue slider), and an
-// ambiance background carousel. Each applies immediately (via the themePresets
-// helpers → themeRefreshRequest) and persists (localStorage). "Open full editor"
-// hands off to /theming for granular per-field color control.
+// or Ctrl/Cmd+Shift+T) that restyles the app live over whatever page is
+// underneath. The controls (preset tiles, ambiance, font, mode, page text,
+// card surface) are the shared <ThemeControls>; an "Advanced — palette &
+// accent" collapsible holds the shared <PaletteFieldEditor> (accordion field
+// groups + the field-bound color wheel; live adapter → per-field overrides
+// that persist via setPaletteOverride). "Open full editor" hands off to
+// /theming, which mounts the SAME two components in its left column.
 //
 // Mounted once at App root (App.jsx) beside SessionInspectorDialog; open state
-// rides the THEME_DIALOG_OPEN Session key — the same precedent.
+// rides the THEME_DIALOG_OPEN Session key.
 
 import React from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions, Box, Typography, Button,
-  IconButton, ButtonBase, Chip, Divider, Select, MenuItem, FormControl,
-  InputLabel, Stack, Tooltip
+  IconButton, Divider, Collapse
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import LightModeIcon from '@mui/icons-material/LightMode';
-import DarkModeIcon from '@mui/icons-material/DarkMode';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
-import Wheel from '@uiw/react-color-wheel';
-import { hsvaToHex } from '@uiw/color-convert';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { useNavigate } from 'react-router-dom';
-import { Meteor } from 'meteor/meteor';
 import { Session } from 'meteor/session';
 import { useTracker } from 'meteor/react-meteor-data';
-import { get } from 'lodash';
-import { useTheme } from './CustomThemeProvider.jsx';
+import { getThemeSetting } from './CustomThemeProvider.jsx';
 import { THEME_DIALOG_OPEN } from '/imports/lib/SessionKeys.js';
-import {
-  THEME_PRESETS, DEFAULT_FONT, CHAKRA_FONT, MARTIAN_FONT,
-  applyThemePreset, setAccentHue, setThemeFont, setThemeBackground
-} from './themePresets.js';
-import { getBackgroundLibrary } from './themeBackgrounds.js';
-import { loadThemeChoice } from '/imports/lib/themePersistence.js';
+import { setPaletteOverride } from './themePresets.js';
+import { ThemeControls } from './theme/ThemeControls.jsx';
+import { PaletteFieldEditor } from './theme/PaletteFieldEditor.jsx';
 
-const FONT_OPTIONS = [
-  { label: 'Default (Helvetica)', value: '' },
-  { label: 'Chakra Petch', value: CHAKRA_FONT },
-  { label: 'Martian Mono', value: MARTIAN_FONT }
-];
-
-// Swatch strip preview for a preset tile.
-function PresetSwatches({ palette }) {
-  const keys = ['primaryColor', 'secondaryColor', 'successColor', 'infoColor', 'errorColor'];
-  return (
-    <Box sx={{ display: 'flex', gap: 0.5, mt: 1 }}>
-      {keys.map(function(k) {
-        const c = get(palette, k);
-        if (!c) { return null; }
-        return <Box key={k} sx={{ width: 20, height: 20, borderRadius: '3px', bgcolor: c, border: '1px solid rgba(255,255,255,0.15)' }} />;
-      })}
-    </Box>
-  );
+// Live adapter: read the sanitized live setting, write a persisted per-field
+// override (setPaletteOverride writes settings + saveThemeChoice + refresh).
+function liveGetValue(key) {
+  return getThemeSetting('settings.public.theme.palette.' + key, '');
+}
+function liveSetValue(key, value) {
+  setPaletteOverride(key, value);
 }
 
 export function ThemeDialog() {
   const open = useTracker(function() { return !!Session.get(THEME_DIALOG_OPEN); }, []);
-  const mode = useTracker(function() { return Session.get('theme') || 'light'; }, []);
   const navigate = useNavigate();
-  const themeCtx = useTheme() || {};
-
-  // Current selections (from the persisted choice, so the dialog reflects state).
-  const choice = loadThemeChoice() || {};
-  const activePreset = choice.presetId || get(Meteor, 'settings.public.theme.defaultPreset', 'limestone');
-  const activeFont = get(Meteor, 'settings.public.theme.typography.fontFamily', '') || '';
-  const activeBg = get(Meteor, 'settings.public.theme.backgroundImagePath', '') || '';
-
-  // Hue wheel local state.
-  const [hsva, setHsva] = React.useState({ h: 40, s: 70, v: 100, a: 1 });
+  const [advancedOpen, setAdvancedOpen] = React.useState(false);
 
   function handleClose() {
     Session.set(THEME_DIALOG_OPEN, false);
-  }
-
-  function handleMode() {
-    if (themeCtx.toggleTheme) { themeCtx.toggleTheme(); }
-    else { Session.set('theme', mode === 'light' ? 'dark' : 'light'); }
   }
 
   if (!open) { return null; }
@@ -98,136 +65,24 @@ export function ThemeDialog() {
       </DialogTitle>
 
       <DialogContent dividers>
-        {/* Primary preset tiles */}
-        <Typography variant="overline" color="text.secondary">Preset</Typography>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2, mt: 1, mb: 3 }}>
-          {THEME_PRESETS.map(function(preset) {
-            const selected = preset.id === activePreset;
-            return (
-              <ButtonBase
-                key={preset.id}
-                id={'themePreset-' + preset.id}
-                onClick={function() { applyThemePreset(preset.id); }}
-                sx={{
-                  display: 'block', textAlign: 'left', p: 2, borderRadius: '8px',
-                  border: '2px solid', borderColor: selected ? 'primary.main' : 'divider',
-                  bgcolor: 'background.default',
-                  transition: 'border-color 0.15s ease, transform 0.15s ease',
-                  '&:hover': { transform: 'translateY(-2px)', borderColor: 'primary.light' }
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>{preset.name}</Typography>
-                  {preset.advanced ? <Chip label="Advanced · 3-hue" size="small" color="warning" variant="outlined" /> : null}
-                </Box>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, minHeight: 32 }}>
-                  {preset.description}
-                </Typography>
-                <PresetSwatches palette={preset.palette} />
-                <Typography sx={{ mt: 1, fontFamily: preset.fontFamily || 'inherit', fontSize: 15 }}>
-                  Aa Bb Cc 0123
-                </Typography>
-              </ButtonBase>
-            );
-          })}
-        </Box>
+        <ThemeControls compact />
 
-        <Divider sx={{ mb: 3 }} />
+        <Divider sx={{ my: 2 }} />
 
-        {/* Font + mode + hue row */}
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3, mb: 3 }}>
-          <Stack spacing={2}>
-            <FormControl fullWidth size="small">
-              <InputLabel id="themeFontLabel">Font</InputLabel>
-              <Select
-                labelId="themeFontLabel"
-                id="themeFontSelect"
-                label="Font"
-                value={activeFont}
-                onChange={function(e) { setThemeFont(e.target.value); }}
-              >
-                {FONT_OPTIONS.map(function(opt) {
-                  return (
-                    <MenuItem key={opt.value} value={opt.value} sx={{ fontFamily: opt.value || 'inherit' }}>
-                      {opt.label}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-
-            <Box>
-              <Typography variant="overline" color="text.secondary">Mode</Typography>
-              <Box>
-                <Tooltip title={mode === 'light' ? 'Switch to dark' : 'Switch to light'}>
-                  <Button
-                    id="themeModeToggle"
-                    variant="outlined" size="small"
-                    startIcon={mode === 'light' ? <LightModeIcon /> : <DarkModeIcon />}
-                    onClick={handleMode}
-                  >
-                    {mode === 'light' ? 'Light' : 'Dark'}
-                  </Button>
-                </Tooltip>
-              </Box>
-            </Box>
-          </Stack>
-
-          <Box>
-            <Typography variant="overline" color="text.secondary">Accent hue</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
-              <Wheel
-                color={hsva}
-                onChange={function(color) {
-                  setHsva(color.hsva);
-                  setAccentHue(hsvaToHex(color.hsva));
-                }}
-                width={120}
-                height={120}
-              />
-              <Box>
-                <Box sx={{ width: 40, height: 40, borderRadius: '4px', bgcolor: hsvaToHex(hsva), border: '1px solid var(--divider, rgba(0,0,0,0.2))' }} />
-                <Typography variant="caption" sx={{ fontFamily: 'monospace' }}>{hsvaToHex(hsva)}</Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                  Desaturate → Limestone · saturate → Tron
-                </Typography>
-              </Box>
-            </Box>
+        <Button
+          id="themeAdvancedToggle"
+          size="small"
+          onClick={function() { setAdvancedOpen(function(v) { return !v; }); }}
+          startIcon={advancedOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+          sx={{ textTransform: 'none' }}
+        >
+          Advanced — palette &amp; accent
+        </Button>
+        <Collapse in={advancedOpen} unmountOnExit>
+          <Box sx={{ mt: 2 }}>
+            <PaletteFieldEditor getValue={liveGetValue} setValue={liveSetValue} />
           </Box>
-        </Box>
-
-        <Divider sx={{ mb: 2 }} />
-
-        {/* Ambiance background carousel */}
-        <Typography variant="overline" color="text.secondary">Ambiance background</Typography>
-        <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto', pb: 1, mt: 1 }}>
-          <ButtonBase
-            onClick={function() { setThemeBackground(''); }}
-            sx={{
-              flex: '0 0 auto', width: 96, height: 60, borderRadius: '6px',
-              border: '2px solid', borderColor: !activeBg ? 'primary.main' : 'divider',
-              bgcolor: 'background.default', fontSize: 11, color: 'text.secondary'
-            }}
-          >
-            None
-          </ButtonBase>
-          {getBackgroundLibrary().map(function(bg) {
-            const selected = activeBg === bg.src;
-            return (
-              <Tooltip key={bg.src} title={bg.name}>
-                <ButtonBase
-                  onClick={function() { setThemeBackground(bg.src); }}
-                  sx={{
-                    flex: '0 0 auto', width: 96, height: 60, borderRadius: '6px', overflow: 'hidden',
-                    border: '2px solid', borderColor: selected ? 'primary.main' : 'divider',
-                    backgroundImage: 'url(' + bg.src + ')', backgroundSize: 'cover', backgroundPosition: 'center',
-                    transition: 'transform 0.15s ease', '&:hover': { transform: 'scale(1.04)' }
-                  }}
-                />
-              </Tooltip>
-            );
-          })}
-        </Box>
+        </Collapse>
       </DialogContent>
 
       <DialogActions sx={{ justifyContent: 'space-between', px: 3 }}>

@@ -52,6 +52,16 @@ export const SELECTED_ENDPOINT_ID  = 'selectedEndpointId';   // Endpoint _id (se
 // tell. Cross-package, so it lives here per the session-keys contract.
 export const SPIDER_SCANNING       = 'spiderScanning';       // boolean
 
+// Seeded vendor sandbox endpoints (client-side session array, not persisted).
+// Written by @orbital/lantern's "Seed Epic Sandbox Endpoint" button
+// (/server-configuration?tab=lantern) with the seed RPC's return record
+// { endpointId, name, address, healthTag, vendor, patientLaunchable };
+// cleared by its "Clear sandboxes" button. Read by provider-directory's
+// DirectoryConsole, which shows the SANDBOXES band only while
+// (Session.get(SANDBOX_ENDPOINTS) || []).length > 0. Cross-package, so it
+// lives here per the session-keys contract.
+export const SANDBOX_ENDPOINTS     = 'sandboxEndpoints';     // [{ endpointId, name, address, healthTag, vendor, patientLaunchable }]
+
 // ── App chrome / theme ───────────────────────────────────────────────────────
 export const THEME           = 'theme';            // 'light' | 'dark'
 export const DISPLAY_NAVBARS  = 'displayNavbars';
@@ -61,6 +71,10 @@ export const VIEWPORT         = 'viewport';
 export const SESSION_INSPECTOR_OPEN = 'sessionInspectorOpen'; // Cmd/Ctrl+Shift+D debug dashboard
 export const THEME_DIALOG_OPEN      = 'themeDialogOpen';      // Cmd/Ctrl+Shift+T theme palette dialog
 export const ABOUT_DIALOG_OPEN      = 'aboutDialogOpen';      // Cmd/Ctrl+Shift+A about + update status
+export const PAGE_MODE    = 'pageMode';    // ambiance content-ink override: 'light' | 'dark' | undefined
+export const CARD_SURFACE = 'cardSurface'; // card surface state: 'solid' | 'glass' | 'flat'
+export const PAGE_SURFACE_OVERRIDES = 'pageSurfaceOverrides'; // { [pathname]: 'solid'|'flat' } — Ctrl+Shift+K per-route card↔full-height
+export const AMBIANCE_HUD_OPEN = 'ambianceHudOpen'; // Cmd/Ctrl+Shift+E ambiance curation HUD
 
 // ── FHIR id / display toggles ────────────────────────────────────────────────
 export const SHOW_SYSTEM_IDS    = 'showSystemIds';
@@ -128,9 +142,9 @@ export default {
   SELECTED_PATIENT, SELECTED_PATIENT_ID, SELECTED_PATIENT_MONGO_ID,
   SELECTED_PRACTITIONER_ID, SELECTED_PRACTITIONER_ROLE_ID,
   CURRENT_USER, SESSION_ID, ACCOUNTS_ACCESS_TOKEN, ACCOUNTS_REFRESH_TOKEN,
-  SELECTED_ENDPOINT, SELECTED_ENDPOINT_ID, SPIDER_SCANNING,
+  SELECTED_ENDPOINT, SELECTED_ENDPOINT_ID, SPIDER_SCANNING, SANDBOX_ENDPOINTS,
   THEME, DISPLAY_NAVBARS, APP_HEIGHT, APP_WIDTH, VIEWPORT, SESSION_INSPECTOR_OPEN, THEME_DIALOG_OPEN,
-  ABOUT_DIALOG_OPEN,
+  ABOUT_DIALOG_OPEN, PAGE_MODE, CARD_SURFACE, PAGE_SURFACE_OVERRIDES, AMBIANCE_HUD_OPEN,
   SHOW_SYSTEM_IDS, SHOW_FHIR_IDS, SHOW_EXPERIMENTAL,
   SIMULATOR_MISSION_ID, SIMULATOR_LAUNCH_DATE, SIMULATOR_VEHICLE,
   SIMULATOR_MISSION_MODE, SELECTED_CREWED_VEHICLE,

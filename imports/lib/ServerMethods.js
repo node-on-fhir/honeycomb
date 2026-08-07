@@ -138,7 +138,18 @@ async function runPipeline(entry, params, context) {
   if (options._validator) {
     const paramsObject = isPlainObject(params) ? params : {};
     if (!options._validator(paramsObject)) {
-      throw new Meteor.Error('validation-failed', 'Invalid params for ' + entry.name, { errors: options._validator.errors });
+      // Name the failing fields in the reason — "Invalid params for X" alone
+      // gives the caller nothing to act on (the details object rarely surfaces
+      // in UI error handlers, which typically show error.reason)
+      const fieldSummary = (options._validator.errors || []).slice(0, 5).map(function(err) {
+        const path = String(get(err, 'instancePath', '') || '').replace(/^\//, '').replace(/\//g, '.');
+        const missing = get(err, 'params.missingProperty');
+        const field = path || missing || 'params';
+        return field + ' ' + get(err, 'message', 'is invalid');
+      }).join('; ');
+      throw new Meteor.Error('validation-failed',
+        'Invalid params for ' + entry.name + (fieldSummary ? ' — ' + fieldSummary : ''),
+        { errors: options._validator.errors });
     }
   }
 

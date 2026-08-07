@@ -21,12 +21,18 @@
 // public/workflows/provider-directory/. The classic facet page remains at
 // /provider-directory-classic.
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Box, Collapse, Button, CircularProgress } from '@mui/material';
 import { useTheme, alpha, darken, lighten } from '@mui/material/styles';
+import { useSearchParams } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
+import { Session } from 'meteor/session';
+import { useTracker } from 'meteor/react-meteor-data';
 import { get } from 'lodash';
 import { SpiderScanLine, useSpiderScanning, withSpiderScanning } from '/imports/ui/components/SpiderScanLine.jsx';
+import { buildPageModeTheme } from '/imports/ui/theme/pageModeTheme.js';
+import { PAGE_MODE, SANDBOX_ENDPOINTS } from '/imports/lib/SessionKeys.js';
+import { getBackgroundEntry } from '/imports/ui/themeBackgrounds.js';
 
 const log = (Meteor.Logger ? Meteor.Logger.for('DirectoryConsole') : console);
 
@@ -114,9 +120,19 @@ const CONSOLE_STATIC_CSS = `
   white-space: nowrap;
 }
 
+/* Result rows get a panel backing so org names never sit naked on the photo.
+   Combined-class selector (.gc-row-btn.gc-row) beats the plain .gc-row-btn
+   background rule above regardless of stylesheet order. */
+.gc-row-btn.gc-row { background: color-mix(in srgb, var(--panel-hard) 45%, transparent); }
+.gc-row-btn.gc-row:hover {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--amber) 7%, transparent), color-mix(in srgb, var(--stone) 3%, transparent) 60%, transparent),
+    color-mix(in srgb, var(--panel-hard) 70%, transparent);
+}
+
 .gc-chip-btn {
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
-  color: var(--stone); background: transparent; border: 1px solid var(--stone-dim);
+  color: var(--stone); background: color-mix(in srgb, var(--panel-hard) 60%, transparent); border: 1px solid var(--stone-dim);
   padding: 6px 14px; cursor: pointer; transition: all 0.18s ease;
 }
 .gc-chip-btn:hover { border-color: var(--amber); color: var(--amber); background: color-mix(in srgb, var(--amber) 6%, transparent); }
@@ -262,6 +278,12 @@ const BAND_CONFIG = {
   Location:      { label: 'LOCATIONS',     unit: 'SITES',      sigil: '◬', accent: 'var(--magenta)' },
   Endpoint:      { label: 'ENDPOINTS',     unit: 'UPLINKS',    sigil: '⌁', accent: 'var(--green)' }
 };
+
+// Seeded vendor-sandbox band (session-fed, not part of the unified search).
+// Rendered above ORGANIZATIONS whenever the SANDBOX_ENDPOINTS session array
+// holds records — see the SessionKeys contract; @orbital/lantern's config
+// panel seeds/clears it.
+const SANDBOX_BAND_CONFIG = { label: 'SANDBOXES', unit: 'SEEDED', sigil: '⚗', accent: 'var(--green)' };
 
 // Directory records live in the Directory.* collections, not the core resource
 // collections — so there is no detail page to navigate to. Instead each row
@@ -531,6 +553,7 @@ function StatusChip({ status }) {
       fontFamily: 'var(--mono)', fontSize: '9px', letterSpacing: '0.2em',
       px: 1, py: 0.4, whiteSpace: 'nowrap',
       color: live ? 'var(--green)' : 'var(--ink-dim)',
+      background: 'color-mix(in srgb, var(--panel-hard) 60%, transparent)',
       border: '1px solid ' + (live ? 'color-mix(in srgb, var(--green) 40%, transparent)' : 'color-mix(in srgb, var(--ink-dim) 40%, transparent)'),
       animation: live ? 'gcPulse 3s ease-in-out infinite' : 'none'
     }}>
@@ -563,7 +586,7 @@ function ResultBand({ band, config, revealIndex, onLoadMore, loadingMore }) {
         </Box>
         <Box component="span" sx={{
           fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.18em',
-          color: band.matchCount ? config.accent : 'var(--ink-dim)'
+          color: band.matchCount ? config.accent : 'var(--ink)'
         }}>
           — {band.matchCount ? (countLabel + ' ' + config.unit) : 'BAND SILENT'}
         </Box>
@@ -670,8 +693,77 @@ function ResultBand({ band, config, revealIndex, onLoadMore, loadingMore }) {
 // ---------------------------------------------------------------------------
 
 export function DirectoryConsole() {
-  const theme = useTheme();
+  const appMuiTheme = useTheme();
+  const [searchParams] = useSearchParams();
+
+  // Content-ink override: URL param (dev/demo) wins over the persisted
+  // Page Mode choice (Theme & Palette dialog). Falsy → app mode stands.
+  const pageThemeParam = (searchParams.get('page-theme') || '').toLowerCase();
+  const persistedPageMode = useTracker(function() { return Session.get(PAGE_MODE); }, []);
+
+  // Ctrl+Shift+N retracts the app chrome (Session 'displayNavbars'; undefined
+  // counts as visible — same convention as Header/Footer/App.jsx). With chrome
+  // up the console floats 40px below the header; with chrome retracted the
+  // gap collapses and the card runs the full page height.
+  const navbarsVisible = useTracker(function() { return Session.get('displayNavbars') !== false; }, []);
+
+  // Seeded vendor sandboxes (lantern config panel writes the session array).
+  // Shaped into Endpoint-band hits so ResultBand / RecordDetail /
+  // EndpointFetchPanel (probe → Connect & Fetch) work unchanged; the band
+  // renders only while records exist (count > 0).
+  const sandboxes = useTracker(function() { return Session.get(SANDBOX_ENDPOINTS) || []; }, []);
+  const sandboxBand = useMemo(function() {
+    if (!sandboxes.length) { return null; }
+    return {
+      resourceName: 'Endpoint',
+      matchCount: sandboxes.length,
+      hits: sandboxes.map(function(s) {
+        return {
+          _id: get(s, 'endpointId'),
+          id: get(s, 'endpointId'),
+          name: get(s, 'name', '(unnamed sandbox)'),
+          address: get(s, 'address', ''),
+          status: 'active',
+          _source: get(s, 'vendor') === 'cerner' ? 'cerner'
+            : (get(s, 'vendor') === 'epic' ? 'epic' : 'other'),
+          _connectable: !!get(s, 'patientLaunchable')
+        };
+      })
+    };
+  }, [sandboxes]);
+  const paramMode = (pageThemeParam === 'light' || pageThemeParam === 'dark') ? pageThemeParam : null;
+
+  // Plain read each render: theme changes rebuild the MUI theme via
+  // CustomThemeProvider (themeRefreshRequest), which re-renders us — same
+  // access pattern as ThemeControls. Do NOT wrap in useTracker (no reactive deps).
+  const activeBg = get(Meteor, 'settings.public.theme.backgroundImagePath', '');
+
+  // Curation record for the active ambiance (scrim strength + focus).
+  const bgEntry = getBackgroundEntry(activeBg);
+  const scrimStrength = get(bgEntry, 'scrimStrength', 0.55);
+
+  // ?align param wins; otherwise the image's curated focus; otherwise center.
+  const alignParam = (searchParams.get('align') || '').toLowerCase();
+  const focus = ['left', 'center', 'right'].indexOf(alignParam) !== -1
+    ? alignParam
+    : (get(bgEntry, 'focus') || 'center');
+  const bodyAlign = focus === 'left' ? { ml: 0, mr: 'auto' }
+    : focus === 'right' ? { ml: 'auto', mr: 0 }
+    : { mx: 'auto' };
+
+  // Content-ink precedence: ?page-theme param (dev override) → the user's
+  // persisted Page Mode → the image's curated recommendedPageMode — the
+  // latter two only while a background is active (no background, no forced ink).
+  const forcedMode = paramMode
+    || (activeBg ? persistedPageMode : null)
+    || (activeBg ? get(bgEntry, 'recommendedPageMode', null) : null)
+    || null;
+  const theme = useMemo(function() {
+    return buildPageModeTheme(appMuiTheme, forcedMode);
+  }, [appMuiTheme, forcedMode]);
+
   const consoleVars = buildConsoleVars(theme);
+
   const [query, setQuery] = useState('');
   const [facets, setFacets] = useState({ city: '', state: '', postalCode: '' });
   const [showFacets, setShowFacets] = useState(false);
@@ -783,12 +875,21 @@ export function DirectoryConsole() {
   return (
     <Box className="grid-console" sx={{
       height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden',
-      background: 'var(--void)', position: 'relative',
+      // Breathing room below the Header/ProminentHeader while chrome is up;
+      // Ctrl+Shift+N collapses it (the flex cascade already reclaims the
+      // header/footer rows, so 40px → 0 is the only page-side move). Matches
+      // the header's own 0.3s retract animation.
+      pt: navbarsVisible ? '40px' : 0,
+      transition: 'padding-top 0.3s ease-in-out',
+      // Transparent root: defer to StyledMainRouter's background.default + the
+      // ambiance image (rules/ui/theming.md — root containers don't paint their
+      // own page bgcolor). The translucent panels/overlays below keep content
+      // readable over whatever app background shows through.
+      background: 'transparent', position: 'relative',
       // atmosphere layers
       '&::before': {
         content: '""', position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
         background: `
-          linear-gradient(160deg, var(--void-hi) 0%, var(--void) 45%, var(--void-lo) 100%),
           radial-gradient(120% 90% at 15% -10%, color-mix(in srgb, var(--ink) 6%, transparent), transparent 55%),
           radial-gradient(90% 70% at 95% 110%, color-mix(in srgb, var(--ink) 3%, transparent), transparent 60%),
           repeating-linear-gradient(0deg, color-mix(in srgb, var(--ink) 2%, transparent) 0px, color-mix(in srgb, var(--ink) 2%, transparent) 1px, transparent 1px, transparent 3px)
@@ -809,8 +910,28 @@ export function DirectoryConsole() {
       <SpiderScanLine active={scanning || spiderScanning} zIndex={1} />
 
       {/* scrollable console body */}
-      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', position: 'relative', zIndex: 2 }}>
-        <Box sx={{ maxWidth: '1180px', mx: 'auto', px: { xs: 2.5, md: 5 }, pt: { xs: 3, md: 5 }, pb: 8 }}>
+      <Box sx={{ flex: 1, minHeight: 0, overflow: 'auto', position: 'relative', zIndex: 2, px: { xl: '200px' } }}>
+        <Box sx={{
+          maxWidth: '1180px', ...bodyAlign,
+          px: { xs: 2.5, md: 5 },
+          pt: { xs: 3, md: 5 }, pb: 8,
+          // Chrome retracted → the card runs the full page height to the
+          // (hidden) footer edge; chrome up → content-height floating card.
+          minHeight: navbarsVisible ? '0%' : '100%',
+          boxSizing: 'border-box',
+          transition: 'min-height 0.3s ease-in-out',
+          // Column scrim: a soft canvas-tinted backdrop so content survives
+          // bright photos. Strength comes from the image's curation record.
+          // Gated on an active background — no gray slab over a plain canvas.
+          background: activeBg
+            ? `linear-gradient(180deg,
+                ${alpha(theme.palette.background.default, scrimStrength)} 0%,
+                ${alpha(theme.palette.background.default, scrimStrength * 0.85)} 100%)`
+            : 'transparent',
+          backdropFilter: activeBg ? 'blur(2px)' : 'none',
+          borderRadius: '4px',
+          '@media print': { background: 'transparent', backdropFilter: 'none' }
+        }}>
 
           {/* ---- masthead ---- */}
           <Box className="gc-boot" sx={{
@@ -828,16 +949,14 @@ export function DirectoryConsole() {
                 m: 0, fontFamily: 'var(--display)', fontWeight: 700,
                 fontSize: 'clamp(40px, 6.5vw, 76px)', lineHeight: 0.95,
                 letterSpacing: '0.06em', textTransform: 'uppercase',
-                background: 'linear-gradient(100deg, var(--amber) 10%, color-mix(in srgb, var(--amber) 55%, white) 38%, var(--stone) 90%)',
-                WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
-                filter: 'drop-shadow(0 0 26px color-mix(in srgb, var(--amber) 18%, transparent))'
+                color: 'var(--ink)'
               }}>
                 Directory
               </Box>
             </Box>
             <Box sx={{
               fontFamily: 'var(--mono)', fontSize: '10px', letterSpacing: '0.16em',
-              color: 'var(--ink-dim)', textAlign: 'right', lineHeight: 2
+              color: 'var(--ink)', textAlign: 'right', lineHeight: 2
             }}>
               <Box><LastUpdated iso={lastUpdated} /></Box>
               <Box>
@@ -850,12 +969,18 @@ export function DirectoryConsole() {
 
           {/* ---- census ticker ---- */}
           <Box className="gc-boot" sx={{
-            display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(4, 1fr)' },
+            display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(3, 1fr)' },
             gap: '1px', background: 'var(--hairline)', border: '1px solid var(--hairline)',
             mb: 5, position: 'relative', animationDelay: '120ms'
           }}>
             <Brackets />
-            {Object.keys(BAND_CONFIG).map(function(resourceName, index) {
+            {/* Practitioner ("Clinicians") is hidden from the census until that
+                directory is populated — Practitioners and InsurancePlans return
+                in a future update. BAND_CONFIG keeps its definition for the
+                search result bands. */}
+            {Object.keys(BAND_CONFIG).filter(function(resourceName) {
+              return resourceName !== 'Practitioner';
+            }).map(function(resourceName, index) {
               const config = BAND_CONFIG[resourceName];
               return (
                 <Box key={resourceName} sx={{ background: 'var(--panel)', px: 2.5, py: 2 }}>
@@ -921,7 +1046,7 @@ export function DirectoryConsole() {
             <Box sx={{
               display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1,
               fontFamily: 'var(--mono)', fontSize: '9.5px', letterSpacing: '0.2em',
-              color: 'var(--ink-dim)', mt: 1, px: 0.5
+              color: 'var(--ink)', mt: 1, px: 0.5
             }}>
               <Box>
                 {scanning
@@ -981,6 +1106,16 @@ export function DirectoryConsole() {
 
           {/* ---- results / idle state ---- */}
           <Box sx={{ mt: 4 }}>
+            {/* Seeded sandboxes ride above the search bands (and above the
+                idle state) whenever the session array holds records. */}
+            {sandboxBand ? (
+              <ResultBand
+                key={'sandboxes-' + sandboxBand.matchCount}
+                band={sandboxBand}
+                config={SANDBOX_BAND_CONFIG}
+                revealIndex={0}
+              />
+            ) : null}
             {bands === null ? (
               <Box className="gc-boot" sx={{ animationDelay: '360ms', textAlign: 'center', py: 6 }}>
                 <Box sx={{

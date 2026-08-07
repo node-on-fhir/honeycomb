@@ -274,7 +274,8 @@ export function PatientsTable(props = {}){
     tableRowSize = 'medium',
     logger = null,
 
-    rowClickMode = 'index',
+    // '_id' (default, MongoDB primary key per the id-lookup rule) | 'id' | 'index'
+    rowClickMode = '_id',
     page: initialPage = 0,  // Rename to avoid conflict with state
     size,
     order = 'descending',
@@ -530,6 +531,9 @@ export function PatientsTable(props = {}){
       onCellClick(id);
     }
   }
+  // Bound as selectPatientRow(patient, rowIndex) — the DOM click event arrives
+  // as a third argument and must NEVER leak into patientId (logging an event
+  // object walks window via event.view and freezes the tab).
   function selectPatientRow(patient, index){
     if(logger){
       logger.debug('Selecting a new Patient...');
@@ -1016,7 +1020,7 @@ export function PatientsTable(props = {}){
       
       // Main row
       tableRows.push(
-        <TableRow key={i} className="patientRow" hover={true} style={rowStyle} selected={selected} onClick={ selectPatientRow.bind(this, patientsToRender[i] )} >
+        <TableRow key={i} className="patientRow" hover={true} style={rowStyle} selected={selected} onClick={ selectPatientRow.bind(this, patientsToRender[i], i )} >
           <TableCell>
             <IconButton
               aria-label="expand row"

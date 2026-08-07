@@ -32,7 +32,7 @@ import SimpleDicomViewport from './components/SimpleDicomViewport';
 import moment from 'moment';
 
 // DICOM parsing imports (dcmjs with dicom-parser fallback)
-import { extractAllDicomMetadataFromArrayBuffer, flattenDicomMetadataForGridFS } from './utils/DcmjsMetadata';
+import { extractAllDicomMetadataFromArrayBufferStream, flattenDicomMetadataForGridFS } from './utils/DcmjsMetadata';
 
 // Video file detection
 function isVideoFile(file) {
@@ -353,7 +353,9 @@ function UploadPage() {
   const parseDicomFile = async function(file) {
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const metadata = extractAllDicomMetadataFromArrayBuffer(arrayBuffer);
+      // Parse via the dcmjs event stream (async; falls back to eager dcmjs →
+      // dicom-parser internally). Stamps parser: 'dcmjs-stream' on the result.
+      const metadata = await extractAllDicomMetadataFromArrayBufferStream(arrayBuffer);
       if (!metadata) {
         console.warn('[UploadPage] No metadata extracted from DICOM file:', file.name);
         return null;
@@ -468,9 +470,11 @@ function UploadPage() {
       // Check if any conversions succeeded
       const successCount = results.filter(function(r) { return r.success; }).length;
       if (successCount > 0) {
-        // Navigate to studies page to see the new FHIR resources
+        // Return to the launch tab if one was requested (?next — e.g. the DICOM
+        // Files tab override); otherwise default to the Imaging Studies tab to
+        // show the new FHIR resources.
         if (navigate) {
-          navigate('/dicom/studies' + forwardParams, { state: { aggregationResult: aggregationResult } });
+          navigate(nextUrl || ('/dicom/studies' + forwardParams), { state: { aggregationResult: aggregationResult } });
         }
       }
     } catch (err) {
@@ -723,10 +727,10 @@ function UploadPage() {
                 <Button
                   variant="outlined"
                   startIcon={<BackIcon />}
-                  onClick={() => navigate('/dicom/studies' + forwardParams)}
+                  onClick={() => navigate(nextUrl || ('/dicom/studies' + forwardParams))}
                   sx={{ color: cardTextColor }}
                 >
-                  Back to Studies
+                  {nextUrl && nextUrl.indexOf('tab=files') !== -1 ? 'Back to Files' : 'Back to Studies'}
                 </Button>
               )
             }

@@ -65,7 +65,7 @@ export const SESSION_KEY_GROUPS = [
   {
     id: 'endpoints',
     label: 'Endpoints & Sharing',
-    exact: [SELECTED_ENDPOINT, SELECTED_ENDPOINT_ID],
+    exact: [SELECTED_ENDPOINT, SELECTED_ENDPOINT_ID, 'spiderScanning', 'sandboxEndpoints'],
     prefixes: []
   },
   {
@@ -78,7 +78,8 @@ export const SESSION_KEY_GROUPS = [
     id: 'chrome',
     label: 'App Chrome & Theme',
     exact: [THEME, DISPLAY_NAVBARS, APP_HEIGHT, APP_WIDTH, VIEWPORT,
-            'sessionInspectorOpen', 'quickSearchOpen', 'luxMode'],
+            'sessionInspectorOpen', 'quickSearchOpen', 'luxMode', 'pageMode', 'cardSurface',
+            'pageSurfaceOverrides', 'ambianceHudOpen'],
     prefixes: ['display']
   },
   {
